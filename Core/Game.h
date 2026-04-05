@@ -11,7 +11,7 @@ private:
 	Budgetbar* gameBudgetbar;
 
 public:
-	int budget = 69000;
+	int budget = 6900;
 	Game();
 	~Game();
 

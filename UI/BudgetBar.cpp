@@ -179,6 +179,60 @@ void SealIcon::onClick()
 	}
 }
 
+WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+	grassList = new Grass * [MAX_CREATED_ANIMALS];
+	for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
+		grassList[i] = nullptr;
+	}
+}
+
+
+void WaterIcon::onClick()
+{
+	//TO DO: add code for cleanup and game exit here
+	/*
+	//draw image of this object in the field
+	window* pWind = pGame->getWind();
+	pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
+	*/
+	//Chick* new_chick = new Chick(pGame, RefPoint, 30, 30, "images\\Chick.png");
+	cout << "Icon Water Clicked" << endl;
+	if (pGame->budget >= 100) {
+		pGame->budget = pGame->budget - 100;
+		pGame->clearBudget();
+		string budget_string = "BUDGET = $" + to_string(pGame->budget);
+		pGame->printBudget(budget_string);
+
+		point p;
+		// 1. Obtain a seed from a non-deterministic source (if available)
+		std::random_device rd1;
+
+		// 2. Seed the Mersenne Twister engine
+		// std::mt19937 is a high-quality pseudo-random number generator
+		std::mt19937 gen1(rd1());
+		std::uniform_int_distribution<int> dist1(range_min_x, range_max_x);
+		p.x = dist1(gen1);
+		//std::cout << "P.X = " << p.x << endl;
+		// 1. Obtain a seed from a non-deterministic source (if available)
+		std::random_device rd2;
+
+		// 2. Seed the Mersenne Twister engine
+		// std::mt19937 is a high-quality pseudo-random number generator
+		std::mt19937 gen2(rd2());
+		std::uniform_int_distribution<int> dist2(range_min_y, range_max_y);
+		p.y = dist2(gen2);
+		//std::cout << "P.Y = " << p.y << endl;
+		//p.x = 300;
+		//p.y = 300;
+		grassList[count] = new Grass(pGame, p, 50, 50, "images\\grass.jpg");
+		grassList[count]->draw();
+		count++;
+		//window* pWind = pGame->getWind();
+		//pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
+	}
+}
+
 
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
@@ -187,6 +241,7 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height) : 
 	iconsImages[ICON_CHICK] = "images\\chick.jpg";
 	iconsImages[ICON_COW] = "images\\cow.jpg";
 	iconsImages[ICON_SEAL] = "images\\seal.jpg";
+	iconsImages[ICON_WATER] = "images\\waterbucket.jpg";
 
 	point p;
 	p.x = 0;
@@ -200,6 +255,8 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height) : 
 	iconsList[ICON_COW] = new CowIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_COW]);
 	p.x += config.iconWidth;
 	iconsList[ICON_SEAL] = new SealIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_SEAL]);
+	p.x += config.iconWidth;
+	iconsList[ICON_WATER] = new WaterIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_WATER]);
 	p.x += config.iconWidth;
 	//p.x += config.iconWidth;
 	//iconsList[ICON_CHICK] = new ChickIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_CHICK]);

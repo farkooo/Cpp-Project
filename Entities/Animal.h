@@ -33,3 +33,16 @@ public:
 	Seal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void moveStep();
 };
+
+class Grass : public Drawable
+{
+private:
+	string image_path;
+public:
+	point curr_pos;
+	Grass(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void draw() const override;
+	virtual void moveStep();
+};
+
+

@@ -46,10 +46,28 @@ void Cow::moveStep()
 
 Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
 {}
-
+	
 void Seal::moveStep()
 {
 	//TO DO: add code for cleanup and game exit here
 	cout << "Icon Seal Clicked" << endl;
+
+}
+
+Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Drawable(r_pGame, r_point, r_width, r_height)
+{
+	image_path = img_path;
+	curr_pos = r_point;
+
+}
+
+void Grass::draw() const {
+	window* pWind = pGame->getWind();
+	pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
+}
+void Grass::moveStep()
+{
+	//TO DO: add code for cleanup and game exit here
+	cout << "Icon Water Clicked" << endl;
 
 }

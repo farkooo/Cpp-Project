@@ -163,33 +163,46 @@ window* Game::getWind() const
 
 void Game::go() const
 {
-	//This function reads the position where the user clicks to determine the desired operation
 	int x, y;
 	bool isExit = false;
 
-	//Change the title
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
+
+	pWind->SetBuffering(true);
 
 	do
 	{
 		printMessage("Ready...");
 		drawStatusBar();
+
+		pWind->SetBrush(config.bkGrndColor);
+		pWind->SetPen(config.bkGrndColor, 1);
+		pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+
+		
+		gameToolbar->draw();
+		gameBudgetbar->draw();
 		string budget_string = "BUDGET = $" + to_string(budget);
 		printBudget(budget_string);
-		//printBudget("BUDGET = $1000");
-		getMouseClick(x, y);	//Get the coordinates of the user click
-		//if (gameMode == MODE_DSIGN)		//Game is in the Desgin mode
-		//{
-			//[1] If user clicks on the Toolbar
-		if (y >= 0 && y < config.toolBarHeight)
+
+
+		gameBudgetbar->update();
+
+
+		if (pWind->GetMouseClick(x, y) != NO_CLICK)
 		{
-			isExit = gameToolbar->handleClick(x, y);
+			if (y >= 0 && y < config.toolBarHeight)
+			{
+				isExit = gameToolbar->handleClick(x, y);
+			}
+			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight)
+			{
+				isExit = gameBudgetbar->handleClick(x, y);
+			}
 		}
-		else if (y >= config.toolBarHeight && y < 2*config.toolBarHeight)
-		{
-			isExit = gameBudgetbar->handleClick(x, y);
-		}
-		//}
+
+
+		pWind->UpdateBuffer();
 
 	} while (!isExit);
 }

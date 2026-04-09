@@ -170,6 +170,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="UI\BudgetBar.cpp" />
     <ClCompile Include="UI\Toolbar.cpp" />
+    <ClCompile Include="Warehouse.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CMUgraphicsLib\auxil.h" />
@@ -199,6 +200,7 @@
     <ClInclude Include="Entities\Animal.h" />
     <ClInclude Include="UI\BudgetBar.h" />
     <ClInclude Include="UI\Toolbar.h" />
+    <ClInclude Include="Warehouse.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

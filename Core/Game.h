@@ -19,7 +19,11 @@ private:
 	unsigned long lastWolfSpawnTime;
 
 public:
-	int budget = 2000;
+	int budget = 6000;
+	int animalCount = 0;
+	int level = 1;
+	int goal = 5;
+	time_t startTime;
 	Game();
 	~Game();
 
@@ -37,14 +41,14 @@ public:
 
 
 	void printMessage(string msg) const;	//Print a message on Status bar
-	void addChick(point position, int width, int height, const string& imagePath);
-	void redrawChicks() const;
 	void drawWolf(point position, int width, int height, int speed = 1);
 	void generateRandomWolves();
 	int getCurrentLevel() const;
 	void restartGame();
+	void drawField() const;
+	void drawStatusBar() const;
 
-	void go();
+	void go() const;
 
 	window* getWind() const;		//returns a pointer to the graphics window
 };

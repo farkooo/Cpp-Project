@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../Core/Drawable.h"
 
 class Animal :public Drawable
@@ -38,3 +39,16 @@ public:
 	virtual void draw() const override;
 	virtual void moveStep() override;
 };
+
+class Grass : public Drawable
+{
+private:
+	string image_path;
+public:
+	point curr_pos;
+	Grass(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void draw() const override;
+	virtual void moveStep();
+};
+
+

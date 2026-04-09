@@ -196,21 +196,24 @@ void Game::restartGame()
 		delete wolves[i];
 	wolves.clear();
 
-	for (size_t i = 0; i < chicks.size(); i++)
-		delete chicks[i];
-	chicks.clear();
+	if (gameBudgetbar) {
+		gameBudgetbar->reset();
+	}
 
 	budget = 2000;
 	currentLevel = 1;
+	animalCount = 0;
 	gameStartTime = CurrentTime();
 	lastWolfSpawnTime = gameStartTime;
 
+	startTime = time(NULL);
 	gameToolbar->draw();
 	gameBudgetbar->draw();
 	clearStatusBar();
 	printBudget("BUDGET = $" + to_string(budget));
 	printMessage("Ready...");
 	pWind->UpdateBuffer();
+}
 void Game::drawField() const
 {
 	pWind->SetPen(BROWN, 10);
@@ -251,69 +254,51 @@ void Game::go()
 	bool isExit = false;
 
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
-
 	pWind->SetBuffering(true);
+
 
 	do
 	{
+		drawField();
 		const unsigned long currentTime = CurrentTime();
 		if (currentTime - lastWolfSpawnTime >= 30000UL)
 		{
 			generateRandomWolves();
 			lastWolfSpawnTime = currentTime;
 		}
-
-
-		drawField();
-		printMessage("Ready...");
+		gameBudgetbar->update();
 		drawStatusBar();
-		
 		gameToolbar->draw();
 		gameBudgetbar->draw();
-		string budget_string = "BUDGET = $" + to_string(budget);
-		printBudget(budget_string);
+		printBudget("BUDGET = $" + to_string(budget));
 
-		for (size_t i = 0; i < wolves.size(); i++)
-			wolves[i]->clearPreviousPosition();
-
-		redrawChicks();
 
 		for (size_t i = 0; i < wolves.size(); i++)
 		{
 			wolves[i]->moveStep();
 			wolves[i]->draw();
 		}
-		x = -1;
-		y = -1;
+
+		
+
 		clicktype click = pWind->GetMouseClick(x, y);
 
-		if (click != NO_CLICK && y >= 0 && y < config.toolBarHeight)
-		{
-			isExit = gameToolbar->handleClick(x, y);
-		}
-		else if (click != NO_CLICK && y >= config.toolBarHeight && y < 2*config.toolBarHeight)
-
-		gameBudgetbar->update();
-
-
-		if (pWind->GetMouseClick(x, y) != NO_CLICK)
+		if (click != NO_CLICK)
 		{
 			if (y >= 0 && y < config.toolBarHeight)
 			{
+
 				isExit = gameToolbar->handleClick(x, y);
 			}
 			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight)
-			{
+			
 				isExit = gameBudgetbar->handleClick(x, y);
 			}
-		}
 
-		
-    Pause(50);
+
+		Pause(50);
 		pWind->UpdateBuffer();
-  
 
 	} while (!isExit);
 }
-
 

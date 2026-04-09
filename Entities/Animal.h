@@ -12,7 +12,6 @@ public:
 	point curr_vel;
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
-	void clearPreviousPosition() const;
 	virtual void moveStep() = 0;   //The action that should be taken each time step
 };
 
@@ -27,6 +26,13 @@ class Cow : public Animal
 {
 public:
 	Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void moveStep();
+};
+
+class Seal : public Animal
+{
+public:
+	Seal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void moveStep();
 };
 

@@ -21,14 +21,6 @@ void Animal::draw() const
 	pWind->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
 }
 
-void Animal::clearPreviousPosition() const
-{
-	window* pWind = pGame->getWind();
-	pWind->SetPen(config.bkGrndColor, 1);
-	pWind->SetBrush(config.bkGrndColor);
-	pWind->DrawRectangle(prev_pos.x, prev_pos.y, prev_pos.x + width, prev_pos.y + height);
-}
-
 Chick::Chick(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
 {}
 
@@ -150,6 +142,8 @@ void Wolf::moveStep()
 		curr_pos.y = maxY;
 		curr_vel.y = -curr_vel.y;
 	}
+}
+
 Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Animal(r_pGame, r_point, r_width, r_height, img_path)
 {}
 	

@@ -48,7 +48,7 @@ public:
 	void drawField() const;
 	void drawStatusBar() const;
 
-	void go() const;
+	void go();
 
 	window* getWind() const;		//returns a pointer to the graphics window
 };

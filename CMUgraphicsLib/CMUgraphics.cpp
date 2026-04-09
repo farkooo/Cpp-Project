@@ -634,7 +634,7 @@ color window::SetBrush(const unsigned char ucRed, const unsigned char ucGreen, c
     return colReturn;
 }
 
-color window::SetPen(const double dRed, const double dGreen, const double dBlue, const int iWidth) {
+color window::SetPen(double dRed, double dGreen, double dBlue, int iWidth) {
 
 	return SetPen((unsigned char)(dRed * 255), (unsigned char)(dGreen * 255), (unsigned char)(dBlue * 255), iWidth);
 }

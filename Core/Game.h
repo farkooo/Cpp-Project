@@ -11,7 +11,7 @@ private:
 	Budgetbar* gameBudgetbar;
 
 public:
-	int budget = 2000;
+	int budget = 6000;
 	int animalCount = 0;
 	int level = 1;
 	int goal = 5;

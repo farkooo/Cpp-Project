@@ -17,14 +17,32 @@ void BudgetbarIcon::draw() const
 	pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 }
 
+void Budgetbar::update()
+{
+	for (int i = 0; i < ANIMAL_COUNT; i++) {
+		if (iconsList[i] != nullptr) iconsList[i]->update();
+	}
+}
+
 ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
+
+	
 	chickList = new Chick * [MAX_CREATED_ANIMALS];
 	for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
 		chickList[i] = nullptr;
 	}
+
 }
 
+void ChickIcon::update() {
+	for (int i = 0; i < count; i++) {
+		if (chickList[i] != nullptr) {
+			chickList[i]->moveStep();
+			chickList[i]->draw();
+		}
+	}
+}
 
 void ChickIcon::onClick()
 {
@@ -124,6 +142,14 @@ void CowIcon::onClick()
 		//pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 	}
 }
+void CowIcon::update() {
+	for (int i = 0; i < count; i++) {
+		if (cowList[i] != nullptr) {
+			cowList[i]->moveStep();
+			cowList[i]->draw();
+		}
+	}
+}
 
 SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -176,6 +202,15 @@ void SealIcon::onClick()
 		count++;
 		//window* pWind = pGame->getWind();
 		//pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
+	}
+}
+
+void SealIcon::update() {
+	for (int i = 0; i < count; i++) {
+		if (sealList[i] != nullptr) {
+			sealList[i]->moveStep();
+			sealList[i]->draw();
+		}
 	}
 }
 

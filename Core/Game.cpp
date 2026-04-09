@@ -23,9 +23,9 @@ Game::Game()
 	//TODO: Add code to create and draw enemies in random places
 
 	//7- Create and clear the status bar
-	clearStatusBar();
 	startTime = time(NULL);
-	drawField();
+
+	clearStatusBar();
 	drawStatusBar();
 }
 
@@ -142,8 +142,10 @@ void Game::drawStatusBar() const
 	pWind->SetPen(WHITE, 50);
 	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
 
-	long currentTime = time(NULL);
-	long elapsedSeconds = currentTime - startTime;
+	time_t currentTime = time(NULL);
+	long elapsedSeconds = (long)(currentTime - startTime);
+
+	if (elapsedSeconds < 0 || elapsedSeconds > 100000) elapsedSeconds = 0;
 
 	string timerStr = "Timer: " + to_string(elapsedSeconds) + "s";
 	string goalStr = "Goal: " + to_string(goal);
@@ -151,9 +153,9 @@ void Game::drawStatusBar() const
 	string countStr = "Animals: " + to_string(animalCount);
 
 	pWind->DrawString(10, config.windHeight - 40, timerStr);
-	pWind->DrawString(150, config.windHeight - 40, goalStr);
-	pWind->DrawString(300, config.windHeight - 40, levelStr);
-	pWind->DrawString(450, config.windHeight - 40, countStr);
+	pWind->DrawString(180, config.windHeight - 40, goalStr);
+	pWind->DrawString(330, config.windHeight - 40, levelStr);
+	pWind->DrawString(480, config.windHeight - 40, countStr);
 }
 
 window* Game::getWind() const
@@ -172,13 +174,10 @@ void Game::go() const
 
 	do
 	{
+
+		drawField();
 		printMessage("Ready...");
 		drawStatusBar();
-
-		pWind->SetBrush(config.bkGrndColor);
-		pWind->SetPen(config.bkGrndColor, 1);
-		pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
-
 		
 		gameToolbar->draw();
 		gameBudgetbar->draw();

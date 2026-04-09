@@ -137,6 +137,46 @@ void CowIcon::update() {
 }
 
 
+SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+
+
+	sealList = new Seal * [MAX_CREATED_ANIMALS];
+	for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
+		sealList[i] = nullptr;
+	}
+
+}
+
+void SealIcon::onClick()
+{
+	cout << "Icon Seal Clicked" << endl;
+	if (pGame->budget >= 200) {
+		pGame->budget = pGame->budget - 200;
+		pGame->clearBudget();
+		string budget_string = "BUDGET = $" + to_string(pGame->budget);
+		pGame->printBudget(budget_string);
+
+		point p;
+		std::random_device rd1;
+		std::mt19937 gen1(rd1());
+		std::uniform_int_distribution<int> dist1(range_min_x, range_max_x);
+		p.x = dist1(gen1);
+
+		std::random_device rd2;
+		std::mt19937 gen2(rd2());
+		std::uniform_int_distribution<int> dist2(range_min_y, range_max_y);
+		p.y = dist2(gen2);
+
+		sealList[count] = new Seal(pGame, p, 50, 50, image_path);
+		sealList[count]->draw();
+		count++;
+		pGame->animalCount++;
+		pGame->drawStatusBar();
+	}
+}
+
+
 
 void SealIcon::update() {
 	for (int i = 0; i < count; i++) {
@@ -201,6 +241,15 @@ void WaterIcon::onClick()
 	}
 }
 
+void WaterIcon::update() {
+	for (int i = 0; i < count; i++) {
+		if (grassList[i] != nullptr) {
+			grassList[i]->moveStep();
+			grassList[i]->draw();
+		}
+	}
+}
+
 
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
@@ -228,8 +277,6 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height) : 
 	p.x += config.iconWidth;
 	//p.x += config.iconWidth;
 	//iconsList[ICON_CHICK] = new ChickIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_CHICK]);
-	iconsList[ICON_COW] = new CowIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_COW]);
-	p.x += config.iconWidth;
 }
 
 Budgetbar::~Budgetbar()

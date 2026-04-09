@@ -15,7 +15,7 @@ public:
 	int animalCount = 0;
 	int level = 1;
 	int goal = 5;
-	long startTime;
+	time_t startTime;
 	Game();
 	~Game();
 

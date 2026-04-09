@@ -7,9 +7,11 @@ private:
 	string image_path;
 public:
 	point curr_pos;
+	point prev_pos;
 	point curr_vel;
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
+	void clearPreviousPosition() const;
 	virtual void moveStep() = 0;   //The action that should be taken each time step
 };
 
@@ -27,9 +29,12 @@ public:
 	virtual void moveStep();
 };
 
-class Seal : public Animal
+class Wolf : public Animal
 {
+private:
+	int speed;
 public:
-	Seal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
-	virtual void moveStep();
+	Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed = 1);
+	virtual void draw() const override;
+	virtual void moveStep() override;
 };

@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "../Config/GameConfig.h"
+#include <ctime>
 
 Game::Game()
 {
@@ -23,6 +24,9 @@ Game::Game()
 
 	//7- Create and clear the status bar
 	clearStatusBar();
+	startTime = time(NULL);
+	drawField();
+	drawStatusBar();
 }
 
 Game::~Game()
@@ -125,6 +129,33 @@ void Game::printMessage(string msg) const
 
 }
 
+void Game::drawField() const
+{
+	pWind->SetPen(BROWN, 10);
+	pWind->SetBrush(GREEN);
+	pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+}
+
+void Game::drawStatusBar() const
+{
+	clearStatusBar();
+	pWind->SetPen(WHITE, 50);
+	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
+
+	long currentTime = time(NULL);
+	long elapsedSeconds = currentTime - startTime;
+
+	string timerStr = "Timer: " + to_string(elapsedSeconds) + "s";
+	string goalStr = "Goal: " + to_string(goal);
+	string levelStr = "Level: " + to_string(level);
+	string countStr = "Animals: " + to_string(animalCount);
+
+	pWind->DrawString(10, config.windHeight - 40, timerStr);
+	pWind->DrawString(150, config.windHeight - 40, goalStr);
+	pWind->DrawString(300, config.windHeight - 40, levelStr);
+	pWind->DrawString(450, config.windHeight - 40, countStr);
+}
+
 window* Game::getWind() const
 {
 	return pWind;
@@ -142,6 +173,7 @@ void Game::go() const
 	do
 	{
 		printMessage("Ready...");
+		drawStatusBar();
 		string budget_string = "BUDGET = $" + to_string(budget);
 		printBudget(budget_string);
 		//printBudget("BUDGET = $1000");

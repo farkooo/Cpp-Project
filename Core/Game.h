@@ -11,7 +11,11 @@ private:
 	Budgetbar* gameBudgetbar;
 
 public:
-	int budget = 6900;
+	int budget = 2000;
+	int animalCount = 0;
+	int level = 1;
+	int goal = 5;
+	long startTime;
 	Game();
 	~Game();
 
@@ -28,6 +32,8 @@ public:
 
 
 	void printMessage(string msg) const;	//Print a message on Status bar
+	void drawField() const;
+	void drawStatusBar() const;
 
 	void go() const;
 

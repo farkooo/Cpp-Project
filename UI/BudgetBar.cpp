@@ -11,6 +11,7 @@
 	}
 
 	void BudgetbarIcon::draw() const
+	
 	{
 		//draw image of this object
 		window* pWind = pGame->getWind();
@@ -43,24 +44,8 @@
 		}
 
 	}
-}
 
-void ChickIcon::onClick()
-{
-	//TO DO: add code for cleanup and game exit here
-	/*
-	//draw image of this object in the field
-	window* pWind = pGame->getWind();
-	pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
-	*/
 	
-	//Chick* new_chick = new Chick(pGame, RefPoint, 30, 30, "images\\Chick.png");
-	cout << "Icon Chick Clicked" << endl;
-	if (pGame->budget > 100) {
-		pGame->budget = pGame->budget - 100;
-		pGame->clearBudget();
-		string budget_string = "BUDGET = $" + to_string(pGame->budget);
-		pGame->printBudget(budget_string);
 
 	void ChickIcon::update() {
 		for (int i = 0; i < count; i++) {
@@ -128,9 +113,9 @@ void ChickIcon::onClick()
 
 	CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 	{
-		cowList = new Cow * [MAX_CREATED_ANIMALS];
+		CowList = new Cow * [MAX_CREATED_ANIMALS];
 		for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
-			cowList[i] = nullptr;
+			CowList[i] = nullptr;
 		}
 	}
 
@@ -172,8 +157,8 @@ void ChickIcon::onClick()
 			//std::cout << "P.Y = " << p.y << endl;
 			//p.x = 300;
 			//p.y = 300;
-			cowList[count] = new Cow(pGame, p, 80, 80, image_path);
-			cowList[count]->draw();
+			CowList[count] = new Cow(pGame, p, 80, 80, image_path);
+			CowList[count]->draw();
 			count++;
 			pGame->animalCount++;
 			pGame->drawStatusBar();
@@ -183,17 +168,17 @@ void ChickIcon::onClick()
 	}
 	void CowIcon::update() {
 		for (int i = 0; i < count; i++) {
-			if (cowList[i] != nullptr) {
-				cowList[i]->moveStep();
-				cowList[i]->draw();
+			if (CowList[i] != nullptr) {
+				CowList[i]->moveStep();
+				CowList[i]->draw();
 			}
 		}
 	}
 
 	void CowIcon::reset() {
 		for (int i = 0; i < count; i++) {
-			delete cowList[i]; 
-			cowList[i] = nullptr;
+			delete CowList[i]; 
+			CowList[i] = nullptr;
 		}
 		count = 0; 
 	}

@@ -52,8 +52,7 @@ Game::~Game()
 
 clicktype Game::getMouseClick(int& x, int& y) const
 {
-	return pWind->WaitMouseClick(x, y);	//Wait for mouse click
-
+	return pWind->WaitMouseClick(x, y);	
 }
 
 string Game::getSrting() const
@@ -119,7 +118,7 @@ void Game::clearBudget() const
 
 void Game::printBudget(string msg) const
 {
-	clearBudget();	//First clear the status bar
+	clearBudget();	
 
 	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
@@ -129,7 +128,7 @@ void Game::printBudget(string msg) const
 
 void Game::clearStatusBar() const
 {
-	//Clear Status bar by drawing a filled rectangle
+	
 	pWind->SetPen(config.statusBarColor, 1);
 	pWind->SetBrush(config.statusBarColor);
 	pWind->DrawRectangle(0, config.windHeight - config.statusBarHeight, config.windWidth, config.windHeight);
@@ -145,8 +144,7 @@ void Game::clearPlayingArea() const
 
 void Game::printMessage(string msg) const
 {
-	clearStatusBar();	//First clear the status bar
-
+	clearStatusBar();	
 	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 	pWind->DrawString(10, config.windHeight - (int)(0.85 * config.statusBarHeight), msg);
@@ -257,19 +255,12 @@ void Game::go()
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
 	pWind->SetBuffering(true);
 
-
 	do
 	{
-		// 1. مسح الشاشة (السبورة) في كل لفة
-		pWind->SetPen(config.bkGrndColor, 1);
-		pWind->SetBrush(config.bkGrndColor);
-		pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+		
+		drawField();
 
-		// 2. تحديث الرسائل والميزانية
-		string budget_string = "BUDGET = $" + to_string(budget);
-		printBudget(budget_string);
-
-		// --- 🌟 أولاً: إدارة العشب (رسم ومسح) ---
+		
 		for (size_t i = 0; i < foodList.size(); i++) {
 			if (foodList[i]) {
 				foodList[i]->draw();
@@ -281,100 +272,68 @@ void Game::go()
 			}
 		}
 
-		// --- 🌟 ثانياً: إدارة الحيوانات والإنتاج (Task 19 & 20) ---
+		
 		for (size_t i = 0; i < animalList.size(); i++) {
 			if (animalList[i]) {
+				animalList[i]->moveStep();
 				animalList[i]->draw();
-				animalList[i]->moveStep(); // حركة الحيوان
 
-				// فحص الإنتاج
 				if (animalList[i]->checkProduction()) {
 					point dropPos = animalList[i]->getPos();
-
-					// بنرمي المنتج (استخدمنا المسار النسبي اللي اتفقنا عليه)
 					Product* pNew = new Egg(this, dropPos, 30, 30, "images\\egg.jpg");
 					productList.push_back(pNew);
-
-					budget += 50; // مكافأة الإنتاج
-					printMessage("Animal Produced! +$50");
+					budget += 50;
 				}
 			}
 		}
 
-		pWind->SetBrush(config.bkGrndColor);
-		pWind->SetPen(config.bkGrndColor, 1);
-		pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
-
-		
-		drawField();
-		const unsigned long currentTime = CurrentTime();
-		if (currentTime - lastWolfSpawnTime >= 30000UL)
-		{
-			generateRandomWolves();
-			lastWolfSpawnTime = currentTime;
-		}
-		gameBudgetbar->update();
-		drawStatusBar();
-		gameToolbar->draw();
-		gameBudgetbar->draw();
-		printBudget("BUDGET = $" + to_string(budget));
-
-
-		for (size_t i = 0; i < wolves.size(); i++)
-		{
+		for (size_t i = 0; i < wolves.size(); i++) {
 			wolves[i]->moveStep();
 			wolves[i]->draw();
 		}
 
-		
-
-		clicktype click = pWind->GetMouseClick(x, y);
-
-		if (click != NO_CLICK)
-		{
-			if (y >= 0 && y < config.toolBarHeight)
-			{
-
-				isExit = gameToolbar->handleClick(x, y);
-			}
-			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight)
-			
-				isExit = gameBudgetbar->handleClick(x, y);
-			}
-
-
-		Pause(50);
-		pWind->UpdateBuffer();
-
-		// --- 🌟 ثالثاً: رسم المنتجات (البيض واللبن) ---
 		for (size_t i = 0; i < productList.size(); i++) {
-			if (productList[i]) {
-				productList[i]->draw();
-			}
+			if (productList[i]) productList[i]->draw();
 		}
 
-		// --- 🌟 رابعاً: التعامل مع ضغطات الماوس ---
-		if (pWind->GetMouseClick(x, y) != NO_CLICK)
+		
+		gameToolbar->draw();
+		gameBudgetbar->draw();
+		gameBudgetbar->update();
+		drawStatusBar();
+		printBudget("BUDGET = $" + to_string(budget));
+
+		
+		const unsigned long currentTime = CurrentTime();
+		if (currentTime - lastWolfSpawnTime >= 30000UL) {
+			generateRandomWolves();
+			lastWolfSpawnTime = currentTime;
+		}
+
+		
+		clicktype click = pWind->GetMouseClick(x, y);
+		if (click != NO_CLICK)
 		{
-			if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight)
-			{
+			
+			if (y >= 0 && y < config.toolBarHeight) {
+				isExit = gameToolbar->handleClick(x, y);
+			}
+			
+			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
+				isExit = gameBudgetbar->handleClick(x, y);
+			}
+		
+			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
 				if (budget >= 20) {
-					point p; p.x = x; p.y = y;
-					FoodArea* pNewFood = new FoodArea(this, p, 50, 50, GREEN, BLACK, 100);
+					point p; p.x = x - 25; p.y = y - 25;
+					FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
 					foodList.push_back(pNewFood);
 					budget -= 20;
 				}
 			}
-			else if (y >= 0 && y < config.toolBarHeight)
-			{
-				isExit = gameToolbar->handleClick(x, y);
-			}
-			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight)
-			{
-				isExit = gameBudgetbar->handleClick(x, y);
-			}
 		}
 
+		pWind->UpdateBuffer(); 
 		Sleep(30);
 
 	} while (!isExit);

@@ -11,9 +11,6 @@ const int range_max_x = config.windWidth - 50;
 const int range_min_y = (config.toolBarHeight * 2) + 50;
 const int range_max_y = config.windHeight - config.statusBarHeight - 50;
 
-const int MAX_CREATED_ANIMALS = 15;
-
-
 //Base class for all toolbar icons 
 class BudgetbarIcon :public Drawable
 {
@@ -34,22 +31,12 @@ public:
 	ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void onClick();
 };
-
 class CowIcon : public BudgetbarIcon
 {
 public:
-	Cow** cowList; //an array of cow pointers
+	Cow** CowList; //an array of Chick pointers
 	int count = 0;
 	CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
-	virtual void onClick();
-};
-
-class SealIcon : public BudgetbarIcon
-{
-public:
-	Seal **sealList; //an array of cow pointers
-	int count = 0;
-	SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void onClick();
 };
 
@@ -61,12 +48,12 @@ enum ANIMAL_ICONS //The icons of the toolbar (you should add more icons)
 {
 	//Note: Icons are ordered here as they appear in menu
 	//If you want to change the menu icons order, change the order here
-	ICON_CHICK,
+	ICON_CHICK, ICON_COW,
 
 	//TODO: Add more icons names here
-	ICON_COW,
+
 	//Cow icon
-	ICON_SEAL,
+
 	ANIMAL_COUNT		//no. of menu icons ==> This should be the last line in this enum
 };
 

@@ -145,6 +145,12 @@
     <ClCompile Include="Entities\Animal.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
+    <ClCompile Include="Foodarea.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="product.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CMUgraphicsLib\auxil.h">
@@ -227,6 +233,12 @@
     </ClInclude>
     <ClInclude Include="Config\GameConfig.h">
       <Filter>Config</Filter>
+    </ClInclude>
+    <ClInclude Include="Foodarea.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="product.h">
+      <Filter>Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,16 +2,23 @@
 #include "../CMUgraphicsLib/CMUgraphics.h"
 #include "../UI/Toolbar.h"
 #include "../UI/BudgetBar.h"
-
+#include <vector>
+// 1. في أول الملف تحت الـ Forward Declarations
+class Product;
+class FoodArea;
+class Animal;
 class Game
 {
 private:
+	vector<FoodArea*> foodList;
+	vector<Animal*> animalList;
+	vector<Product*> productList;
 	window* pWind;	//Pointer to the CMU graphics window
 	Toolbar* gameToolbar;
 	Budgetbar* gameBudgetbar;
 
 public:
-	int budget = 69000;
+	int budget = 2000;
 	Game();
 	~Game();
 
@@ -29,7 +36,7 @@ public:
 
 	void printMessage(string msg) const;	//Print a message on Status bar
 
-	void go() const;
+	void go();
 
 	window* getWind() const;		//returns a pointer to the graphics window
 };

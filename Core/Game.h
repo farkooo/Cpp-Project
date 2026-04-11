@@ -12,7 +12,7 @@ private:
 
 public:
 	int budget = 6000;
-	int remainingTimeSeconds = 10; // Current state
+	int remainingTimeSeconds = 120; // Current level timer (modify as needed)
 	Game();
 	~Game();
 

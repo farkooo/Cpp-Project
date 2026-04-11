@@ -22,6 +22,7 @@ public:
 	virtual void draw() const override;
 	virtual void onClick() = 0;   //The action that should be taken when this icon is clicked
 	virtual void update() {}
+	virtual void reset() = 0;
 };
 
 class ChickIcon : public BudgetbarIcon
@@ -32,6 +33,7 @@ public:
 	ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void onClick();
 	void update();
+	virtual void reset() override;
 };
 class CowIcon : public BudgetbarIcon
 {
@@ -41,17 +43,19 @@ public:
 	CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void onClick();
 	void update();
+	virtual void reset() override;
 
 };
 
 class SealIcon : public BudgetbarIcon
 {
 public:
-	Seal **sealList; //an array of cow pointers
+	Seal** sealList; //an array of cow pointers
 	int count = 0;
 	SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void onClick();
 	void update();
+	virtual void reset() override;
 
 };
 
@@ -62,6 +66,8 @@ public:
 	int count = 0;
 	WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void onClick();
+	void update();
+	virtual void reset() override;
 
 };
 
@@ -95,6 +101,6 @@ public:
 	void draw() const override;
 	bool handleClick(int x, int y);	//handles clicks on toolbar icons, returns true if exit is clicked
 	void update();
+	void reset();
 
 };
-

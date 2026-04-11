@@ -150,6 +150,8 @@
     </ClCompile>
     <ClCompile Include="product.cpp">
       <Filter>Entities</Filter>
+    <ClCompile Include="Warehouse.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -239,6 +241,8 @@
     </ClInclude>
     <ClInclude Include="product.h">
       <Filter>Entities</Filter>
+    <ClInclude Include="Warehouse.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

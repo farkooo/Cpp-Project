@@ -2,10 +2,22 @@
 #include "../Config/GameConfig.h"
 #include "Foodarea.h"
 #include "Product.h"
+#include <random>
+#include <ctime>
+
 Game::Game()
 {
+	budget = 2000;
+	currentLevel = 1;
+	gameStartTime = CurrentTime();
+	lastWolfSpawnTime = gameStartTime;
+
 	//1 - Create the main window
 	pWind = CreateWind(config.windWidth, config.windHeight, config.wx, config.wy);
+	pWind->SetBuffering(true);
+	pWind->SetBrush(config.bkGrndColor);
+	pWind->SetPen(config.bkGrndColor, 1);
+	pWind->DrawRectangle(0, 0, config.windWidth, config.windHeight);
 
 	//2 - create and draw the toolbar
 	createToolbar();
@@ -19,15 +31,23 @@ Game::Game()
 	//5- Create the Bullet
 	//TODO: Add code to create and draw the Bullet
 
-	//6- Create the enemies
-	//TODO: Add code to create and draw enemies in random places
-
 	//7- Create and clear the status bar
+	startTime = time(NULL);
+
 	clearStatusBar();
+	printBudget("BUDGET = $" + to_string(budget));
+	drawStatusBar();
 }
 
 Game::~Game()
 {
+	for (size_t i = 0; i < chicks.size(); i++)
+		delete chicks[i];
+	for (size_t i = 0; i < wolves.size(); i++)
+		delete wolves[i];
+	delete gameToolbar;
+	delete gameBudgetbar;
+	delete pWind;
 }
 
 clicktype Game::getMouseClick(int& x, int& y) const
@@ -85,7 +105,7 @@ void Game::createBudgetbar()
 	budgetbarUpperleft.x = 0;
 	budgetbarUpperleft.y = config.toolBarHeight;
 
-	gameBudgetbar = new Budgetbar(this, budgetbarUpperleft, 0, config.toolBarHeight);
+	gameBudgetbar = new Budgetbar(this, budgetbarUpperleft, config.windWidth, config.toolBarHeight);
 	gameBudgetbar->draw();
 }
 
@@ -115,6 +135,14 @@ void Game::clearStatusBar() const
 	pWind->DrawRectangle(0, config.windHeight - config.statusBarHeight, config.windWidth, config.windHeight);
 }
 
+void Game::clearPlayingArea() const
+{
+	pWind->SetPen(config.bkGrndColor, 1);
+	pWind->SetBrush(config.bkGrndColor);
+	pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth,
+		config.windHeight - config.statusBarHeight);
+}
+
 void Game::printMessage(string msg) const
 {
 	clearStatusBar();	//First clear the status bar
@@ -123,6 +151,97 @@ void Game::printMessage(string msg) const
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 	pWind->DrawString(10, config.windHeight - (int)(0.85 * config.statusBarHeight), msg);
 
+}
+
+void Game::drawWolf(point position, int width, int height, int speed)
+{
+	Wolf* wolf = new Wolf(this, position, width, height, speed);
+	wolves.push_back(wolf);
+	wolf->draw();
+}
+
+void Game::generateRandomWolves()
+{
+	const unsigned long currentTime = CurrentTime();
+	const unsigned long elapsedMs = currentTime - gameStartTime;
+	currentLevel = static_cast<int>(elapsedMs / 30000UL) + 1;
+	if (currentLevel < 1)
+		currentLevel = 1;
+
+	const int wolfWidth = 70;
+	const int wolfHeight = 70;
+
+	std::mt19937 generator(static_cast<unsigned int>(currentTime + currentLevel * 97));
+	std::uniform_int_distribution<int> xDist(30, config.windWidth - wolfWidth - 30);
+	std::uniform_int_distribution<int> yDist((2 * config.toolBarHeight) + 30,
+		config.windHeight - config.statusBarHeight - wolfHeight - 30);
+
+	point position;
+	position.x = xDist(generator);
+	position.y = yDist(generator);
+
+	const int speed = currentLevel;
+	drawWolf(position, wolfWidth, wolfHeight, speed);
+}
+
+int Game::getCurrentLevel() const
+{
+	return currentLevel;
+}
+
+void Game::restartGame()
+{
+	clearPlayingArea();
+
+	for (size_t i = 0; i < wolves.size(); i++)
+		delete wolves[i];
+	wolves.clear();
+
+	if (gameBudgetbar) {
+		gameBudgetbar->reset();
+	}
+
+	budget = 2000;
+	currentLevel = 1;
+	animalCount = 0;
+	gameStartTime = CurrentTime();
+	lastWolfSpawnTime = gameStartTime;
+
+	startTime = time(NULL);
+	gameToolbar->draw();
+	gameBudgetbar->draw();
+	clearStatusBar();
+	printBudget("BUDGET = $" + to_string(budget));
+	printMessage("Ready...");
+	pWind->UpdateBuffer();
+}
+void Game::drawField() const
+{
+	pWind->SetPen(BROWN, 10);
+	pWind->SetBrush(GREEN);
+	pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+}
+
+void Game::drawStatusBar() const
+{
+	clearStatusBar();
+	pWind->SetPen(WHITE, 50);
+	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
+
+	time_t currentTime = time(NULL);
+	long elapsedSeconds = (long)(currentTime - startTime);
+
+	if (elapsedSeconds < 0 || elapsedSeconds > 100000) elapsedSeconds = 0;
+
+	string timerStr = "Timer: " + to_string(elapsedSeconds) + "s";
+	string goalStr = "Goal: " + to_string(goal);
+	string levelStr = "Level: " + to_string(level);
+	string countStr = "Animals: " + to_string(animalCount);
+
+	pWind->DrawString(10, config.windHeight - 40, timerStr);
+	pWind->DrawString(180, config.windHeight - 40, goalStr);
+	pWind->DrawString(330, config.windHeight - 40, levelStr);
+	pWind->DrawString(480, config.windHeight - 40, countStr);
 }
 
 window* Game::getWind() const
@@ -136,8 +255,8 @@ void Game::go()
 	bool isExit = false;
 
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
-
 	pWind->SetBuffering(true);
+
 
 	do
 	{
@@ -187,28 +306,44 @@ void Game::go()
 		pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
 
 		
+		drawField();
+		const unsigned long currentTime = CurrentTime();
+		if (currentTime - lastWolfSpawnTime >= 30000UL)
+		{
+			generateRandomWolves();
+			lastWolfSpawnTime = currentTime;
+		}
+		gameBudgetbar->update();
+		drawStatusBar();
 		gameToolbar->draw();
 		gameBudgetbar->draw();
-		string budget_string = "BUDGET = $" + to_string(budget);
-		printBudget(budget_string);
+		printBudget("BUDGET = $" + to_string(budget));
 
 
-		gameBudgetbar->update();
+		for (size_t i = 0; i < wolves.size(); i++)
+		{
+			wolves[i]->moveStep();
+			wolves[i]->draw();
+		}
 
+		
 
-		if (pWind->GetMouseClick(x, y) != NO_CLICK)
+		clicktype click = pWind->GetMouseClick(x, y);
+
+		if (click != NO_CLICK)
 		{
 			if (y >= 0 && y < config.toolBarHeight)
 			{
+
 				isExit = gameToolbar->handleClick(x, y);
 			}
 			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight)
-			{
+			
 				isExit = gameBudgetbar->handleClick(x, y);
 			}
-		}
 
 
+		Pause(50);
 		pWind->UpdateBuffer();
 
 		// --- 🌟 ثالثاً: رسم المنتجات (البيض واللبن) ---

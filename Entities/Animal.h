@@ -8,6 +8,7 @@ class Animal : public Drawable
 protected: // 🌟 خليناها protected عشان Chick و Cow يقدروا يغيروا الـ Rate
 	string image_path;
 	point curr_pos;
+	point prev_pos;
 	point curr_vel;
 
 	// --- متغيرات المهمة 19 (Production Logic) ---
@@ -43,6 +44,16 @@ class Seal : public Animal
 public:
 	Seal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void moveStep();
+};
+
+class Wolf : public Animal
+{
+private:
+	int speed;
+public:
+	Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed = 1);
+	virtual void draw() const override;
+	virtual void moveStep() override;
 };
 
 class Grass : public Drawable

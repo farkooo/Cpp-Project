@@ -135,7 +135,9 @@ void Game::go()
 	int x, y;
 	bool isExit = false;
 
-	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy - - - - - - - - - -");
+	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
+
+	pWind->SetBuffering(true);
 
 	do
 	{
@@ -179,6 +181,35 @@ void Game::go()
 				}
 			}
 		}
+
+		pWind->SetBrush(config.bkGrndColor);
+		pWind->SetPen(config.bkGrndColor, 1);
+		pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+
+		
+		gameToolbar->draw();
+		gameBudgetbar->draw();
+		string budget_string = "BUDGET = $" + to_string(budget);
+		printBudget(budget_string);
+
+
+		gameBudgetbar->update();
+
+
+		if (pWind->GetMouseClick(x, y) != NO_CLICK)
+		{
+			if (y >= 0 && y < config.toolBarHeight)
+			{
+				isExit = gameToolbar->handleClick(x, y);
+			}
+			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight)
+			{
+				isExit = gameBudgetbar->handleClick(x, y);
+			}
+		}
+
+
+		pWind->UpdateBuffer();
 
 		// --- 🌟 ثالثاً: رسم المنتجات (البيض واللبن) ---
 		for (size_t i = 0; i < productList.size(); i++) {

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "../Core/Drawable.h"
 #include <ctime> // 🌟 ضروري جداً عشان نوع البيانات time_t
 
@@ -34,5 +35,25 @@ class Cow : public Animal
 {
 public:
 	Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
-	virtual void moveStep() override; // 🌟 ضفنا override للوضوح
+	virtual void moveStep();
 };
+
+class Seal : public Animal
+{
+public:
+	Seal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void moveStep();
+};
+
+class Grass : public Drawable
+{
+private:
+	string image_path;
+public:
+	point curr_pos;
+	Grass(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void draw() const override;
+	virtual void moveStep();
+};
+
+

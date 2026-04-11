@@ -145,6 +145,11 @@
     <ClCompile Include="Entities\Animal.cpp">
       <Filter>Entities</Filter>
     </ClCompile>
+    <ClCompile Include="Foodarea.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="product.cpp">
+      <Filter>Entities</Filter>
     <ClCompile Include="Warehouse.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -231,6 +236,11 @@
     <ClInclude Include="Config\GameConfig.h">
       <Filter>Config</Filter>
     </ClInclude>
+    <ClInclude Include="Foodarea.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="product.h">
+      <Filter>Entities</Filter>
     <ClInclude Include="Warehouse.h">
       <Filter>Core</Filter>
     </ClInclude>

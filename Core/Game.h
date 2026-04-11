@@ -3,12 +3,20 @@
 #include "../CMUgraphicsLib/auxil.h"
 #include "../UI/Toolbar.h"
 #include "../UI/BudgetBar.h"
+#include <vector>
+// 1. في أول الملف تحت الـ Forward Declarations
+class Product;
+class FoodArea;
+class Animal;
 #include "../Entities/Animal.h"
 #include <vector>
 
 class Game
 {
 private:
+	vector<FoodArea*> foodList;
+	vector<Animal*> animalList;
+	vector<Product*> productList;
 	window* pWind;	//Pointer to the CMU graphics window
 	Toolbar* gameToolbar;
 	Budgetbar* gameBudgetbar;

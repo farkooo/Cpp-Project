@@ -43,6 +43,24 @@
 		}
 
 	}
+}
+
+void ChickIcon::onClick()
+{
+	//TO DO: add code for cleanup and game exit here
+	/*
+	//draw image of this object in the field
+	window* pWind = pGame->getWind();
+	pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
+	*/
+	
+	//Chick* new_chick = new Chick(pGame, RefPoint, 30, 30, "images\\Chick.png");
+	cout << "Icon Chick Clicked" << endl;
+	if (pGame->budget > 100) {
+		pGame->budget = pGame->budget - 100;
+		pGame->clearBudget();
+		string budget_string = "BUDGET = $" + to_string(pGame->budget);
+		pGame->printBudget(budget_string);
 
 	void ChickIcon::update() {
 		for (int i = 0; i < count; i++) {

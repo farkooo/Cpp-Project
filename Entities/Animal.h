@@ -1,24 +1,34 @@
 #pragma once
 
 #include "../Core/Drawable.h"
+#include <ctime> // 🌟 ضروري جداً عشان نوع البيانات time_t
 
-class Animal :public Drawable
+class Animal : public Drawable
 {
-private:
+protected: // 🌟 خليناها protected عشان Chick و Cow يقدروا يغيروا الـ Rate
 	string image_path;
-public:
 	point curr_pos;
 	point curr_vel;
+
+	// --- متغيرات المهمة 19 (Production Logic) ---
+	time_t lastProductionTime; // وقت آخر عملية إنتاج
+	int productionRate;        // المدة المطلوبة (10 للفرخة و 15 للبقرة)
+
+public:
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
-	virtual void moveStep() = 0;   //The action that should be taken each time step
+	virtual void moveStep() = 0;
+	point getPos() const { return curr_pos; }
+
+	// 🌟 الدالة اللي بتفحص هل جه وقت الإنتاج ولا لأ
+	bool checkProduction();
 };
 
 class Chick : public Animal
 {
 public:
 	Chick(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
-	virtual void moveStep();
+	virtual void moveStep() override; // 🌟 ضفنا override للوضوح
 };
 
 class Cow : public Animal

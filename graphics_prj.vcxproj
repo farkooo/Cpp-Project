@@ -16,13 +16,13 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -105,8 +105,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)CMGraphicsLib;$(ProjectDir)Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -166,7 +165,9 @@
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Core\GameObject.cpp" />
     <ClCompile Include="Entities\Animal.cpp" />
+    <ClCompile Include="Foodarea.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="product.cpp" />
     <ClCompile Include="UI\BudgetBar.cpp" />
     <ClCompile Include="UI\Toolbar.cpp" />
   </ItemGroup>
@@ -196,6 +197,8 @@
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="Core\GameObject.h" />
     <ClInclude Include="Entities\Animal.h" />
+    <ClInclude Include="Foodarea.h" />
+    <ClInclude Include="product.h" />
     <ClInclude Include="UI\BudgetBar.h" />
     <ClInclude Include="UI\Toolbar.h" />
   </ItemGroup>

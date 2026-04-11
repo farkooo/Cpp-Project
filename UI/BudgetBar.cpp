@@ -52,9 +52,10 @@ void ChickIcon::onClick()
 	window* pWind = pGame->getWind();
 	pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 	*/
+	
 	//Chick* new_chick = new Chick(pGame, RefPoint, 30, 30, "images\\Chick.png");
 	cout << "Icon Chick Clicked" << endl;
-	if (pGame->budget >= 100) {
+	if (pGame->budget > 100) {
 		pGame->budget = pGame->budget - 100;
 		pGame->clearBudget();
 		string budget_string = "BUDGET = $" + to_string(pGame->budget);
@@ -88,12 +89,11 @@ void ChickIcon::onClick()
 		//pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 	}
 }
-
 CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
-	cowList = new Cow * [MAX_CREATED_ANIMALS];
-	for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
-		cowList[i] = nullptr;
+	CowList = new Cow * [15];
+	for (int i = 0; i < 15; i++) {
+		CowList[i] = nullptr;
 	}
 }
 
@@ -105,10 +105,10 @@ void CowIcon::onClick()
 	window* pWind = pGame->getWind();
 	pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 	*/
-
+	
 	//Chick* new_chick = new Chick(pGame, RefPoint, 30, 30, "images\\Chick.png");
-	cout << "Icon Cow Clicked" << endl;
-	if (pGame->budget >= 200) {
+	cout << "Icon Chick Clicked" << endl;
+	if (pGame->budget > 200) {
 		pGame->budget = pGame->budget - 200;
 		pGame->clearBudget();
 		string budget_string = "BUDGET = $" + to_string(pGame->budget);
@@ -135,8 +135,8 @@ void CowIcon::onClick()
 		//std::cout << "P.Y = " << p.y << endl;
 		//p.x = 300;
 		//p.y = 300;
-		cowList[count] = new Cow(pGame, p, 80, 80, image_path);
-		cowList[count]->draw();
+		CowList[count]= new Cow(pGame, p, 100, 100, image_path);
+		CowList[count]->draw();
 		count++;
 		//window* pWind = pGame->getWind();
 		//pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
@@ -151,59 +151,7 @@ void CowIcon::update() {
 	}
 }
 
-SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
-{
-	sealList = new Seal * [MAX_CREATED_ANIMALS];
-	for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
-		sealList[i] = nullptr;
-	}
-}
 
-void SealIcon::onClick()
-{
-	//TO DO: add code for cleanup and game exit here
-	/*
-	//draw image of this object in the field
-	window* pWind = pGame->getWind();
-	pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
-	*/
-
-	//Chick* new_chick = new Chick(pGame, RefPoint, 30, 30, "images\\Chick.png");
-	cout << "Icon Seal Clicked" << endl;
-	if (pGame->budget >= 300) {
-		pGame->budget = pGame->budget - 300;
-		pGame->clearBudget();
-		string budget_string = "BUDGET = $" + to_string(pGame->budget);
-		pGame->printBudget(budget_string);
-
-		point p;
-		// 1. Obtain a seed from a non-deterministic source (if available)
-		std::random_device rd1;
-
-		// 2. Seed the Mersenne Twister engine
-		// std::mt19937 is a high-quality pseudo-random number generator
-		std::mt19937 gen1(rd1());
-		std::uniform_int_distribution<int> dist1(range_min_x, range_max_x);
-		p.x = dist1(gen1);
-		//std::cout << "P.X = " << p.x << endl;
-		// 1. Obtain a seed from a non-deterministic source (if available)
-		std::random_device rd2;
-
-		// 2. Seed the Mersenne Twister engine
-		// std::mt19937 is a high-quality pseudo-random number generator
-		std::mt19937 gen2(rd2());
-		std::uniform_int_distribution<int> dist2(range_min_y, range_max_y);
-		p.y = dist2(gen2);
-		//std::cout << "P.Y = " << p.y << endl;
-		//p.x = 300;
-		//p.y = 300;
-		sealList[count] = new Seal(pGame, p, 100, 100, image_path);
-		sealList[count]->draw();
-		count++;
-		//window* pWind = pGame->getWind();
-		//pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
-	}
-}
 
 void SealIcon::update() {
 	for (int i = 0; i < count; i++) {
@@ -283,7 +231,7 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height) : 
 	p.y = config.toolBarHeight;
 
 	iconsList = new BudgetbarIcon * [ANIMAL_COUNT];
-	for (int i = 0; i < ANIMAL_COUNT; i++) iconsList[i] = nullptr;
+
 	//For each icon in the tool bar create an object 
 	iconsList[ICON_CHICK] = new ChickIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_CHICK]);
 	p.x += config.iconWidth;
@@ -299,16 +247,15 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height) : 
 
 Budgetbar::~Budgetbar()
 {
-	for (int i = 0; i < ANIMAL_COUNT; i++)
+	for (int i = 0; i < ICON_COUNT; i++)
 		delete iconsList[i];
-	delete[] iconsList;
+	delete iconsList;
 }
 
 void Budgetbar::draw() const
 {
-	for (int i = 0; i < ANIMAL_COUNT; i++) {
-		if(iconsList[i] != nullptr) iconsList[i]->draw();
-	}
+	for (int i = 0; i < ANIMAL_COUNT; i++)
+		iconsList[i]->draw();
 	window* pWind = pGame->getWind();
 	pWind->SetPen(BLACK, 3);
 	pWind->DrawLine(0, 2*config.toolBarHeight, pWind->GetWidth(), 2*config.toolBarHeight);
@@ -316,11 +263,7 @@ void Budgetbar::draw() const
 
 bool Budgetbar::handleClick(int x, int y)
 {
-	if (x < 0 || x >= ANIMAL_COUNT * config.iconWidth)	//click outside toolbar boundaries
-		return false;
-
-
-	if (y < config.toolBarHeight || y >= 2 * config.toolBarHeight)
+	if (x > ANIMAL_COUNT * config.iconWidth)	//click outside toolbar boundaries
 		return false;
 
 

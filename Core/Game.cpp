@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "../Config/GameConfig.h"
-
+#include "Foodarea.h"
+#include "Product.h"
 Game::Game()
 {
 	//1 - Create the main window
@@ -68,7 +69,7 @@ window* Game::CreateWind(int w, int h, int x, int y) const
 	return pW;
 }
 
-void Game::createToolbar() 
+void Game::createToolbar()
 {
 	point toolbarUpperleft;
 	toolbarUpperleft.x = 0;
@@ -88,13 +89,12 @@ void Game::createBudgetbar()
 	gameBudgetbar->draw();
 }
 
-
 void Game::clearBudget() const
 {
 	//Clear Status bar by drawing a filled rectangle
 	pWind->SetPen(config.bkGrndColor, 1);
 	pWind->SetBrush(config.bkGrndColor);
-	pWind->DrawRectangle(config.windWidth - 500, config.toolBarHeight, config.windWidth, 2*config.toolBarHeight);
+	pWind->DrawRectangle(config.windWidth - 500, config.toolBarHeight, config.windWidth, 2 * config.toolBarHeight);
 }
 
 void Game::printBudget(string msg) const
@@ -103,7 +103,7 @@ void Game::printBudget(string msg) const
 
 	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
-	pWind->DrawString(config.windWidth-200, config.toolBarHeight + 10, msg);
+	pWind->DrawString(config.windWidth - 200, config.toolBarHeight + 10, msg);
 
 }
 
@@ -130,7 +130,7 @@ window* Game::getWind() const
 	return pWind;
 }
 
-void Game::go() const
+void Game::go()
 {
 	int x, y;
 	bool isExit = false;
@@ -141,6 +141,46 @@ void Game::go() const
 
 	do
 	{
+		// 1. مسح الشاشة (السبورة) في كل لفة
+		pWind->SetPen(config.bkGrndColor, 1);
+		pWind->SetBrush(config.bkGrndColor);
+		pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+
+		// 2. تحديث الرسائل والميزانية
+		string budget_string = "BUDGET = $" + to_string(budget);
+		printBudget(budget_string);
+
+		// --- 🌟 أولاً: إدارة العشب (رسم ومسح) ---
+		for (size_t i = 0; i < foodList.size(); i++) {
+			if (foodList[i]) {
+				foodList[i]->draw();
+				if (foodList[i]->isEmpty()) {
+					delete foodList[i];
+					foodList.erase(foodList.begin() + i);
+					i--;
+				}
+			}
+		}
+
+		// --- 🌟 ثانياً: إدارة الحيوانات والإنتاج (Task 19 & 20) ---
+		for (size_t i = 0; i < animalList.size(); i++) {
+			if (animalList[i]) {
+				animalList[i]->draw();
+				animalList[i]->moveStep(); // حركة الحيوان
+
+				// فحص الإنتاج
+				if (animalList[i]->checkProduction()) {
+					point dropPos = animalList[i]->getPos();
+
+					// بنرمي المنتج (استخدمنا المسار النسبي اللي اتفقنا عليه)
+					Product* pNew = new Egg(this, dropPos, 30, 30, "images\\egg.jpg");
+					productList.push_back(pNew);
+
+					budget += 50; // مكافأة الإنتاج
+					printMessage("Animal Produced! +$50");
+				}
+			}
+		}
 
 		pWind->SetBrush(config.bkGrndColor);
 		pWind->SetPen(config.bkGrndColor, 1);
@@ -171,7 +211,36 @@ void Game::go() const
 
 		pWind->UpdateBuffer();
 
+		// --- 🌟 ثالثاً: رسم المنتجات (البيض واللبن) ---
+		for (size_t i = 0; i < productList.size(); i++) {
+			if (productList[i]) {
+				productList[i]->draw();
+			}
+		}
+
+		// --- 🌟 رابعاً: التعامل مع ضغطات الماوس ---
+		if (pWind->GetMouseClick(x, y) != NO_CLICK)
+		{
+			if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight)
+			{
+				if (budget >= 20) {
+					point p; p.x = x; p.y = y;
+					FoodArea* pNewFood = new FoodArea(this, p, 50, 50, GREEN, BLACK, 100);
+					foodList.push_back(pNewFood);
+					budget -= 20;
+				}
+			}
+			else if (y >= 0 && y < config.toolBarHeight)
+			{
+				isExit = gameToolbar->handleClick(x, y);
+			}
+			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight)
+			{
+				isExit = gameBudgetbar->handleClick(x, y);
+			}
+		}
+
+		Sleep(30);
+
 	} while (!isExit);
 }
-
-

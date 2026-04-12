@@ -190,7 +190,6 @@ void Game::go()
 		printBudget(budget_string);
 		drawTimer();
 
-		// pWind->GetMouseClick DOES NOT BLOCK. WaitMouseClick blocked.
 		clicktype ct = pWind->GetMouseClick(x, y);	
 
 		if (ct != NO_CLICK)

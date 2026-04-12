@@ -225,7 +225,7 @@ class window {
   	// Set the color and size (if you specify the size) of the current pen, which
   	// is used with drawing with the FRAME style and outlines entities drawing in
   	// the FILLED style.  Returns the last selected color.
-	color SetPen(const double dRed, const double dGreen, const double dBlue, const int iWidth = ciDefBrushSize);
+	color SetPen(double dRed, double dGreen, double dBlue, int iWidth = ciDefBrushSize);
 	  
 	// Same as above, just allowing the use of characters instead of doubles
 	// for speed.  Returns the last selected color.   

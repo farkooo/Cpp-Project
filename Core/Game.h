@@ -27,10 +27,12 @@ private:
 
 public:
 	int budget = 6000;
+	int remainingTimeSeconds = 120; // Current level timer (modify as needed)
 	int animalCount = 0;
 	int level = 1;
 	int goal = 5;
 	time_t startTime;
+
 	Game();
 	~Game();
 
@@ -43,6 +45,7 @@ public:
 	void createBudgetbar();
 	void clearBudget() const;
 	void printBudget(string msg) const;
+	void drawTimer() const; // Function to draw the timer HUD
 	void clearStatusBar() const;	
 	void clearPlayingArea() const;
 

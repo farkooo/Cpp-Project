@@ -126,6 +126,23 @@ void Game::printBudget(string msg) const
 
 }
 
+void Game::drawTimer() const
+{
+	int minutes = remainingTimeSeconds / 60;
+	int seconds = remainingTimeSeconds % 60;
+
+	string timeStr = "Time: ";
+	if(minutes < 10) timeStr += "0";
+	timeStr += to_string(minutes) + ":";
+	if(seconds < 10) timeStr += "0";
+	timeStr += to_string(seconds);
+
+	pWind->SetPen(config.penColor, 50); 
+	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
+
+	pWind->DrawString(config.windWidth - 200, config.windHeight - (int)(0.85 * config.statusBarHeight), timeStr);
+}
+
 void Game::clearStatusBar() const
 {
 	
@@ -251,12 +268,39 @@ void Game::go()
 {
 	int x, y;
 	bool isExit = false;
+  int currentTime = time(NULL); // Get current time
 
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
+}
 	pWind->SetBuffering(true);
 
 	do
 	{
+    
+    
+		if (currentTime - startTime >= 1) // 1 second has passed
+		{
+			if (remainingTimeSeconds > 0)
+			{
+				remainingTimeSeconds--;
+			}
+			startTime = currentTime;
+		}
+
+		if (remainingTimeSeconds <= 0)
+		{
+			pWind->UpdateBuffer();
+			pWind->SetPen(RED, 50);
+			pWind->SetFont(40, BOLD, BY_NAME, "Arial");
+			pWind->DrawString(config.windWidth / 2 - 150, config.windHeight / 2, "TIME'S UP! YOU LOSE!");
+			printMessage("Game Over! Click anywhere to exit...");
+
+			drawTimer();
+
+			pWind->WaitMouseClick(x, y);
+			isExit = true;
+			break;
+		}
 		
 		drawField();
 
@@ -301,6 +345,7 @@ void Game::go()
 		gameBudgetbar->draw();
 		gameBudgetbar->update();
 		drawStatusBar();
+    drawTimer();
 		printBudget("BUDGET = $" + to_string(budget));
 
 		

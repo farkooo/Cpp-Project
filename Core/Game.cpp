@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "../Config/GameConfig.h"
+#include <ctime>
 
 Game::Game()
 {
@@ -22,7 +23,10 @@ Game::Game()
 	//TODO: Add code to create and draw enemies in random places
 
 	//7- Create and clear the status bar
+	startTime = time(NULL);
+
 	clearStatusBar();
+	drawStatusBar();
 }
 
 Game::~Game()
@@ -142,6 +146,35 @@ void Game::printMessage(string msg) const
 
 }
 
+void Game::drawField() const
+{
+	pWind->SetPen(BROWN, 10);
+	pWind->SetBrush(GREEN);
+	pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+}
+
+void Game::drawStatusBar() const
+{
+	clearStatusBar();
+	pWind->SetPen(WHITE, 50);
+	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
+
+	time_t currentTime = time(NULL);
+	long elapsedSeconds = (long)(currentTime - startTime);
+
+	if (elapsedSeconds < 0 || elapsedSeconds > 100000) elapsedSeconds = 0;
+
+	string timerStr = "Timer: " + to_string(elapsedSeconds) + "s";
+	string goalStr = "Goal: " + to_string(goal);
+	string levelStr = "Level: " + to_string(level);
+	string countStr = "Animals: " + to_string(animalCount);
+
+	pWind->DrawString(10, config.windHeight - 40, timerStr);
+	pWind->DrawString(180, config.windHeight - 40, goalStr);
+	pWind->DrawString(330, config.windHeight - 40, levelStr);
+	pWind->DrawString(480, config.windHeight - 40, countStr);
+}
+
 window* Game::getWind() const
 {
 	return pWind;
@@ -149,11 +182,9 @@ window* Game::getWind() const
 
 void Game::go()
 {
-	//This function reads the position where the user clicks to determine the desired operation
 	int x, y;
 	bool isExit = false;
 
-	//Change the title
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
 
 	int startTime = time(NULL); // Store the current time in seconds
@@ -172,7 +203,7 @@ void Game::go()
 
 		if (remainingTimeSeconds <= 0)
 		{
-			pWind->UpdateBuffer(); 
+			pWind->UpdateBuffer();
 			pWind->SetPen(RED, 50);
 			pWind->SetFont(40, BOLD, BY_NAME, "Arial");
 			pWind->DrawString(config.windWidth / 2 - 150, config.windHeight / 2, "TIME'S UP! YOU LOSE!");
@@ -180,37 +211,52 @@ void Game::go()
 
 			drawTimer();
 
-			pWind->WaitMouseClick(x, y); 
+			pWind->WaitMouseClick(x, y);
 			isExit = true;
 			break;
 		}
 
+		pWind->SetBuffering(true);
+
+
+		drawField();
 		printMessage("Ready...");
+		drawStatusBar();
+
+		gameToolbar->draw();
+		gameBudgetbar->draw();
 		string budget_string = "BUDGET = $" + to_string(budget);
 		printBudget(budget_string);
 		drawTimer();
 
-		clicktype ct = pWind->GetMouseClick(x, y);	
+		clicktype ct = pWind->GetMouseClick(x, y);
 
 		if (ct != NO_CLICK)
 		{
 			//if (gameMode == MODE_DSIGN)		//Game is in the Desgin mode
 			//{
 				//[1] If user clicks on the Toolbar
-			if (y >= 0 && y < config.toolBarHeight)
+
+			gameBudgetbar->update();
+
+			if (pWind->GetMouseClick(x, y) != NO_CLICK)
 			{
-				isExit = gameToolbar->handleClick(x, y);
+				if (y >= 0 && y < config.toolBarHeight)
+				{
+					isExit = gameToolbar->handleClick(x, y);
+				}
+				else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight)
+				{
+					isExit = gameBudgetbar->handleClick(x, y);
+				}
+				
 			}
-			else if (y >= config.toolBarHeight && y < 2*config.toolBarHeight)
-			{
-				isExit = gameBudgetbar->handleClick(x, y);
-			}
-			//}
+
+			Sleep(15);
 		}
 
-		Sleep(15); 
+		pWind->UpdateBuffer();
 
 	} while (!isExit);
+
 }
-
-

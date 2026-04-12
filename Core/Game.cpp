@@ -268,25 +268,28 @@ void Game::go()
 {
 	int x, y;
 	bool isExit = false;
-  int currentTime = time(NULL); // Get current time
+
+	// Use CurrentTime() for high-precision timing (ms)
+	unsigned long lastSecondTick = CurrentTime();
 
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
-}
 	pWind->SetBuffering(true);
 
 	do
 	{
-    
-    
-		if (currentTime - startTime >= 1) // 1 second has passed
+		unsigned long now = CurrentTime();
+
+		// 1. Timer Logic: Check if 1000ms (1 second) has passed
+		if (now - lastSecondTick >= 1000)
 		{
 			if (remainingTimeSeconds > 0)
 			{
 				remainingTimeSeconds--;
 			}
-			startTime = currentTime;
+			lastSecondTick = now;
 		}
 
+		// 2. Check Lose Condition
 		if (remainingTimeSeconds <= 0)
 		{
 			pWind->UpdateBuffer();
@@ -294,17 +297,17 @@ void Game::go()
 			pWind->SetFont(40, BOLD, BY_NAME, "Arial");
 			pWind->DrawString(config.windWidth / 2 - 150, config.windHeight / 2, "TIME'S UP! YOU LOSE!");
 			printMessage("Game Over! Click anywhere to exit...");
-
 			drawTimer();
-
+			pWind->UpdateBuffer(); // Ensure the "You Lose" text actually shows up
 			pWind->WaitMouseClick(x, y);
 			isExit = true;
 			break;
 		}
-		
+
+		// 3. Drawing the environment
 		drawField();
 
-		
+		// 4. Update and Draw Food
 		for (size_t i = 0; i < foodList.size(); i++) {
 			if (foodList[i]) {
 				foodList[i]->draw();
@@ -316,7 +319,7 @@ void Game::go()
 			}
 		}
 
-		
+		// 5. Update and Draw Animals
 		for (size_t i = 0; i < animalList.size(); i++) {
 			if (animalList[i]) {
 				animalList[i]->moveStep();
@@ -324,50 +327,49 @@ void Game::go()
 
 				if (animalList[i]->checkProduction()) {
 					point dropPos = animalList[i]->getPos();
-					Product* pNew = new Egg(this, dropPos, 30, 30, "images\\egg.jpg");
-					productList.push_back(pNew);
+					// Note: Ensure Egg class and productList are correctly defined/accessible
+					// Product* pNew = new Egg(this, dropPos, 30, 30, "images\\egg.jpg");
+					// productList.push_back(pNew);
 					budget += 50;
 				}
 			}
 		}
 
+		// 6. Update and Draw Wolves
 		for (size_t i = 0; i < wolves.size(); i++) {
 			wolves[i]->moveStep();
 			wolves[i]->draw();
 		}
 
+		// 7. Draw Products
 		for (size_t i = 0; i < productList.size(); i++) {
 			if (productList[i]) productList[i]->draw();
 		}
 
-		
+		// 8. Wolf Spawning Logic
+		if (now - lastWolfSpawnTime >= 30000UL) {
+			generateRandomWolves();
+			lastWolfSpawnTime = now;
+		}
+
+		// 9. UI Updates
 		gameToolbar->draw();
 		gameBudgetbar->draw();
 		gameBudgetbar->update();
 		drawStatusBar();
-    drawTimer();
+		drawTimer();
 		printBudget("BUDGET = $" + to_string(budget));
 
-		
-		const unsigned long currentTime = CurrentTime();
-		if (currentTime - lastWolfSpawnTime >= 30000UL) {
-			generateRandomWolves();
-			lastWolfSpawnTime = currentTime;
-		}
-
-		
+		// 10. Handle Input
 		clicktype click = pWind->GetMouseClick(x, y);
 		if (click != NO_CLICK)
 		{
-			
 			if (y >= 0 && y < config.toolBarHeight) {
 				isExit = gameToolbar->handleClick(x, y);
 			}
-			
 			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
 				isExit = gameBudgetbar->handleClick(x, y);
 			}
-		
 			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
 				if (budget >= 20) {
 					point p; p.x = x - 25; p.y = y - 25;
@@ -378,8 +380,8 @@ void Game::go()
 			}
 		}
 
-		pWind->UpdateBuffer(); 
-		Sleep(30);
+		pWind->UpdateBuffer();
+		Sleep(30); // Control frame rate (approx 33 FPS)
 
 	} while (!isExit);
 }

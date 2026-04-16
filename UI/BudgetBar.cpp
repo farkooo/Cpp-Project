@@ -100,6 +100,7 @@ CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, string
 	}
 }
 
+
 void CowIcon::onClick()
 {
 	cout << "Icon Cow Clicked" << endl;
@@ -242,10 +243,29 @@ Budgetbar::~Budgetbar()
 void Budgetbar::draw() const
 {
 	for (int i = 0; i < ANIMAL_COUNT; i++)
-		iconsList[i]->draw();
+		if (iconsList[i]) iconsList[i]->draw();
 	window* pWind = pGame->getWind();
 	pWind->SetPen(BLACK, 3);
-	pWind->DrawLine(0, 2*config.toolBarHeight, pWind->GetWidth(), 2*config.toolBarHeight);
+	pWind->DrawLine(0, 2 * config.toolBarHeight, pWind->GetWidth(), 2 * config.toolBarHeight);
+
+	drawBudgetTexts();
+}
+
+void Budgetbar::drawBudgetTexts() const
+{
+	window* pWind = pGame->getWind();
+	pWind->SetFont(12, BOLD, BY_NAME, "Arial");
+	pWind->SetPen(WHITE, 1);
+
+	int textY = config.toolBarHeight + 35;
+
+	pWind->DrawString(5, textY, "Chick:$100");
+	pWind->DrawString(config.iconWidth + 5, textY, "Cow:$200");
+
+	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
+	pWind->SetPen(YELLOW, 1);
+	string budgetStr = "Budget: $" + to_string(pGame->budget);
+	pWind->DrawString(config.windWidth - 250, config.toolBarHeight + 15, budgetStr);
 }
 
 bool Budgetbar::handleClick(int x, int y)

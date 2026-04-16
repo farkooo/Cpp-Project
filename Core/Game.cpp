@@ -26,6 +26,7 @@ Game::Game()
 	clearStatusBar();
 	startTime = time(NULL);
 	drawField();
+	drawWarehouse();
 	drawStatusBar();
 }
 
@@ -136,6 +137,31 @@ void Game::drawField() const
 	pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
 }
 
+void Game::drawWarehouse() const
+{
+	int wh_x = config.windWidth - 200;
+	int wh_y = config.windHeight - config.statusBarHeight - 140;
+	int wh_w = 180;
+	int wh_h = 100;
+
+	pWind->SetBrush(BROWN);
+	pWind->SetPen(BLACK, 3);
+	pWind->DrawRectangle(wh_x, wh_y + 30, wh_x + wh_w, wh_y + wh_h);
+
+	pWind->SetBrush(DARKRED);
+	pWind->SetPen(BLACK, 2);
+	pWind->DrawRectangle(wh_x - 5, wh_y, wh_x + wh_w + 5, wh_y + 35);
+
+	pWind->SetBrush(BLACK);
+	pWind->SetPen(BLACK, 1);
+	int door_x = wh_x + wh_w / 2 - 15;
+	pWind->DrawRectangle(door_x, wh_y + 60, door_x + 30, wh_y + wh_h);
+
+	pWind->SetPen(WHITE, 1);
+	pWind->SetFont(13, BOLD, BY_NAME, "Arial");
+	pWind->DrawString(wh_x + 20, wh_y + 115, "Warehouse");
+}
+
 void Game::drawStatusBar() const
 {
 	clearStatusBar();
@@ -172,22 +198,15 @@ void Game::go() const
 
 	do
 	{
-		printMessage("Ready...");
-		drawStatusBar();
+		drawField();
+		drawWarehouse();
 
-		pWind->SetBrush(config.bkGrndColor);
-		pWind->SetPen(config.bkGrndColor, 1);
-		pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
-
-		
 		gameToolbar->draw();
 		gameBudgetbar->draw();
-		string budget_string = "BUDGET = $" + to_string(budget);
-		printBudget(budget_string);
-
 
 		gameBudgetbar->update();
 
+		drawStatusBar();
 
 		if (pWind->GetMouseClick(x, y) != NO_CLICK)
 		{
@@ -200,7 +219,6 @@ void Game::go() const
 				isExit = gameBudgetbar->handleClick(x, y);
 			}
 		}
-
 
 		pWind->UpdateBuffer();
 

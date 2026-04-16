@@ -33,6 +33,7 @@ public:
 
 	void printMessage(string msg) const;	//Print a message on Status bar
 	void drawField() const;
+	void drawWarehouse() const;
 	void drawStatusBar() const;
 
 	void go() const;

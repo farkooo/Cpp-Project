@@ -271,7 +271,7 @@ void Game::go()
   int currentTime = time(NULL); // Get current time
 
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
-}
+
 	pWind->SetBuffering(true);
 
 	do

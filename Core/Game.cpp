@@ -383,3 +383,37 @@ void Game::go()
 
 	} while (!isExit);
 }
+void Game::showWarehouse() const
+{
+    // 1. Define warehouse window dimensions
+    int wWidth = 400;
+    int wHeight = 300;
+    
+    // 2. Create the standalone pop-up window (appears slightly offset from main game)
+    window* pWarehouseWind = new window(wWidth, wHeight, config.wx + 50, config.wy + 50);
+    pWarehouseWind->ChangeTitle("Warehouse Inventory");
+
+    // 3. Draw the background
+    pWarehouseWind->SetBrush(LIGHTGRAY); // Or use config.bkGrndColor
+    pWarehouseWind->SetPen(LIGHTGRAY, 1);
+    pWarehouseWind->DrawRectangle(0, 0, wWidth, wHeight);
+
+    // 4. Draw text inside the warehouse window
+    pWarehouseWind->SetPen(BLACK, 50);
+    pWarehouseWind->SetFont(24, BOLD, BY_NAME, "Arial");
+    pWarehouseWind->DrawString(20, 20, "- Warehouse Inventory -");
+    
+    pWarehouseWind->SetFont(18, BOLD, BY_NAME, "Arial");
+    pWarehouseWind->DrawString(20, 80, "Item 1: 0");
+    pWarehouseWind->DrawString(20, 110, "Item 2: 0");
+
+    pWarehouseWind->SetPen(DARKRED, 50);
+    pWarehouseWind->DrawString(20, wHeight - 40, "Click anywhere inside to close...");
+
+    // 5. Wait for the user to click to close the warehouse
+    int x, y;
+    pWarehouseWind->WaitMouseClick(x, y);
+
+    // 6. Delete the window to free the memory and close it
+    delete pWarehouseWind;
+}

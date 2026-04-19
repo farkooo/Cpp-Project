@@ -57,6 +57,7 @@ public:
 	void restartGame();
 	void drawField() const;
 	void drawStatusBar() const;
+	void showWarehouse() const;
 
 	void go();
 

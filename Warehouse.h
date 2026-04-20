@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include "Core/GameObject.h"
 
 class GameObject;
 class Drawable;
@@ -9,6 +10,7 @@ enum class ProductType {
     MILK
 };
 
+class Warehouse : public GameObject
 class Warehouse 
 {
 private:
@@ -17,6 +19,11 @@ private:
     std::map<ProductType, int> storedItems;
 
 public:
+    Warehouse(Game* r_pGame, point ref, int r_width, int r_height, int cap = 100);
+    virtual ~Warehouse();
+
+    virtual void draw() const override;
+
     Warehouse(int cap = 100);
     virtual ~Warehouse();
 
@@ -26,5 +33,7 @@ public:
     int GetItemCount(ProductType item) const;
     int GetTotalItems() const;
     int GetCapacity() const;
+
+    void Reset();
 
 };

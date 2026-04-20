@@ -25,7 +25,13 @@ Game::Game()
 	//3 - create and draw the backgroundPlayingArea
 
 
-	//4- Create the Plane
+	//4- Create the Warehouse
+	point warehousePos;
+	warehousePos.x = config.windWidth - 150;
+	warehousePos.y = config.windHeight - config.statusBarHeight - 120;
+	pWarehouse = new Warehouse(this, warehousePos, 120, 80, 500);
+
+	//5- Create the Plane
 	//TODO: Add code to create and draw the Plane
 
 	//5- Create the Bullet
@@ -47,6 +53,7 @@ Game::~Game()
 		delete wolves[i];
 	delete gameToolbar;
 	delete gameBudgetbar;
+	delete pWarehouse;
 	delete pWind;
 }
 
@@ -132,12 +139,12 @@ void Game::drawTimer() const
 	int seconds = remainingTimeSeconds % 60;
 
 	string timeStr = "Time: ";
-	if(minutes < 10) timeStr += "0";
+	if (minutes < 10) timeStr += "0";
 	timeStr += to_string(minutes) + ":";
-	if(seconds < 10) timeStr += "0";
+	if (seconds < 10) timeStr += "0";
 	timeStr += to_string(seconds);
 
-	pWind->SetPen(config.penColor, 50); 
+	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 
 	pWind->DrawString(config.windWidth - 200, config.windHeight - (int)(0.85 * config.statusBarHeight), timeStr);
@@ -145,6 +152,7 @@ void Game::drawTimer() const
 
 void Game::clearStatusBar() const
 {
+
 	
 	pWind->SetPen(config.statusBarColor, 1);
 	pWind->SetBrush(config.statusBarColor);
@@ -214,6 +222,10 @@ void Game::restartGame()
 
 	if (gameBudgetbar) {
 		gameBudgetbar->reset();
+	}
+
+	if (pWarehouse) {
+		pWarehouse->Reset();
 	}
 
 	budget = 2000;
@@ -345,6 +357,9 @@ void Game::go()
 		for (size_t i = 0; i < productList.size(); i++) {
 			if (productList[i]) productList[i]->draw();
 		}
+
+		// 7.5 Draw Warehouse
+		if (pWarehouse) pWarehouse->draw();
 
 		// 8. Wolf Spawning Logic
 		if (now - lastWolfSpawnTime >= 30000UL) {

@@ -56,6 +56,7 @@ public:
 	int getCurrentLevel() const;
 	void restartGame();
 	void drawField() const;
+	void drawWarehouse() const;
 	void drawStatusBar() const;
 
 	void go();

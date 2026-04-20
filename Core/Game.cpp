@@ -59,7 +59,7 @@ Game::~Game()
 
 clicktype Game::getMouseClick(int& x, int& y) const
 {
-	return pWind->WaitMouseClick(x, y);
+	return pWind->WaitMouseClick(x, y);	
 }
 
 string Game::getSrting() const
@@ -125,7 +125,7 @@ void Game::clearBudget() const
 
 void Game::printBudget(string msg) const
 {
-	clearBudget();
+	clearBudget();	
 
 	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
@@ -153,6 +153,7 @@ void Game::drawTimer() const
 void Game::clearStatusBar() const
 {
 
+	
 	pWind->SetPen(config.statusBarColor, 1);
 	pWind->SetBrush(config.statusBarColor);
 	pWind->DrawRectangle(0, config.windHeight - config.statusBarHeight, config.windWidth, config.windHeight);
@@ -168,7 +169,7 @@ void Game::clearPlayingArea() const
 
 void Game::printMessage(string msg) const
 {
-	clearStatusBar();
+	clearStatusBar();	
 	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 	pWind->DrawString(10, config.windHeight - (int)(0.85 * config.statusBarHeight), msg);

@@ -16,6 +16,7 @@ Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, string i
 	curr_vel.y = (rand() % 7) - 3;
 
 
+	
 	lastProductionTime = time(0);
 }
 
@@ -23,10 +24,10 @@ Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, string i
 bool Animal::checkProduction()
 {
 	time_t currentTime = time(0);
-
+	
 	if (currentTime - lastProductionTime >= productionRate)
 	{
-		lastProductionTime = currentTime;
+		lastProductionTime = currentTime; 
 		return true;
 	}
 	return false;
@@ -35,6 +36,7 @@ bool Animal::checkProduction()
 void Animal::draw() const
 {
 
+	
 	window* pWind = pGame->getWind();
 	pWind->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
 }
@@ -43,6 +45,7 @@ Chick::Chick(Game* r_pGame, point r_point, int r_width, int r_height, string img
 	: Animal(r_pGame, r_point, r_width, r_height, img_path)
 {
 
+	
 	productionRate = 10;
 }
 
@@ -76,6 +79,11 @@ void Chick::moveStep()
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path)
 {
+	
+	productionRate = 15;
+}
+
+void Cow::moveStep() {
 
 	productionRate = 15;
 }

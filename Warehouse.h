@@ -2,12 +2,16 @@
 #include <map>
 #include "Core/GameObject.h"
 
+class GameObject;
+class Drawable;
+
 enum class ProductType {
     EGG,
     MILK
 };
 
 class Warehouse : public GameObject
+class Warehouse 
 {
 private:
     int capacity;
@@ -19,6 +23,9 @@ public:
     virtual ~Warehouse();
 
     virtual void draw() const override;
+
+    Warehouse(int cap = 100);
+    virtual ~Warehouse();
 
     bool StoreItem(ProductType item, int count = 1);
     bool RemoveItem(ProductType item, int count = 1);

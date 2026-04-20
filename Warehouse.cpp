@@ -3,6 +3,8 @@
 
 Warehouse::Warehouse(Game* r_pGame, point ref, int r_width, int r_height, int cap) 
     : GameObject(r_pGame, ref, r_width, r_height, DARKGRAY, BLACK), capacity(cap), currentItemCount(0)
+
+Warehouse::Warehouse(int cap) : capacity(cap), currentItemCount(0)
 {
     storedItems[ProductType::EGG] = 0;
     storedItems[ProductType::MILK] = 0;

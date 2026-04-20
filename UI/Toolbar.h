@@ -43,10 +43,10 @@ public:
 	virtual void onClick();
 };
 
-class LoadIcon : public ToolbarIcon
+class LoadGameIcon : public ToolbarIcon
 {
 public:
-	LoadIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	LoadGameIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
 	virtual void onClick();
 };

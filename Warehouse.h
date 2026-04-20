@@ -2,8 +2,7 @@
 #include <map>
 #include "Core/GameObject.h"
 
-class GameObject;
-class Drawable;
+class Game;
 
 enum class ProductType {
     EGG,
@@ -11,7 +10,6 @@ enum class ProductType {
 };
 
 class Warehouse : public GameObject
-class Warehouse 
 {
 private:
     int capacity;
@@ -24,9 +22,6 @@ public:
 
     virtual void draw() const override;
 
-    Warehouse(int cap = 100);
-    virtual ~Warehouse();
-
     bool StoreItem(ProductType item, int count = 1);
     bool RemoveItem(ProductType item, int count = 1);
 
@@ -35,5 +30,4 @@ public:
     int GetCapacity() const;
 
     void Reset();
-
 };

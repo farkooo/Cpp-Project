@@ -46,7 +46,9 @@ PauseIcon::PauseIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
 void PauseIcon::draw() const {
 	drawButton(pGame->getWind(), RefPoint.x, RefPoint.y, width, height, DARKGREY, "Pause");
 }
-void PauseIcon::onClick() {}
+void PauseIcon::onClick() {
+	pGame->setPaused(true);
+}
 
 ResumeIcon::ResumeIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: ToolbarIcon(r_pGame, r_point, r_width, r_height, img_path) {}
@@ -54,7 +56,14 @@ ResumeIcon::ResumeIcon(Game* r_pGame, point r_point, int r_width, int r_height, 
 void ResumeIcon::draw() const {
 	drawButton(pGame->getWind(), RefPoint.x, RefPoint.y, width, height, DARKGREEN, "Resume");
 }
-void ResumeIcon::onClick() {}
+void ResumeIcon::onClick() {
+	if (pGame->remainingTimeSeconds > 0) {
+		pGame->setPaused(false);
+	}
+	else {
+		pGame->printMessage("Cannot resume! Time is up.");
+	}
+}
 
 SaveIcon::SaveIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: ToolbarIcon(r_pGame, r_point, r_width, r_height, img_path) {}
@@ -77,10 +86,10 @@ Toolbar::Toolbar(Game* r_pGame, point r_point, int r_width, int r_height) : Draw
 	//First prepare List of images for each icon
 	//To control the order of these images in the menu, reoder them in enum ICONS above	
 	iconsImages[ICON_RESTART] = "images\\RESTART.jpg";
-	iconsImages[ICON_PAUSE] = "";
-	iconsImages[ICON_RESUME] = "";
-	iconsImages[ICON_SAVE] = "";
-	iconsImages[ICON_LOAD] = "";
+	iconsImages[ICON_PAUSE] = "images\\pause.png";
+	iconsImages[ICON_RESUME] = "images\\resume.jpg";
+	iconsImages[ICON_SAVE] = "images\\save.jpg";
+	iconsImages[ICON_LOAD] = "images\\load.jpg";
 	iconsImages[ICON_EXIT] = "images\\EXIT.jpg";
 	point p;
 	p.x = 0;

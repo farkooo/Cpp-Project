@@ -240,6 +240,7 @@ void Game::restartGame()
 	clearStatusBar();
 	printBudget("BUDGET = $" + to_string(budget));
 	printMessage("Ready...");
+	isPaused = false;
 	pWind->UpdateBuffer();
 }
 void Game::drawField() const
@@ -276,6 +277,22 @@ window* Game::getWind() const
 	return pWind;
 }
 
+void Game::setPaused(bool pause)
+{
+	isPaused = pause;
+	if (isPaused) {
+		printMessage("Game Paused. Click Resume to continue.");
+	}
+	else {
+		printMessage("Game Resumed.");
+	}
+}
+
+bool Game::isGamePaused() const
+{
+	return isPaused;
+}
+
 void Game::go()
 {
 	int x, y;
@@ -292,7 +309,7 @@ void Game::go()
 		unsigned long now = CurrentTime();
 
 		// 1. Timer Logic: Check if 1000ms (1 second) has passed
-		if (now - lastSecondTick >= 1000)
+		if (!isPaused && now - lastSecondTick >= 1000)
 		{
 			if (remainingTimeSeconds > 0)
 			{
@@ -304,6 +321,7 @@ void Game::go()
 		// 2. Check Lose Condition
 		if (remainingTimeSeconds <= 0)
 		{
+			isPaused = true; // Auto-pause if time is up
 			pWind->UpdateBuffer();
 			pWind->SetPen(RED, 50);
 			pWind->SetFont(40, BOLD, BY_NAME, "Arial");
@@ -316,58 +334,70 @@ void Game::go()
 			break;
 		}
 
-		// 3. Drawing the environment
-		drawField();
+		if (!isPaused)
+		{
+			// 3. Drawing the environment
+			drawField();
 
-		// 4. Update and Draw Food
-		for (size_t i = 0; i < foodList.size(); i++) {
-			if (foodList[i]) {
-				foodList[i]->draw();
-				if (foodList[i]->isEmpty()) {
-					delete foodList[i];
-					foodList.erase(foodList.begin() + i);
-					i--;
+			// 4. Update and Draw Food
+			for (size_t i = 0; i < foodList.size(); i++) {
+				if (foodList[i]) {
+					foodList[i]->draw();
+					if (foodList[i]->isEmpty()) {
+						delete foodList[i];
+						foodList.erase(foodList.begin() + i);
+						i--;
+					}
 				}
 			}
-		}
 
-		// 5. Update and Draw Animals
-		for (size_t i = 0; i < animalList.size(); i++) {
-			if (animalList[i]) {
-				animalList[i]->moveStep();
-				animalList[i]->draw();
+			// 5. Update and Draw Animals
+			for (size_t i = 0; i < animalList.size(); i++) {
+				if (animalList[i]) {
+					animalList[i]->moveStep();
+					animalList[i]->draw();
 
-				if (animalList[i]->checkProduction()) {
-					point dropPos = animalList[i]->getPos();
-					// Note: Ensure Egg class and productList are correctly defined/accessible
-					// Product* pNew = new Egg(this, dropPos, 30, 30, "images\\egg.jpg");
-					// productList.push_back(pNew);
-					budget += 50;
+					if (animalList[i]->checkProduction()) {
+						point dropPos = animalList[i]->getPos();
+						// Note: Ensure Egg class and productList are correctly defined/accessible
+						// Product* pNew = new Egg(this, dropPos, 30, 30, "images\\egg.jpg");
+						// productList.push_back(pNew);
+						budget += 50;
+					}
 				}
 			}
+
+			// 6. Update and Draw Wolves
+			for (size_t i = 0; i < wolves.size(); i++) {
+				wolves[i]->moveStep();
+				wolves[i]->draw();
+			}
+
+			// 7. Draw Products
+			for (size_t i = 0; i < productList.size(); i++) {
+				if (productList[i]) productList[i]->draw();
+			}
+
+			// 7.5 Draw Warehouse
+			if (pWarehouse) pWarehouse->draw();
+
+			// 8. Wolf Spawning Logic
+			if (now - lastWolfSpawnTime >= 30000UL) {
+				generateRandomWolves();
+				lastWolfSpawnTime = now;
+			}
+		}
+		else {
+			// If paused, we still need to draw the field and entities (static)
+			drawField();
+			for (auto food : foodList) if (food) food->draw();
+			for (auto animal : animalList) if (animal) animal->draw();
+			for (auto wolf : wolves) if (wolf) wolf->draw();
+			for (auto product : productList) if (product) product->draw();
+			if (pWarehouse) pWarehouse->draw();
 		}
 
-		// 6. Update and Draw Wolves
-		for (size_t i = 0; i < wolves.size(); i++) {
-			wolves[i]->moveStep();
-			wolves[i]->draw();
-		}
-
-		// 7. Draw Products
-		for (size_t i = 0; i < productList.size(); i++) {
-			if (productList[i]) productList[i]->draw();
-		}
-
-		// 7.5 Draw Warehouse
-		if (pWarehouse) pWarehouse->draw();
-
-		// 8. Wolf Spawning Logic
-		if (now - lastWolfSpawnTime >= 30000UL) {
-			generateRandomWolves();
-			lastWolfSpawnTime = now;
-		}
-
-		// 9. UI Updates
+		// 9. UI Updates (Always update UI so buttons work)
 		gameToolbar->draw();
 		gameBudgetbar->draw();
 		gameBudgetbar->update();
@@ -386,7 +416,7 @@ void Game::go()
 				isExit = gameBudgetbar->handleClick(x, y);
 			}
 			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
-				if (budget >= 20) {
+				if (!isPaused && budget >= 20) {
 					point p; p.x = x - 25; p.y = y - 25;
 					FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
 					foodList.push_back(pNewFood);

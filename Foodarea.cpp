@@ -34,7 +34,7 @@ void FoodArea::draw() const {
         pW->DrawRectangle(RefPoint.x, RefPoint.y, RefPoint.x + width, RefPoint.y + height);
 
         // --- 🌟 رسم العداد التنازلي فوق العشب ---
-        int timeAlive = difftime(time(0), creationTime); // كام ثانية عاشها؟
+        int timeAlive = difftime(time(0), creationTime); // 
         int timeLeft = lifeSpan - timeAlive;             // فاضل كام ثانية؟
         if (timeLeft < 0) timeLeft = 0; // عشان ميكتبش رقم بالسالب
 

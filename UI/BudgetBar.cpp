@@ -12,7 +12,7 @@
 
 	void BudgetbarIcon::draw() const
 	{
-		//draw image of this object
+		
 		window* pWind = pGame->getWind();
 		pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 	}

@@ -302,6 +302,7 @@ void Game::go()
 	unsigned long lastSecondTick = CurrentTime();
 
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
+
 	pWind->SetBuffering(true);
 
 	do
@@ -429,4 +430,32 @@ void Game::go()
 		Sleep(30); // Control frame rate (approx 33 FPS)
 
 	} while (!isExit);
+}
+void Game::showWarehouse()
+{
+    int wWidth = 400;
+    int wHeight = 300;
+    
+    window* pWarehouseWind = new window(wWidth, wHeight, config.wx + 50, config.wy + 50);
+    pWarehouseWind->ChangeTitle("Warehouse Inventory");
+
+    // 3. Draw the background
+    pWarehouseWind->SetPen(LIGHTGRAY, 1);
+    pWarehouseWind->DrawRectangle(0, 0, wWidth, wHeight);
+
+    pWarehouseWind->SetPen(BLACK, 50);
+    pWarehouseWind->SetFont(24, BOLD, BY_NAME, "Arial");
+    pWarehouseWind->DrawString(20, 20, "- Warehouse Inventory -");
+    
+    pWarehouseWind->SetFont(18, BOLD, BY_NAME, "Arial");
+    pWarehouseWind->DrawString(20, 80, "Item 1: 0");
+    pWarehouseWind->DrawString(20, 110, "Item 2: 0");
+
+    pWarehouseWind->SetPen(DARKRED, 50);
+    pWarehouseWind->DrawString(20, wHeight - 40, "Click anywhere inside to close...");
+
+    int x, y;
+    pWarehouseWind->WaitMouseClick(x, y);
+
+    delete pWarehouseWind;
 }

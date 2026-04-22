@@ -3,22 +3,26 @@
 #include "../CMUgraphicsLib/auxil.h"
 #include "../UI/Toolbar.h"
 #include "../UI/BudgetBar.h"
+#include "../Entities/Animal.h"
+#include "Warehouse.h" 
 #include <vector>
+#include <string>
+
 class Product;
 class FoodArea;
 class Animal;
-#include "../Entities/Animal.h"
-#include <vector>
 
 class Game
 {
 private:
-	vector<FoodArea*> foodList;
-	vector<Animal*> animalList;
-	vector<Product*> productList;
-	window* pWind;	
+	std::vector<FoodArea*> foodList;
+	std::vector<Animal*> animalList;
+	std::vector<Product*> productList;
+	window* pWind;
 	Toolbar* gameToolbar;
 	Budgetbar* gameBudgetbar;
+	Warehouse* pWarehouse;    
+
 	std::vector<Chick*> chicks;
 	std::vector<Wolf*> wolves;
 	int currentLevel;
@@ -28,7 +32,7 @@ private:
 
 public:
 	int budget = 6000;
-	int remainingTimeSeconds = 120; // Current level timer (modify as needed)
+	int remainingTimeSeconds = 120;
 	int animalCount = 0;
 	int level = 1;
 	int goal = 5;
@@ -37,28 +41,26 @@ public:
 	Game();
 	~Game();
 
-	clicktype getMouseClick(int& x, int& y) const; 
-	string getSrting() const;	
+	clicktype getMouseClick(int& x, int& y) const;
+	std::string getSrting() const;
 
-
-	window* CreateWind(int, int, int, int) const; 
+	window* CreateWind(int, int, int, int) const;
 	void createToolbar();
 	void createBudgetbar();
 	void clearBudget() const;
-	void printBudget(string msg) const;
-	void drawTimer() const; // Function to draw the timer HUD
-	void clearStatusBar() const;	
+	void printBudget(std::string msg) const;
+	void drawTimer() const;
+	void clearStatusBar() const;
 	void clearPlayingArea() const;
 
-
-	void printMessage(string msg) const;	
+	void printMessage(std::string msg) const;
 	void drawWolf(point position, int width, int height, int speed = 1);
 	void generateRandomWolves();
 	int getCurrentLevel() const;
 	void restartGame();
 	void drawField() const;
-	void drawWarehouse() const;
 	void drawStatusBar() const;
+	void showWarehouse();
 
 	void go();
 

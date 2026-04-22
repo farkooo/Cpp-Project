@@ -73,13 +73,13 @@ void SaveIcon::draw() const {
 }
 void SaveIcon::onClick() {}
 
-LoadIcon::LoadIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
+LoadGameIcon::LoadGameIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: ToolbarIcon(r_pGame, r_point, r_width, r_height, img_path) {}
 
-void LoadIcon::draw() const {
+void LoadGameIcon::draw() const {
 	drawButton(pGame->getWind(), RefPoint.x, RefPoint.y, width, height, DARKBLUE, "Load");
 }
-void LoadIcon::onClick() {}
+void LoadGameIcon::onClick() {}
 
 Toolbar::Toolbar(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {
@@ -106,7 +106,7 @@ Toolbar::Toolbar(Game* r_pGame, point r_point, int r_width, int r_height) : Draw
 	p.x += config.iconWidth;
 	iconsList[ICON_SAVE] = new SaveIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_SAVE]);
 	p.x += config.iconWidth;
-	iconsList[ICON_LOAD] = new LoadIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_LOAD]);
+	iconsList[ICON_LOAD] = new LoadGameIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_LOAD]);
 	p.x += config.iconWidth;
 	iconsList[ICON_EXIT] = new ExitIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_EXIT]);
 }

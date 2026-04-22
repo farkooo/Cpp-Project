@@ -73,10 +73,16 @@ void Chick::moveStep()
 	
 }
 
+<<<<<<< Updated upstream
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path)
 {
 	
+=======
+
+Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
+>>>>>>> Stashed changes
 	productionRate = 15;
 }
 
@@ -101,6 +107,23 @@ void Cow::moveStep() {
 
 }
 
+<<<<<<< Updated upstream
+=======
+
+Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
+}
+
+void Seal::moveStep() {
+	RefPoint.x += curr_vel.x;
+	RefPoint.y += curr_vel.y;
+	curr_pos = RefPoint;
+	if (RefPoint.x <= 0 || (RefPoint.x + width >= config.windWidth)) curr_vel.x = -curr_vel.x;
+	if (RefPoint.y <= 2 * config.toolBarHeight || (RefPoint.y + height) >= (config.windHeight - config.statusBarHeight)) curr_vel.y = -curr_vel.y;
+}
+
+
+>>>>>>> Stashed changes
 Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 	: Animal(r_pGame, r_point, r_width, r_height, "images\\wolf.jpg"), speed(r_speed)
 {
@@ -142,6 +165,7 @@ void Wolf::moveStep()
 
 	curr_pos.x += curr_vel.x;
 	curr_pos.y += curr_vel.y;
+<<<<<<< Updated upstream
 
 	const int minX = 0;
 	const int maxX = config.windWidth - width;
@@ -196,6 +220,12 @@ void Seal::moveStep()
 
 Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Drawable(r_pGame, r_point, r_width, r_height)
 {
+=======
+}
+	
+Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+	: Drawable(r_pGame, r_point, r_width, r_height) {
+>>>>>>> Stashed changes
 	image_path = img_path;
 	curr_pos = r_point;
 

@@ -4,12 +4,21 @@
 	#include <iostream>
 	using namespace std;
 
+<<<<<<< Updated upstream
+=======
+BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : Drawable(r_pGame, r_point, r_width, r_height)
+{
+    image_path = img_path;
+}
+>>>>>>> Stashed changes
 
 	BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : Drawable(r_pGame, r_point, r_width, r_height)
 	{
 		image_path = img_path;
 	}
 
+<<<<<<< Updated upstream
 	void BudgetbarIcon::draw() const
 	
 	{
@@ -17,6 +26,14 @@
 		window* pWind = pGame->getWind();
 		pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 	}
+=======
+ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+    chickList = new Chick * [MAX_CREATED_ANIMALS];
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) chickList[i] = nullptr;
+}
+>>>>>>> Stashed changes
 
 	void Budgetbar::update()
 	{
@@ -45,7 +62,16 @@
 
 	}
 
+<<<<<<< Updated upstream
 	
+=======
+CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+    CowList = new Cow * [MAX_CREATED_ANIMALS];
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) CowList[i] = nullptr;
+}
+>>>>>>> Stashed changes
 
 	void ChickIcon::update() {
 		for (int i = 0; i < count; i++) {
@@ -111,6 +137,7 @@
 		count = 0; 
 	}
 
+<<<<<<< Updated upstream
 	CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 	{
 		CowList = new Cow * [MAX_CREATED_ANIMALS];
@@ -118,6 +145,14 @@
 			CowList[i] = nullptr;
 		}
 	}
+=======
+SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+    sealList = new Seal * [MAX_CREATED_ANIMALS];
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) sealList[i] = nullptr;
+}
+>>>>>>> Stashed changes
 
 	void CowIcon::onClick()
 	{
@@ -183,6 +218,7 @@
 		count = 0; 
 	}
 
+<<<<<<< Updated upstream
 	SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 	{
 		sealList = new Seal * [MAX_CREATED_ANIMALS];
@@ -190,6 +226,14 @@
 			sealList[i] = nullptr;
 		}
 	}
+=======
+WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+    grassList = new Grass * [MAX_CREATED_ANIMALS];
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) grassList[i] = nullptr;
+}
+>>>>>>> Stashed changes
 
 	void SealIcon::onClick()
 	{
@@ -248,6 +292,7 @@
 		}
 	}
 
+<<<<<<< Updated upstream
 	void SealIcon::reset() {
 		for (int i = 0; i < count; i++) {
 			delete sealList[i]; 
@@ -255,6 +300,15 @@
 		}
 		count = 0; 
 	}
+=======
+Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
+    : Drawable(r_pGame, r_point, r_width, r_height)
+{
+    iconsImages[ICON_CHICK] = "images\\chick.jpg";
+    iconsImages[ICON_COW] = "images\\cow.jpg";
+    iconsImages[ICON_SEAL] = "images\\seal.jpg";
+    iconsImages[ICON_WATER] = "images\\waterbucket.jpg";
+>>>>>>> Stashed changes
 
 	WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path) : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 	{

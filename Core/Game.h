@@ -28,6 +28,7 @@ private:
 	int currentLevel;
 	unsigned long gameStartTime;
 	unsigned long lastWolfSpawnTime;
+	bool isPaused = false;
 
 public:
 	int budget = 6000;
@@ -63,5 +64,9 @@ public:
 
 	void go();
 
-	window* getWind() const;
+	void setPaused(bool pause);
+	bool isGamePaused() const;
+
+	window* getWind() const;		
 };
+

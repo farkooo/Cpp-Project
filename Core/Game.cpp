@@ -417,9 +417,34 @@ void Game::showWarehouse()
     pWarehouseWind->SetFont(24, BOLD, BY_NAME, "Arial");
     pWarehouseWind->DrawString(20, 20, "- Warehouse Inventory -");
     
-    pWarehouseWind->SetFont(18, BOLD, BY_NAME, "Arial");
-    pWarehouseWind->DrawString(20, 80, "Item 1: 0");
-    pWarehouseWind->DrawString(20, 110, "Item 2: 0");
+	pWarehouseWind->SetFont(18, BOLD, BY_NAME, "Arial");
+
+	// Fetch data from actual Warehouse
+	int eggCount;
+	int milkCount;
+	int totalItems;
+	int capacity;
+
+	if (pWarehouse != nullptr)
+	{
+		eggCount = pWarehouse->GetItemCount(ProductType::EGG);
+		milkCount = pWarehouse->GetItemCount(ProductType::MILK);
+		totalItems = pWarehouse->GetTotalItems();
+		capacity = pWarehouse->GetCapacity();
+	}
+	else
+	{
+		eggCount = 0;
+		milkCount = 0;
+		totalItems = 0;
+		capacity = 0;
+	}
+
+	pWarehouseWind->DrawString(20, 80, "Eggs: " + to_string(eggCount));
+	pWarehouseWind->DrawString(20, 110, "Milk: " + to_string(milkCount));
+
+	pWarehouseWind->SetPen(RED, 50);
+	pWarehouseWind->DrawString(20, 140, "Total Storage: " + to_string(totalItems) + " / " + to_string(capacity));
 
     pWarehouseWind->SetPen(DARKRED, 50);
     pWarehouseWind->DrawString(20, wHeight - 40, "Click anywhere inside to close...");

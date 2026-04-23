@@ -31,6 +31,19 @@ void Warehouse::draw() const
     pWind->DrawRectangle(RefPoint.x + (width - doorWidth) / 2, RefPoint.y + height - doorHeight,
         RefPoint.x + (width + doorWidth) / 2, RefPoint.y + height);
 
+    // Glass Windows
+    pWind->SetBrush(LIGHTBLUE);
+    int winSize = width / 5;
+    int winY = RefPoint.y + height / 5;
+
+    // Left window
+    int leftWinX = RefPoint.x + (width / 6) - (winSize / 2);
+    pWind->DrawRectangle(leftWinX, winY, leftWinX + winSize, winY + winSize);
+
+    // Right window
+    int rightWinX = RefPoint.x + (5 * width / 6) - (winSize / 2);
+    pWind->DrawRectangle(rightWinX, winY, rightWinX + winSize, winY + winSize);
+
     // Capacity Bar
     int barWidth = width;
     int barHeight = 12;

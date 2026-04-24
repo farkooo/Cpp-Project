@@ -26,6 +26,7 @@ ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
 
 void ChickIcon::onClick()
 {
+    if (pGame->isGamePaused()) return;
     if (pGame->budget >= 100 && count < MAX_CREATED_ANIMALS) {
         pGame->budget -= 100;
         pGame->clearBudget();
@@ -50,7 +51,9 @@ void ChickIcon::onClick()
 void ChickIcon::update() {
     for (int i = 0; i < count; i++) {
         if (chickList[i]) {
-            chickList[i]->moveStep();
+            if (!pGame->isGamePaused()) {
+                chickList[i]->moveStep();
+            }
             chickList[i]->draw();
         }
     }
@@ -81,6 +84,7 @@ CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::s
 }
 
 void CowIcon::onClick() {
+    if (pGame->isGamePaused()) return;
     if (pGame->budget >= 200 && count < MAX_CREATED_ANIMALS) {
         pGame->budget -= 200;
         pGame->clearBudget();
@@ -103,7 +107,12 @@ void CowIcon::onClick() {
 
 void CowIcon::update() {
     for (int i = 0; i < count; i++) {
-        if (CowList[i]) { CowList[i]->moveStep(); CowList[i]->draw(); }
+        if (CowList[i]) {
+            if (!pGame->isGamePaused()) {
+                CowList[i]->moveStep();
+            }
+            CowList[i]->draw();
+        }
     }
 }
 
@@ -126,6 +135,7 @@ SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std:
 }
 
 void SealIcon::onClick() {
+    if (pGame->isGamePaused()) return;
     if (pGame->budget >= 300 && count < MAX_CREATED_ANIMALS) {
         pGame->budget -= 300;
         pGame->clearBudget();
@@ -147,7 +157,12 @@ void SealIcon::onClick() {
 
 void SealIcon::update() {
     for (int i = 0; i < count; i++) {
-        if (sealList[i]) { sealList[i]->moveStep(); sealList[i]->draw(); }
+        if (sealList[i]) {
+            if (!pGame->isGamePaused()) {
+                sealList[i]->moveStep();
+            }
+            sealList[i]->draw();
+        }
     }
 }
 
@@ -170,6 +185,7 @@ WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
 }
 
 void WaterIcon::onClick() {
+    if (pGame->isGamePaused()) return;
     if (pGame->budget >= 100 && count < MAX_CREATED_ANIMALS) {
         pGame->budget -= 100;
         pGame->clearBudget();
@@ -189,7 +205,12 @@ void WaterIcon::onClick() {
 
 void WaterIcon::update() {
     for (int i = 0; i < count; i++) {
-        if (grassList[i]) { grassList[i]->moveStep(); grassList[i]->draw(); }
+        if (grassList[i]) {
+            if (!pGame->isGamePaused()) {
+                grassList[i]->moveStep();
+            }
+            grassList[i]->draw();
+        }
     }
 }
 
@@ -239,6 +260,7 @@ void Budgetbar::draw() const {
 }
 
 bool Budgetbar::handleClick(int x, int y) {
+    if (pGame->isGamePaused()) return false;
     if (x < 0 || x >= ANIMAL_COUNT * config.iconWidth) return false;
     if (y < config.toolBarHeight || y >= 2 * config.toolBarHeight) return false;
 

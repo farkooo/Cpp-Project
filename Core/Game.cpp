@@ -10,7 +10,7 @@ Game::Game()
 	budget = 2000;
 	currentLevel = 1;
 	gameStartTime = CurrentTime();
-	lastWolfSpawnTime = gameStartTime;
+	lastWolfSpawnTime = 0;
 
 	//1 - Create the main window
 	pWind = CreateWind(config.windWidth, config.windHeight, config.wx, config.wy);
@@ -185,9 +185,9 @@ void Game::drawWolf(point position, int width, int height, int speed)
 
 void Game::generateRandomWolves()
 {
-	const unsigned long currentTime = CurrentTime();
-	const unsigned long elapsedMs = currentTime - gameStartTime;
-	currentLevel = static_cast<int>(elapsedMs / 30000UL) + 1;
+	const unsigned long currentTime = currentGameTime;
+	const unsigned long elapsedSeconds = currentTime;
+	currentLevel = static_cast<int>(elapsedSeconds / 30) + 1;
 	if (currentLevel < 1)
 		currentLevel = 1;
 
@@ -232,7 +232,8 @@ void Game::restartGame()
 	currentLevel = 1;
 	animalCount = 0;
 	gameStartTime = CurrentTime();
-	lastWolfSpawnTime = gameStartTime;
+	currentGameTime = 0;
+	lastWolfSpawnTime = 0;
 
 	startTime = time(NULL);
 	gameToolbar->draw();
@@ -256,10 +257,7 @@ void Game::drawStatusBar() const
 	pWind->SetPen(WHITE, 50);
 	pWind->SetFont(20, BOLD, BY_NAME, "Arial");
 
-	time_t currentTime = time(NULL);
-	long elapsedSeconds = (long)(currentTime - startTime);
-
-	if (elapsedSeconds < 0 || elapsedSeconds > 100000) elapsedSeconds = 0;
+	unsigned long elapsedSeconds = currentGameTime;
 
 	string timerStr = "Timer: " + to_string(elapsedSeconds) + "s";
 	string goalStr = "Goal: " + to_string(goal);
@@ -312,6 +310,7 @@ void Game::go()
 		// 1. Timer Logic: Check if 1000ms (1 second) has passed
 		if (!isPaused && now - lastSecondTick >= 1000)
 		{
+			currentGameTime++;
 			if (remainingTimeSeconds > 0)
 			{
 				remainingTimeSeconds--;
@@ -382,10 +381,13 @@ void Game::go()
 			// 7.5 Draw Warehouse
 			if (pWarehouse) pWarehouse->draw();
 
+			// 7.6 Update and Draw Budgetbar entities
+			gameBudgetbar->update();
+
 			// 8. Wolf Spawning Logic
-			if (now - lastWolfSpawnTime >= 30000UL) {
+			if (currentGameTime - lastWolfSpawnTime >= 30) {
 				generateRandomWolves();
-				lastWolfSpawnTime = now;
+				lastWolfSpawnTime = currentGameTime;
 			}
 		}
 		else {

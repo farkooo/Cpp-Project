@@ -11,12 +11,12 @@ Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, std::str
 	curr_pos = r_point;
 	curr_vel.x = (rand() % 7) - 3;
 	curr_vel.y = (rand() % 7) - 3;
-	lastProductionTime = time(0);
+	lastProductionTime = pGame->getGameTime();
 }
 
 bool Animal::checkProduction() {
-	time_t currentTime = time(0);
-	if (currentTime - lastProductionTime >= productionRate) {
+	unsigned long currentTime = pGame->getGameTime();
+	if (currentTime - lastProductionTime >= (unsigned long)productionRate) {
 		lastProductionTime = currentTime;
 		return true;
 	}

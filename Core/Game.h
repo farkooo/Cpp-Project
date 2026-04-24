@@ -28,9 +28,11 @@ private:
 	int currentLevel;
 	unsigned long gameStartTime;
 	unsigned long lastWolfSpawnTime;
+	unsigned long currentGameTime = 0;
 	bool isPaused = false;
 
 public:
+	unsigned long getGameTime() const { return currentGameTime; }
 	int budget = 6000;
 	int remainingTimeSeconds = 120;
 	int animalCount = 0;

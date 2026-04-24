@@ -1,2 +1,2 @@
 # Cpp-Project
-تحية بالآلي لأخويا سيف الغالي
+Built with love ╰(*°▽°*)╯

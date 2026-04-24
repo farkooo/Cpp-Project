@@ -488,11 +488,11 @@ void Game::showWarehouse()
 	pWarehouseWind->SetPen(RED, 50);
 	pWarehouseWind->DrawString(20, 140, "Total Storage: " + to_string(totalItems) + " / " + to_string(capacity));
 
-    pWarehouseWind->SetPen(DARKRED, 50);
-    pWarehouseWind->DrawString(20, wHeight - 40, "Click anywhere inside to close...");
+	pWarehouseWind->SetPen(DARKRED, 50);
+	pWarehouseWind->DrawString(20, wHeight - 40, "Click anywhere inside to close...");
 
-    int x, y;
-    pWarehouseWind->WaitMouseClick(x, y);
+	int x, y;
+	pWarehouseWind->WaitMouseClick(x, y);
 
-    delete pWarehouseWind;
+	delete pWarehouseWind;
 }

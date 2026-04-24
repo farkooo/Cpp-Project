@@ -410,6 +410,18 @@ void Game::go()
 		clicktype click = pWind->GetMouseClick(x, y);
 		if (click != NO_CLICK)
 		{
+			// Check if Warehouse is clicked
+			if (pWarehouse != nullptr) {
+				int wx = config.windWidth - 150;
+				int wy = config.windHeight - config.statusBarHeight - 120;
+				int ww = 120;
+				int wh = 80;
+				// If click is within the warehouse rectangle
+				if (x >= wx && x <= wx + ww && y >= wy && y <= wy + wh) {
+					showWarehouse();
+				}
+			}
+
 			if (y >= 0 && y < config.toolBarHeight) {
 				isExit = gameToolbar->handleClick(x, y);
 			}

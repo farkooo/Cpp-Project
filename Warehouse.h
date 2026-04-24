@@ -7,7 +7,7 @@ class Game;
 enum class ProductType {
     EGG,
     MILK
-};
+}; //add more products when new animals are added
 
 class Warehouse : public GameObject
 {

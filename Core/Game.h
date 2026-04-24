@@ -30,7 +30,7 @@ private:
 	unsigned long lastWolfSpawnTime;
 
 public:
-	int budget = 6000;
+	int budget = 2000;
 	int remainingTimeSeconds = 120;
 	int animalCount = 0;
 	int level = 1;

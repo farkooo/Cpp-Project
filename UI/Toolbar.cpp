@@ -86,7 +86,6 @@ Toolbar::Toolbar(Game* r_pGame, point r_point, int r_width, int r_height) : Draw
 	//First prepare List of images for each icon
 	//To control the order of these images in the menu, reoder them in enum ICONS above	
 	iconsImages[ICON_RESTART] = "images\\RESTART.jpg";
-	iconsImages[ICON_PAUSE] = "images\\pause.png";
 	iconsImages[ICON_RESUME] = "images\\resume.jpg";
 	iconsImages[ICON_SAVE] = "images\\save.jpg";
 	iconsImages[ICON_LOAD] = "images\\load.jpg";

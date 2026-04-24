@@ -8,11 +8,11 @@
 Game::Game()
 {
 	budget = 2000;
+	level = 1;
 	currentLevel = 1;
 	gameStartTime = CurrentTime();
 	lastWolfSpawnTime = 0;
 
-	//1 - Create the main window
 	pWind = CreateWind(config.windWidth, config.windHeight, config.wx, config.wy);
 	pWind->SetBuffering(true);
 	pWind->SetBrush(config.bkGrndColor);
@@ -59,7 +59,7 @@ Game::~Game()
 
 clicktype Game::getMouseClick(int& x, int& y) const
 {
-	return pWind->WaitMouseClick(x, y);	
+	return pWind->WaitMouseClick(x, y);
 }
 
 string Game::getSrting() const
@@ -117,7 +117,6 @@ void Game::createBudgetbar()
 
 void Game::clearBudget() const
 {
-	//Clear Status bar by drawing a filled rectangle
 	pWind->SetPen(config.bkGrndColor, 1);
 	pWind->SetBrush(config.bkGrndColor);
 	pWind->DrawRectangle(config.windWidth - 500, config.toolBarHeight, config.windWidth, 2 * config.toolBarHeight);
@@ -125,12 +124,11 @@ void Game::clearBudget() const
 
 void Game::printBudget(string msg) const
 {
-	clearBudget();	
+	clearBudget();
 
 	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 	pWind->DrawString(config.windWidth - 200, config.toolBarHeight + 10, msg);
-
 }
 
 void Game::drawTimer() const
@@ -152,8 +150,6 @@ void Game::drawTimer() const
 
 void Game::clearStatusBar() const
 {
-
-	
 	pWind->SetPen(config.statusBarColor, 1);
 	pWind->SetBrush(config.statusBarColor);
 	pWind->DrawRectangle(0, config.windHeight - config.statusBarHeight, config.windWidth, config.windHeight);
@@ -169,11 +165,10 @@ void Game::clearPlayingArea() const
 
 void Game::printMessage(string msg) const
 {
-	clearStatusBar();	
+	clearStatusBar();
 	pWind->SetPen(config.penColor, 50);
 	pWind->SetFont(24, BOLD, BY_NAME, "Arial");
 	pWind->DrawString(10, config.windHeight - (int)(0.85 * config.statusBarHeight), msg);
-
 }
 
 void Game::drawWolf(point position, int width, int height, int speed)
@@ -229,7 +224,9 @@ void Game::restartGame()
 	}
 
 	budget = 2000;
+	level = 1;
 	currentLevel = 1;
+	remainingTimeSeconds = 120;
 	animalCount = 0;
 	gameStartTime = CurrentTime();
 	currentGameTime = 0;
@@ -244,6 +241,7 @@ void Game::restartGame()
 	isPaused = false;
 	pWind->UpdateBuffer();
 }
+
 void Game::drawField() const
 {
 	pWind->SetPen(BROWN, 10);
@@ -296,7 +294,6 @@ void Game::go()
 	int x, y;
 	bool isExit = false;
 
-	// Use CurrentTime() for high-precision timing (ms)
 	unsigned long lastSecondTick = CurrentTime();
 
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
@@ -328,7 +325,7 @@ void Game::go()
 			pWind->DrawString(config.windWidth / 2 - 150, config.windHeight / 2, "TIME'S UP! YOU LOSE!");
 			printMessage("Game Over! Click anywhere to exit...");
 			drawTimer();
-			pWind->UpdateBuffer(); // Ensure the "You Lose" text actually shows up
+			pWind->UpdateBuffer(); 
 			pWind->WaitMouseClick(x, y);
 			isExit = true;
 			break;
@@ -336,10 +333,8 @@ void Game::go()
 
 		if (!isPaused)
 		{
-			// 3. Drawing the environment
 			drawField();
 
-			// 4. Update and Draw Food
 			for (size_t i = 0; i < foodList.size(); i++) {
 				if (foodList[i]) {
 					foodList[i]->draw();
@@ -351,7 +346,6 @@ void Game::go()
 				}
 			}
 
-			// 5. Update and Draw Animals
 			for (size_t i = 0; i < animalList.size(); i++) {
 				if (animalList[i]) {
 					animalList[i]->moveStep();
@@ -359,39 +353,47 @@ void Game::go()
 
 					if (animalList[i]->checkProduction()) {
 						point dropPos = animalList[i]->getPos();
-						// Note: Ensure Egg class and productList are correctly defined/accessible
-						// Product* pNew = new Egg(this, dropPos, 30, 30, "images\\egg.jpg");
-						// productList.push_back(pNew);
+						
 						budget += 50;
 					}
 				}
 			}
 
-			// 6. Update and Draw Wolves
 			for (size_t i = 0; i < wolves.size(); i++) {
 				wolves[i]->moveStep();
 				wolves[i]->draw();
 			}
 
-			// 7. Draw Products
 			for (size_t i = 0; i < productList.size(); i++) {
 				if (productList[i]) productList[i]->draw();
 			}
 
-			// 7.5 Draw Warehouse
 			if (pWarehouse) pWarehouse->draw();
 
-			// 7.6 Update and Draw Budgetbar entities
 			gameBudgetbar->update();
 
-			// 8. Wolf Spawning Logic
 			if (currentGameTime - lastWolfSpawnTime >= 30) {
 				generateRandomWolves();
 				lastWolfSpawnTime = currentGameTime;
+
+				level = currentLevel;
+
+				int newTimeLimit = 120 - (level * 15);
+
+				if (newTimeLimit < 30) {
+					newTimeLimit = 30;
+				}
+
+				remainingTimeSeconds = newTimeLimit;
+
+				drawTimer();
+				drawStatusBar();
+				pWind->UpdateBuffer();
+
+				printMessage("Level " + to_string(level) + "! Time decreases to " + to_string(remainingTimeSeconds) + "s!");
 			}
 		}
 		else {
-			// If paused, we still need to draw the field and entities (static)
 			drawField();
 			for (auto food : foodList) if (food) food->draw();
 			for (auto animal : animalList) if (animal) animal->draw();
@@ -400,7 +402,7 @@ void Game::go()
 			if (pWarehouse) pWarehouse->draw();
 		}
 
-		// 9. UI Updates (Always update UI so buttons work)
+		
 		gameToolbar->draw();
 		gameBudgetbar->draw();
 		gameBudgetbar->update();
@@ -408,7 +410,6 @@ void Game::go()
 		drawTimer();
 		printBudget("BUDGET = $" + to_string(budget));
 
-		// 10. Handle Input
 		clicktype click = pWind->GetMouseClick(x, y);
 		if (click != NO_CLICK)
 		{
@@ -429,29 +430,28 @@ void Game::go()
 		}
 
 		pWind->UpdateBuffer();
-		Sleep(30); // Control frame rate (approx 33 FPS)
+		Sleep(30); 
 
 	} while (!isExit);
 }
+
 void Game::showWarehouse()
 {
-    int wWidth = 400;
-    int wHeight = 300;
-    
-    window* pWarehouseWind = new window(wWidth, wHeight, config.wx + 50, config.wy + 50);
-    pWarehouseWind->ChangeTitle("Warehouse Inventory");
+	int wWidth = 400;
+	int wHeight = 300;
 
-    // 3. Draw the background
-    pWarehouseWind->SetPen(LIGHTGRAY, 1);
-    pWarehouseWind->DrawRectangle(0, 0, wWidth, wHeight);
+	window* pWarehouseWind = new window(wWidth, wHeight, config.wx + 50, config.wy + 50);
+	pWarehouseWind->ChangeTitle("Warehouse Inventory");
 
-    pWarehouseWind->SetPen(BLACK, 50);
-    pWarehouseWind->SetFont(24, BOLD, BY_NAME, "Arial");
-    pWarehouseWind->DrawString(20, 20, "- Warehouse Inventory -");
-    
+	pWarehouseWind->SetPen(LIGHTGRAY, 1);
+	pWarehouseWind->DrawRectangle(0, 0, wWidth, wHeight);
+
+	pWarehouseWind->SetPen(BLACK, 50);
+	pWarehouseWind->SetFont(24, BOLD, BY_NAME, "Arial");
+	pWarehouseWind->DrawString(20, 20, "- Warehouse Inventory -");
+
 	pWarehouseWind->SetFont(18, BOLD, BY_NAME, "Arial");
 
-	// Fetch data from actual Warehouse
 	int eggCount;
 	int milkCount;
 	int totalItems;
@@ -478,11 +478,11 @@ void Game::showWarehouse()
 	pWarehouseWind->SetPen(RED, 50);
 	pWarehouseWind->DrawString(20, 140, "Total Storage: " + to_string(totalItems) + " / " + to_string(capacity));
 
-    pWarehouseWind->SetPen(DARKRED, 50);
-    pWarehouseWind->DrawString(20, wHeight - 40, "Click anywhere inside to close...");
+	pWarehouseWind->SetPen(DARKRED, 50);
+	pWarehouseWind->DrawString(20, wHeight - 40, "Click anywhere inside to close...");
 
-    int x, y;
-    pWarehouseWind->WaitMouseClick(x, y);
+	int x, y;
+	pWarehouseWind->WaitMouseClick(x, y);
 
-    delete pWarehouseWind;
+	delete pWarehouseWind;
 }

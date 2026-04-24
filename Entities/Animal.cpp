@@ -3,6 +3,19 @@
 #include "../Core/Game.h"
 #include <iostream>
 #include <ctime>
+#include <cmath>
+#include <unordered_map>
+
+// --- Helper map to track precise circular motion for wolves ---
+struct WolfState {
+	double exactX;
+	double exactY;
+	double angle;
+	int turnDir;
+};
+// This allows us to give the wolves advanced movement without altering Animal.h
+static std::unordered_map<const Wolf*, WolfState> wolfStates;
+
 
 Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Drawable(r_pGame, r_point, r_width, r_height)
@@ -71,15 +84,72 @@ void Seal::moveStep() {
 // --- Wolf ---
 Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 	: Animal(r_pGame, r_point, r_width, r_height, "images\\wolf.jpg"), speed(r_speed) {
-	curr_vel.x = r_speed;
-	curr_vel.y = 0;
+
+	// Initialize circular motion parameters
+	WolfState state;
+	state.exactX = r_point.x;
+	state.exactY = r_point.y;
+	state.angle = (rand() % 360) * 3.14159 / 180.0; // Random starting angle
+	state.turnDir = (rand() % 2 == 0) ? 1 : -1;     // Left or right circles
+
+	wolfStates[this] = state;
 }
 
 void Wolf::draw() const { Animal::draw(); }
+
 void Wolf::moveStep() {
-	curr_pos.x += curr_vel.x;
-	curr_pos.y += curr_vel.y;
-	// ... rest of wolf random logic
+	// Grab the custom circular state for THIS specific wolf
+	WolfState& state = wolfStates[this];
+
+	// Randomly change circle direction occasionally (makes it loop like an '8' or wander erratically)
+	if (rand() % 40 == 0) {
+		state.turnDir = -state.turnDir;
+	}
+
+	// Update the angle to make the path curve (0.08 radians per frame creates nice wide circles)
+	state.angle += state.turnDir * 0.08;
+
+	// Because speed can be low, we calculate in floating point so the circle remains smooth
+	double moveSpeed = (speed < 2) ? 2.5 : (double)speed; // Give it a base prowl speed
+	state.exactX += moveSpeed * cos(state.angle);
+	state.exactY += moveSpeed * sin(state.angle);
+
+	// Boundary bouncing logic using angle reflection
+	bool bounced = false;
+	if (state.exactX <= 0) {
+		state.exactX = 0;
+		state.angle = 3.14159 - state.angle; // Reflect horizontally
+		bounced = true;
+	}
+	else if (state.exactX + width >= config.windWidth) {
+		state.exactX = config.windWidth - width;
+		state.angle = 3.14159 - state.angle;
+		bounced = true;
+	}
+
+	int topLimit = 2 * config.toolBarHeight;
+	int bottomLimit = config.windHeight - config.statusBarHeight;
+
+	if (state.exactY <= topLimit) {
+		state.exactY = topLimit;
+		state.angle = -state.angle; // Reflect vertically
+		bounced = true;
+	}
+	else if (state.exactY + height >= bottomLimit) {
+		state.exactY = bottomLimit - height;
+		state.angle = -state.angle;
+		bounced = true;
+	}
+
+	// If it hit a wall, force a direction change so it doesn't scrape along the edge forever
+	if (bounced) {
+		state.turnDir = (rand() % 2 == 0) ? 1 : -1;
+	}
+
+	// Update base class integer coordinates so the drawing function works perfectly
+	RefPoint.x = (int)std::round(state.exactX);
+	RefPoint.y = (int)std::round(state.exactY);
+	curr_pos = RefPoint;
 }
 
 // --- Grass ---
@@ -89,4 +159,5 @@ Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::strin
 }
 
 void Grass::draw() const { pGame->getWind()->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height); }
+
 void Grass::moveStep() {}

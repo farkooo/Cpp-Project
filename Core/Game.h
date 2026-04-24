@@ -28,9 +28,12 @@ private:
 	int currentLevel;
 	unsigned long gameStartTime;
 	unsigned long lastWolfSpawnTime;
+	unsigned long currentGameTime = 0;
+	bool isPaused = false;
 
 public:
-	int budget = 2000;
+	unsigned long getGameTime() const { return currentGameTime; }
+	int budget = 6000;
 	int remainingTimeSeconds = 120;
 	int animalCount = 0;
 	int level = 1;
@@ -63,5 +66,9 @@ public:
 
 	void go();
 
-	window* getWind() const;
+	void setPaused(bool pause);
+	bool isGamePaused() const;
+
+	window* getWind() const;		
 };
+

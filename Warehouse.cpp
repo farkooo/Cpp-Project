@@ -56,12 +56,12 @@ void Warehouse::draw() const
     if (currentItemCount > 0) {
         float ratio = (float)currentItemCount / capacity;
         pWind->SetBrush(ratio > 0.9f ? RED : GREEN);
-        pWind->DrawRectangle(barX, barY, barX + (int)(barWidth * (ratio > 1.0f ? 1.0f : ratio)), barY + barHeight);
+        pWind->DrawRectangle(barX, barY, barX + (int)(barWidth * ratio), barY + barHeight);
     }
 }
 
 bool Warehouse::StoreItem(ProductType item, int count) {
-    if (currentItemCount + count > capacity) return false;
+    if (currentItemCount + count > capacity) return false; 
     storedItems[item] += count;
     currentItemCount += count;
     return true;

@@ -4,7 +4,8 @@
 #include <iostream>
 #include <random>
 
-// --- BudgetbarIcon Implementation ---
+
+
 BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : Drawable(r_pGame, r_point, r_width, r_height)
 {
@@ -17,7 +18,6 @@ void BudgetbarIcon::draw() const
     pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 }
 
-// --- ChickIcon Implementation ---
 ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -70,9 +70,14 @@ void ChickIcon::update() {
 void ChickIcon::draw() const {
     BudgetbarIcon::draw();
     window* pWind = pGame->getWind();
+
+    pWind->SetPen(BLACK, 1);
+    pWind->SetBrush(WHITE);
+    pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
+
     pWind->SetPen(RED);
     pWind->SetFont(16, BOLD, BY_NAME, "Arial");
-    pWind->DrawString(RefPoint.x + 10, RefPoint.y + height - 20, "100$");
+    pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$100");
 }
 
 void ChickIcon::reset() {
@@ -83,7 +88,6 @@ void ChickIcon::reset() {
     count = 0;
 }
 
-// --- CowIcon Implementation ---
 CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -134,7 +138,15 @@ void CowIcon::update() {
 
 void CowIcon::draw() const {
     BudgetbarIcon::draw();
-    pGame->getWind()->DrawString(RefPoint.x + 10, RefPoint.y + height - 20, "200$");
+    window* pWind = pGame->getWind();
+
+    pWind->SetPen(BLACK, 1);
+    pWind->SetBrush(WHITE);
+    pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
+
+    pWind->SetPen(RED);
+    pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+    pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$200");
 }
 
 void CowIcon::reset() {
@@ -142,7 +154,6 @@ void CowIcon::reset() {
     count = 0;
 }
 
-// --- SealIcon Implementation ---
 SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -193,7 +204,15 @@ void SealIcon::update() {
 
 void SealIcon::draw() const {
     BudgetbarIcon::draw();
-    pGame->getWind()->DrawString(RefPoint.x + 10, RefPoint.y + height - 20, "300$");
+    window* pWind = pGame->getWind();
+
+    pWind->SetPen(BLACK, 1);
+    pWind->SetBrush(WHITE);
+    pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
+
+    pWind->SetPen(RED);
+    pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+    pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$300");
 }
 
 void SealIcon::reset() {
@@ -201,7 +220,6 @@ void SealIcon::reset() {
     count = 0;
 }
 
-// --- WaterIcon Implementation ---
 WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -250,7 +268,15 @@ void WaterIcon::update() {
 
 void WaterIcon::draw() const {
     BudgetbarIcon::draw();
-    pGame->getWind()->DrawString(RefPoint.x + 10, RefPoint.y + height - 20, "100$");
+    window* pWind = pGame->getWind();
+
+    pWind->SetPen(BLACK, 1);
+    pWind->SetBrush(WHITE);
+    pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
+
+    pWind->SetPen(RED);
+    pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+    pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$100");
 }
 
 void WaterIcon::reset() {
@@ -258,7 +284,6 @@ void WaterIcon::reset() {
     count = 0;
 }
 
-// --- Budgetbar Implementation ---
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     : Drawable(r_pGame, r_point, r_width, r_height)
 {
@@ -288,7 +313,17 @@ void Budgetbar::draw() const {
     for (int i = 0; i < ANIMAL_COUNT; i++) {
         if (iconsList[i]) iconsList[i]->draw();
     }
+
     window* pWind = pGame->getWind();
+
+    int textStartX = (ANIMAL_COUNT * config.iconWidth) + 20;
+    int textStartY = config.toolBarHeight + 10;
+
+    pWind->SetPen(DARKBLUE, 50);
+    pWind->SetFont(18, BOLD, BY_NAME, "Arial");
+    pWind->DrawString(textStartX, textStartY, "Animals Buying: Chick ($100) | Cow ($200) | Seal ($300)");
+    pWind->DrawString(textStartX, textStartY + 25, "Water Buying: Water Bucket ($100)");
+
     pWind->SetPen(BLACK, 3);
     pWind->DrawLine(0, 2 * config.toolBarHeight, pWind->GetWidth(), 2 * config.toolBarHeight);
 }

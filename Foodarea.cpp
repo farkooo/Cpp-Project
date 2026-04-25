@@ -2,7 +2,7 @@
 #include "../Core/Game.h"
 
 FoodArea::FoodArea(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path, int initialAmount)
-    : GameObject(r_pGame, r_point, r_width, r_height, GREEN, BLACK) // Keeps base colors just in case
+    : GameObject(r_pGame, r_point, r_width, r_height, GREEN, BLACK) 
 {
     image_path = img_path;
     foodCount = initialAmount;

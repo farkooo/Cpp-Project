@@ -328,10 +328,10 @@ void Game::go()
 			lastSecondTick = now;
 		}
 
-		// 2. Check Lose Condition
+	
 		if (remainingTimeSeconds <= 0)
 		{
-			isPaused = true; // Auto-pause if time is up
+			isPaused = true;
 			pWind->UpdateBuffer();
 			pWind->SetPen(RED, 50);
 			pWind->SetFont(40, BOLD, BY_NAME, "Arial");
@@ -426,13 +426,13 @@ void Game::go()
 		clicktype click = pWind->GetMouseClick(x, y);
 		if (click != NO_CLICK)
 		{
-			// Check if Warehouse is clicked
+			
 			if (pWarehouse != nullptr) {
 				int wx = config.windWidth - 150;
 				int wy = config.windHeight - config.statusBarHeight - 120;
 				int ww = 120;
 				int wh = 80;
-				// If click is within the warehouse rectangle
+		
 				if (x >= wx && x <= wx + ww && y >= wy && y <= wy + wh) {
 					showWarehouse();
 				}
@@ -451,8 +451,8 @@ void Game::go()
 					for (int i = 0; i < productList.size(); i++) {
 						if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
 							if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
-								delete productList[i];  //actual object deletion
-								productList.erase(productList.begin() + i); //to avoid a dangling pointer
+								delete productList[i];  
+								productList.erase(productList.begin() + i); 
 								itemCollected = true;
 							}
 							else {
@@ -462,11 +462,11 @@ void Game::go()
 						}
 					}
 
-					if (!itemCollected && budget >= 20) {
+					if (!itemCollected && budget >= 100) {
 						point p; p.x = x - 25; p.y = y - 25;
 						FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
 						foodList.push_back(pNewFood);
-						budget -= 20;
+						budget -= 100;
 					}
 				}
 			}

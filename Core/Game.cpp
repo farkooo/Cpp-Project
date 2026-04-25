@@ -378,11 +378,6 @@ void Game::go()
 				if (animalList[i]) {
 					animalList[i]->moveStep();
 					animalList[i]->draw();
-
-					if (animalList[i]->checkProduction()) {
-						point dropPos = animalList[i]->getPos();
-						budget += 50;
-					}
 				}
 			}
 
@@ -434,7 +429,6 @@ void Game::go()
 		if (gameToolbar) gameToolbar->draw();
 		if (gameBudgetbar) {
 			gameBudgetbar->draw();
-			gameBudgetbar->update();
 		}
 
 		drawStatusBar();

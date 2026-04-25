@@ -62,17 +62,16 @@ void ChickIcon::update() {
         if (chickList[i]) {
             if (!pGame->isGamePaused()) {
                 chickList[i]->moveStep();
-            }
-            // Draw the chick
-            chickList[i]->draw();
+                chickList[i]->draw();
 
-            // --- PRODUCT COUNTER/PRODUCTION ---
-            // Each chick produces a product every 10 seconds
-            if (chickList[i]->checkProduction()) {
-                // Drop an egg at the chick's position
-                point dropPos = chickList[i]->getPos();
-                Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
-                pGame->addProduct(egg);
+                if (chickList[i]->checkProduction()) {
+                    point dropPos = chickList[i]->getPos();
+                    Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
+                    pGame->addProduct(egg);
+                }
+            }
+            else {
+                chickList[i]->draw();
             }
         }
     }
@@ -141,15 +140,16 @@ void CowIcon::update() {
         if (CowList[i]) {
             if (!pGame->isGamePaused()) {
                 CowList[i]->moveStep();
-            }
-            CowList[i]->draw();
+                CowList[i]->draw();
 
-            // --- PRODUCT COUNTER/PRODUCTION ---
-            // Each cow produces milk every 10 seconds
-            if (CowList[i]->checkProduction()) {
-                point dropPos = CowList[i]->getPos();
-                Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
-                pGame->addProduct(milk);
+                if (CowList[i]->checkProduction()) {
+                    point dropPos = CowList[i]->getPos();
+                    Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
+                    pGame->addProduct(milk);
+                }
+            }
+            else {
+                CowList[i]->draw();
             }
         }
     }
@@ -215,15 +215,16 @@ void SealIcon::update() {
         if (sealList[i]) {
             if (!pGame->isGamePaused()) {
                 sealList[i]->moveStep();
-            }
-            sealList[i]->draw();
+                sealList[i]->draw();
 
-            // --- PRODUCT COUNTER/PRODUCTION ---
-            // Each seal produces fish every 10 seconds
-            if (sealList[i]->checkProduction()) {
-                point dropPos = sealList[i]->getPos();
-                Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
-                pGame->addProduct(fish);
+                if (sealList[i]->checkProduction()) {
+                    point dropPos = sealList[i]->getPos();
+                    Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
+                    pGame->addProduct(fish);
+                }
+            }
+            else {
+                sealList[i]->draw();
             }
         }
     }

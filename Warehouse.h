@@ -29,5 +29,7 @@ public:
     int GetTotalItems() const;
     int GetCapacity() const;
 
+    static int GetProductPrice(ProductType item);
+
     void Reset();
 };

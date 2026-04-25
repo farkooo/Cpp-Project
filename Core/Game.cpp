@@ -529,4 +529,4 @@ void Game::showWarehouse()
 
 	delete pWarehouseWind;
 }
-}
+

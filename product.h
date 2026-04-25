@@ -16,7 +16,6 @@ public:
 
 	// Checks if a given coordinate is clicking on this product
 	bool isClicked(int x, int y) const;
-	virtual void draw() const override; 
 };
 
 class Egg : public Product

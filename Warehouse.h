@@ -6,7 +6,8 @@ class Game;
 
 enum class ProductType {
     EGG,
-    MILK
+    MILK,
+    FISH // Added FISH for the seal
 }; //add more products when new animals are added
 
 class Warehouse : public GameObject

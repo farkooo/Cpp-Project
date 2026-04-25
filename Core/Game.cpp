@@ -530,3 +530,7 @@ void Game::showWarehouse()
 	delete pWarehouseWind;
 }
 
+void Game::addProduct(Product* p) {
+    if (p) productList.push_back(p);
+}
+

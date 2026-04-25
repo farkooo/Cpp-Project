@@ -31,3 +31,11 @@ public:
 	Milk(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual ProductType getType() const override { return ProductType::MILK; }
 };
+
+// --- Fish Product for Seal ---
+class Fish : public Product
+{
+public:
+	Fish(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual ProductType getType() const override { return ProductType::FISH; }
+};

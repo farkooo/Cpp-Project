@@ -1,6 +1,7 @@
 #include "Budgetbar.h"
 #include "../Config/GameConfig.h"
 #include "../Core/Game.h"
+#include "../product.h"
 #include <iostream>
 #include <random>
 
@@ -62,7 +63,17 @@ void ChickIcon::update() {
             if (!pGame->isGamePaused()) {
                 chickList[i]->moveStep();
             }
+            // Draw the chick
             chickList[i]->draw();
+
+            // --- PRODUCT COUNTER/PRODUCTION ---
+            // Each chick produces a product every 10 seconds
+            if (chickList[i]->checkProduction()) {
+                // Drop an egg at the chick's position
+                point dropPos = chickList[i]->getPos();
+                Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
+                pGame->addProduct(egg);
+            }
         }
     }
 }
@@ -348,4 +359,4 @@ void Budgetbar::reset() {
     for (int i = 0; i < ANIMAL_COUNT; i++) {
         if (iconsList[i]) iconsList[i]->reset();
     }
-}
+};

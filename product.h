@@ -1,7 +1,7 @@
 #pragma once
 #include "../Core/Drawable.h"
 #include <string>
-#include "../Warehouse.h" // Include to get ProductType enum
+#include "../Warehouse.h" 
 
 class Product : public Drawable
 {
@@ -9,12 +9,10 @@ protected:
 	string image_path;
 public:
 	Product(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
-	virtual void draw() const override; // دالة الرسم المشتركة
 
-	// Returns the specific product type (like EGG or MILK) to pass to the warehouse
+	virtual void draw() const override;
 	virtual ProductType getType() const = 0;
 
-	// Checks if a given coordinate is clicking on this product
 	bool isClicked(int x, int y) const;
 };
 
@@ -32,7 +30,6 @@ public:
 	virtual ProductType getType() const override { return ProductType::MILK; }
 };
 
-// --- Fish Product for Seal ---
 class Fish : public Product
 {
 public:

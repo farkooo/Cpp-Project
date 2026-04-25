@@ -24,7 +24,6 @@ Game::Game()
 	createBudgetbar();
 	//3 - create and draw the backgroundPlayingArea
 
-
 	//4- Create the Warehouse
 	point warehousePos;
 	warehousePos.x = config.windWidth - 150;
@@ -55,15 +54,22 @@ Game::Game()
 	clearStatusBar();
 	printBudget("BUDGET = $" + to_string(budget));
 	drawStatusBar();
-
 }
 
 Game::~Game()
 {
+	for (size_t i = 0; i < animalList.size(); i++)
+		delete animalList[i];
+	for (size_t i = 0; i < foodList.size(); i++)
+		delete foodList[i];
+	for (size_t i = 0; i < productList.size(); i++)
+		delete productList[i];
+
 	for (size_t i = 0; i < chicks.size(); i++)
 		delete chicks[i];
 	for (size_t i = 0; i < wolves.size(); i++)
 		delete wolves[i];
+
 	delete gameToolbar;
 	delete gameBudgetbar;
 	delete pWarehouse;
@@ -224,9 +230,20 @@ void Game::restartGame()
 {
 	clearPlayingArea();
 
-	for (size_t i = 0; i < wolves.size(); i++)
-		delete wolves[i];
+	for (size_t i = 0; i < animalList.size(); i++) delete animalList[i];
+	animalList.clear();
+
+	for (size_t i = 0; i < foodList.size(); i++) delete foodList[i];
+	foodList.clear();
+
+	for (size_t i = 0; i < productList.size(); i++) delete productList[i];
+	productList.clear();
+
+	for (size_t i = 0; i < wolves.size(); i++) delete wolves[i];
 	wolves.clear();
+
+	for (size_t i = 0; i < chicks.size(); i++) delete chicks[i];
+	chicks.clear();
 
 	if (gameBudgetbar) {
 		gameBudgetbar->reset();
@@ -246,8 +263,8 @@ void Game::restartGame()
 	lastWolfSpawnTime = 0;
 
 	startTime = time(NULL);
-	gameToolbar->draw();
-	gameBudgetbar->draw();
+	if (gameToolbar) gameToolbar->draw();
+	if (gameBudgetbar) gameBudgetbar->draw();
 	clearStatusBar();
 	printBudget("BUDGET = $" + to_string(budget));
 	printMessage("Ready...");
@@ -310,7 +327,6 @@ void Game::go()
 	unsigned long lastSecondTick = CurrentTime();
 
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
-
 	pWind->SetBuffering(true);
 
 	do
@@ -328,7 +344,6 @@ void Game::go()
 			lastSecondTick = now;
 		}
 
-	
 		if (remainingTimeSeconds <= 0)
 		{
 			isPaused = true;
@@ -338,7 +353,7 @@ void Game::go()
 			pWind->DrawString(config.windWidth / 2 - 150, config.windHeight / 2, "TIME'S UP! YOU LOSE!");
 			printMessage("Game Over! Click anywhere to exit...");
 			drawTimer();
-			pWind->UpdateBuffer(); 
+			pWind->UpdateBuffer();
 			pWind->WaitMouseClick(x, y);
 			isExit = true;
 			break;
@@ -366,7 +381,6 @@ void Game::go()
 
 					if (animalList[i]->checkProduction()) {
 						point dropPos = animalList[i]->getPos();
-						
 						budget += 50;
 					}
 				}
@@ -383,7 +397,9 @@ void Game::go()
 
 			if (pWarehouse) pWarehouse->draw();
 
-			gameBudgetbar->update();
+			if (gameBudgetbar) {
+				gameBudgetbar->update();
+			}
 
 			if (currentGameTime - lastWolfSpawnTime >= 30) {
 				generateRandomWolves();
@@ -415,10 +431,12 @@ void Game::go()
 			if (pWarehouse) pWarehouse->draw();
 		}
 
-		
-		gameToolbar->draw();
-		gameBudgetbar->draw();
-		gameBudgetbar->update();
+		if (gameToolbar) gameToolbar->draw();
+		if (gameBudgetbar) {
+			gameBudgetbar->draw();
+			gameBudgetbar->update();
+		}
+
 		drawStatusBar();
 		drawTimer();
 		printBudget("BUDGET = $" + to_string(budget));
@@ -426,23 +444,22 @@ void Game::go()
 		clicktype click = pWind->GetMouseClick(x, y);
 		if (click != NO_CLICK)
 		{
-			
 			if (pWarehouse != nullptr) {
 				int wx = config.windWidth - 150;
 				int wy = config.windHeight - config.statusBarHeight - 120;
 				int ww = 120;
 				int wh = 80;
-		
+
 				if (x >= wx && x <= wx + ww && y >= wy && y <= wy + wh) {
 					showWarehouse();
 				}
 			}
 
 			if (y >= 0 && y < config.toolBarHeight) {
-				isExit = gameToolbar->handleClick(x, y);
+				if (gameToolbar) isExit = gameToolbar->handleClick(x, y);
 			}
 			else if (y >= config.toolBarHeight && y < 2 * config.toolBarHeight) {
-				isExit = gameBudgetbar->handleClick(x, y);
+				if (gameBudgetbar) isExit = gameBudgetbar->handleClick(x, y);
 			}
 			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
 				if (!isPaused) {
@@ -451,14 +468,14 @@ void Game::go()
 					for (int i = 0; i < productList.size(); i++) {
 						if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
 							if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
-								delete productList[i];  
-								productList.erase(productList.begin() + i); 
+								delete productList[i];
+								productList.erase(productList.begin() + i);
 								itemCollected = true;
 							}
 							else {
-								printMessage("Warehouse is full!"); 
+								printMessage("Warehouse is full!");
 							}
-							break; 
+							break;
 						}
 					}
 
@@ -473,7 +490,7 @@ void Game::go()
 		}
 
 		pWind->UpdateBuffer();
-		Sleep(30); 
+		Sleep(30);
 
 	} while (!isExit);
 }
@@ -543,6 +560,5 @@ void Game::showWarehouse()
 }
 
 void Game::addProduct(Product* p) {
-    if (p) productList.push_back(p);
+	if (p) productList.push_back(p);
 }
-

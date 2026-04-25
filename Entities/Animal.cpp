@@ -45,7 +45,6 @@ void Animal::draw() const {
 	if (timeLeft < 0) timeLeft = 0;
 
 	pW->SetPen(BLACK);
-	pW->SetFont(16, BOLD, BY_NAME, "Arial");
 	pW->DrawString(curr_pos.x + 5, curr_pos.y - 5, std::to_string(timeLeft) + "s");
 }
 
@@ -160,6 +159,10 @@ Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 	wolfStates[this] = state;
 }
 
+Wolf::~Wolf() {
+	wolfStates.erase(this);
+}
+
 void Wolf::draw() const {
 	pGame->getWind()->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
 }
@@ -218,5 +221,4 @@ Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::strin
 }
 
 void Grass::draw() const { pGame->getWind()->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height); }
-
 void Grass::moveStep() {}

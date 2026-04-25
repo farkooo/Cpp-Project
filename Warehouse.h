@@ -7,7 +7,7 @@ class Game;
 enum class ProductType {
     EGG,
     MILK
-};
+}; //add more products when new animals are added
 
 class Warehouse : public GameObject
 {
@@ -28,6 +28,8 @@ public:
     int GetItemCount(ProductType item) const;
     int GetTotalItems() const;
     int GetCapacity() const;
+
+    static int GetProductPrice(ProductType item);
 
     void Reset();
 };

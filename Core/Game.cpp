@@ -34,6 +34,18 @@ Game::Game()
 	//5- Create the Plane
 	//TODO: Add code to create and draw the Plane
 
+	point eggPos;
+	eggPos.x = 100;
+	eggPos.y = 200;
+	Product* testEgg = new Egg(this, eggPos, 100, 100, "images\\egg.jpg"); // Image path for Egg
+	productList.push_back(testEgg);
+
+	point milkPos;
+	milkPos.x = 250;
+	milkPos.y = 200;
+	Product* testMilk = new Milk(this, milkPos, 100, 100, "images\\milk.jpg"); // Image path for Milk
+	productList.push_back(testMilk);
+
 	//5- Create the Bullet
 	//TODO: Add code to create and draw the Bullet
 
@@ -43,6 +55,7 @@ Game::Game()
 	clearStatusBar();
 	printBudget("BUDGET = $" + to_string(budget));
 	drawStatusBar();
+
 }
 
 Game::~Game()
@@ -413,6 +426,18 @@ void Game::go()
 		clicktype click = pWind->GetMouseClick(x, y);
 		if (click != NO_CLICK)
 		{
+			// Check if Warehouse is clicked
+			if (pWarehouse != nullptr) {
+				int wx = config.windWidth - 150;
+				int wy = config.windHeight - config.statusBarHeight - 120;
+				int ww = 120;
+				int wh = 80;
+				// If click is within the warehouse rectangle
+				if (x >= wx && x <= wx + ww && y >= wy && y <= wy + wh) {
+					showWarehouse();
+				}
+			}
+
 			if (y >= 0 && y < config.toolBarHeight) {
 				isExit = gameToolbar->handleClick(x, y);
 			}
@@ -420,11 +445,29 @@ void Game::go()
 				isExit = gameBudgetbar->handleClick(x, y);
 			}
 			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
-				if (!isPaused && budget >= 20) {
-					point p; p.x = x - 25; p.y = y - 25;
-					FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
-					foodList.push_back(pNewFood);
-					budget -= 20;
+				if (!isPaused) {
+					bool itemCollected = false;
+
+					for (int i = 0; i < productList.size(); i++) {
+						if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
+							if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
+								delete productList[i];  //actual object deletion
+								productList.erase(productList.begin() + i); //to avoid a dangling pointer
+								itemCollected = true;
+							}
+							else {
+								printMessage("Warehouse is full!"); 
+							}
+							break; 
+						}
+					}
+
+					if (!itemCollected && budget >= 20) {
+						point p; p.x = x - 25; p.y = y - 25;
+						FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
+						foodList.push_back(pNewFood);
+						budget -= 20;
+					}
 				}
 			}
 		}
@@ -472,8 +515,8 @@ void Game::showWarehouse()
 		capacity = 0;
 	}
 
-	pWarehouseWind->DrawString(20, 80, "Eggs: " + to_string(eggCount));
-	pWarehouseWind->DrawString(20, 110, "Milk: " + to_string(milkCount));
+	pWarehouseWind->DrawString(20, 80, "Eggs: " + to_string(eggCount) + "   [$" + to_string(Warehouse::GetProductPrice(ProductType::EGG)) + " each]");
+	pWarehouseWind->DrawString(20, 110, "Milk: " + to_string(milkCount) + "   [$" + to_string(Warehouse::GetProductPrice(ProductType::MILK)) + " each]");
 
 	pWarehouseWind->SetPen(RED, 50);
 	pWarehouseWind->DrawString(20, 140, "Total Storage: " + to_string(totalItems) + " / " + to_string(capacity));
@@ -485,4 +528,5 @@ void Game::showWarehouse()
 	pWarehouseWind->WaitMouseClick(x, y);
 
 	delete pWarehouseWind;
+}
 }

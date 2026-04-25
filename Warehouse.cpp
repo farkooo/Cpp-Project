@@ -77,6 +77,18 @@ bool Warehouse::RemoveItem(ProductType item, int count) {
 int Warehouse::GetItemCount(ProductType item) const { return storedItems.at(item); }
 int Warehouse::GetTotalItems() const { return currentItemCount; }
 int Warehouse::GetCapacity() const { return capacity; }
+
+int Warehouse::GetProductPrice(ProductType item) {
+    switch (item) {
+    case ProductType::EGG:
+        return 20;
+    case ProductType::MILK:
+        return 40;
+    default:
+        return 0;
+    }
+}
+
 void Warehouse::Reset() {
     currentItemCount = 0;
     for (auto& pair : storedItems) pair.second = 0;

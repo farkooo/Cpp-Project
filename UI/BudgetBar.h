@@ -30,6 +30,7 @@ class ChickIcon : public BudgetbarIcon
 {
 public:
     Chick** chickList;
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; // Prevents spam-spawning lag
     int count = 0;
     ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;
@@ -42,6 +43,7 @@ class CowIcon : public BudgetbarIcon
 {
 public:
     Cow** CowList;
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; // Prevents spam-spawning lag
     int count = 0;
     CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;
@@ -54,6 +56,7 @@ class SealIcon : public BudgetbarIcon
 {
 public:
     Seal** sealList;
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; // Prevents spam-spawning lag
     int count = 0;
     SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;

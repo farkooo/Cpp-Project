@@ -272,7 +272,6 @@ void Game::go()
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
 	pWind->SetBuffering(true);
 
-	// SMART INITIAL DRAW: Draw the heavy UI elements exactly once.
 	clearPlayingArea();
 	if (gameToolbar) gameToolbar->draw();
 	if (gameBudgetbar) gameBudgetbar->draw();
@@ -290,13 +289,12 @@ void Game::go()
 		unsigned long loopStartTime = CurrentTime();
 		bool uiNeedsUpdate = false;
 
-		// Timer Logic Update
 		if (!isPaused && loopStartTime - lastSecondTick >= 1000)
 		{
 			currentGameTime++;
 			if (remainingTimeSeconds > 0) remainingTimeSeconds--;
 			lastSecondTick = loopStartTime;
-			uiNeedsUpdate = true; // Force UI redraw for the timer tick
+			uiNeedsUpdate = true; 
 		}
 
 		if (remainingTimeSeconds <= 0)
@@ -397,7 +395,6 @@ void Game::go()
 				int wy = config.windHeight - config.statusBarHeight - 120;
 				if (x >= wx && x <= wx + 120 && y >= wy && y <= wy + 80) {
 					showWarehouse();
-					// Force a full UI redraw after closing the sub-window to prevent corruption
 					if (gameToolbar) gameToolbar->draw();
 					if (gameBudgetbar) gameBudgetbar->draw();
 					uiNeedsUpdate = true;
@@ -445,7 +442,6 @@ void Game::go()
 
 		pWind->UpdateBuffer();
 
-		// DYNAMIC FPS LIMITER: Smooth performance regardless of on-screen elements
 		unsigned long timeTaken = CurrentTime() - loopStartTime;
 		if (timeTaken < 30) {
 			Sleep(30 - timeTaken);

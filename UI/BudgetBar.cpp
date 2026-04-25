@@ -17,14 +17,13 @@ void BudgetbarIcon::draw() const
     pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 }
 
-// ------------------- CHICK ICON -------------------
 ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
     chickList = new Chick * [MAX_CREATED_ANIMALS];
     for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
         chickList[i] = nullptr;
-        lastProdTime[i] = 999999; // Initialize to safe value
+        lastProdTime[i] = 999999; 
     }
 }
 
@@ -99,7 +98,6 @@ void ChickIcon::reset() {
 }
 
 
-// ------------------- COW ICON -------------------
 CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -180,7 +178,6 @@ void CowIcon::reset() {
 }
 
 
-// ------------------- SEAL ICON -------------------
 SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -261,7 +258,6 @@ void SealIcon::reset() {
 }
 
 
-// ------------------- WATER ICON -------------------
 WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -323,7 +319,6 @@ void WaterIcon::reset() {
 }
 
 
-// ------------------- BUDGETBAR MANAGER -------------------
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     : Drawable(r_pGame, r_point, r_width, r_height)
 {

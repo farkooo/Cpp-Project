@@ -38,7 +38,15 @@ bool Animal::checkProduction() {
 }
 
 void Animal::draw() const {
-	pGame->getWind()->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
+	window* pW = pGame->getWind();
+	pW->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
+
+	int timeLeft = productionRate - (int)(pGame->getGameTime() - lastProductionTime);
+	if (timeLeft < 0) timeLeft = 0;
+
+	pW->SetPen(BLACK);
+	pW->SetFont(16, BOLD, BY_NAME, "Arial");
+	pW->DrawString(curr_pos.x + 5, curr_pos.y - 5, std::to_string(timeLeft) + "s");
 }
 
 Chick::Chick(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
@@ -76,7 +84,7 @@ void Chick::moveStep() {
 
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
-	productionRate = 15;
+	productionRate = 10;
 }
 
 void Cow::moveStep() {
@@ -109,6 +117,7 @@ void Cow::moveStep() {
 
 Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
+	productionRate = 10;
 }
 
 void Seal::moveStep() {
@@ -151,7 +160,9 @@ Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 	wolfStates[this] = state;
 }
 
-void Wolf::draw() const { Animal::draw(); }
+void Wolf::draw() const {
+	pGame->getWind()->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
+}
 
 void Wolf::moveStep() {
 	WolfState& state = wolfStates[this];

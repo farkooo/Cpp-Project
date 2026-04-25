@@ -143,6 +143,14 @@ void CowIcon::update() {
                 CowList[i]->moveStep();
             }
             CowList[i]->draw();
+
+            // --- PRODUCT COUNTER/PRODUCTION ---
+            // Each cow produces milk every 10 seconds
+            if (CowList[i]->checkProduction()) {
+                point dropPos = CowList[i]->getPos();
+                Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
+                pGame->addProduct(milk);
+            }
         }
     }
 }
@@ -209,6 +217,14 @@ void SealIcon::update() {
                 sealList[i]->moveStep();
             }
             sealList[i]->draw();
+
+            // --- PRODUCT COUNTER/PRODUCTION ---
+            // Each seal produces fish every 10 seconds
+            if (sealList[i]->checkProduction()) {
+                point dropPos = sealList[i]->getPos();
+                Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
+                pGame->addProduct(fish);
+            }
         }
     }
 }

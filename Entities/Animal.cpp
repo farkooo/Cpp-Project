@@ -12,16 +12,19 @@ struct WolfState {
 	double angle;
 	int turnDir;
 };
-static std::unordered_map<const Wolf*, WolfState> wolfStates;
 
+static std::unordered_map<const Wolf*, WolfState> wolfStates;
 
 Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Drawable(r_pGame, r_point, r_width, r_height)
 {
 	image_path = img_path;
 	curr_pos = r_point;
-	curr_vel.x = (rand() % 7) - 3;
-	curr_vel.y = (rand() % 7) - 3;
+
+	// Prevent animals from spawning with a 0 velocity
+	do { curr_vel.x = (rand() % 7) - 3; } while (curr_vel.x == 0);
+	do { curr_vel.y = (rand() % 7) - 3; } while (curr_vel.y == 0);
+
 	lastProductionTime = pGame->getGameTime();
 }
 
@@ -46,9 +49,29 @@ Chick::Chick(Game* r_pGame, point r_point, int r_width, int r_height, std::strin
 void Chick::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
+
+	if (RefPoint.x <= 0) {
+		RefPoint.x = 0;
+		curr_vel.x = -curr_vel.x;
+	}
+	else if (RefPoint.x + width >= config.windWidth) {
+		RefPoint.x = config.windWidth - width;
+		curr_vel.x = -curr_vel.x;
+	}
+
+	int topLimit = 2 * config.toolBarHeight;
+	int bottomLimit = config.windHeight - config.statusBarHeight;
+
+	if (RefPoint.y <= topLimit) {
+		RefPoint.y = topLimit;
+		curr_vel.y = -curr_vel.y;
+	}
+	else if (RefPoint.y + height >= bottomLimit) {
+		RefPoint.y = bottomLimit - height;
+		curr_vel.y = -curr_vel.y;
+	}
+
 	curr_pos = RefPoint;
-	if (RefPoint.x <= 0 || (RefPoint.x + width >= config.windWidth)) curr_vel.x = -curr_vel.x;
-	if (RefPoint.y <= 2 * config.toolBarHeight || (RefPoint.y + height) >= (config.windHeight - config.statusBarHeight)) curr_vel.y = -curr_vel.y;
 }
 
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
@@ -59,12 +82,31 @@ Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string im
 void Cow::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
+
+	if (RefPoint.x <= 0) {
+		RefPoint.x = 0;
+		curr_vel.x = -curr_vel.x;
+	}
+	else if (RefPoint.x + width >= config.windWidth) {
+		RefPoint.x = config.windWidth - width;
+		curr_vel.x = -curr_vel.x;
+	}
+
+	int topLimit = 2 * config.toolBarHeight;
+	int bottomLimit = config.windHeight - config.statusBarHeight;
+
+	if (RefPoint.y <= topLimit) {
+		RefPoint.y = topLimit;
+		curr_vel.y = -curr_vel.y;
+	}
+	else if (RefPoint.y + height >= bottomLimit) {
+		RefPoint.y = bottomLimit - height;
+		curr_vel.y = -curr_vel.y;
+	}
+
 	curr_pos = RefPoint;
-	if (RefPoint.x <= 0 || (RefPoint.x + width >= config.windWidth)) curr_vel.x = -curr_vel.x;
-	if (RefPoint.y <= 2 * config.toolBarHeight || (RefPoint.y + height) >= (config.windHeight - config.statusBarHeight)) curr_vel.y = -curr_vel.y;
 }
 
-// --- Seal ---
 Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
 }
@@ -72,9 +114,29 @@ Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string 
 void Seal::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
+
+	if (RefPoint.x <= 0) {
+		RefPoint.x = 0;
+		curr_vel.x = -curr_vel.x;
+	}
+	else if (RefPoint.x + width >= config.windWidth) {
+		RefPoint.x = config.windWidth - width;
+		curr_vel.x = -curr_vel.x;
+	}
+
+	int topLimit = 2 * config.toolBarHeight;
+	int bottomLimit = config.windHeight - config.statusBarHeight;
+
+	if (RefPoint.y <= topLimit) {
+		RefPoint.y = topLimit;
+		curr_vel.y = -curr_vel.y;
+	}
+	else if (RefPoint.y + height >= bottomLimit) {
+		RefPoint.y = bottomLimit - height;
+		curr_vel.y = -curr_vel.y;
+	}
+
 	curr_pos = RefPoint;
-	if (RefPoint.x <= 0 || (RefPoint.x + width >= config.windWidth)) curr_vel.x = -curr_vel.x;
-	if (RefPoint.y <= 2 * config.toolBarHeight || (RefPoint.y + height) >= (config.windHeight - config.statusBarHeight)) curr_vel.y = -curr_vel.y;
 }
 
 Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
@@ -83,8 +145,8 @@ Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 	WolfState state;
 	state.exactX = r_point.x;
 	state.exactY = r_point.y;
-	state.angle = (rand() % 360) * 3.14159 / 180.0; 
-	state.turnDir = (rand() % 2 == 0) ? 1 : -1;    
+	state.angle = (rand() % 360) * 3.14159 / 180.0;
+	state.turnDir = (rand() % 2 == 0) ? 1 : -1;
 
 	wolfStates[this] = state;
 }
@@ -100,7 +162,7 @@ void Wolf::moveStep() {
 
 	state.angle += state.turnDir * 0.08;
 
-	double moveSpeed = (speed < 2) ? 2.5 : (double)speed; 
+	double moveSpeed = (speed < 2) ? 2.5 : (double)speed;
 	state.exactX += moveSpeed * cos(state.angle);
 	state.exactY += moveSpeed * sin(state.angle);
 
@@ -121,7 +183,7 @@ void Wolf::moveStep() {
 
 	if (state.exactY <= topLimit) {
 		state.exactY = topLimit;
-		state.angle = -state.angle; 
+		state.angle = -state.angle;
 		bounced = true;
 	}
 	else if (state.exactY + height >= bottomLimit) {
@@ -130,17 +192,14 @@ void Wolf::moveStep() {
 		bounced = true;
 	}
 
-	
 	if (bounced) {
 		state.turnDir = (rand() % 2 == 0) ? 1 : -1;
 	}
 
-	
 	RefPoint.x = (int)std::round(state.exactX);
 	RefPoint.y = (int)std::round(state.exactY);
 	curr_pos = RefPoint;
 }
-
 
 Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Drawable(r_pGame, r_point, r_width, r_height) {

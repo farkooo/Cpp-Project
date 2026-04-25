@@ -2,6 +2,7 @@
 #include "../Config/GameConfig.h"
 #include "../Core/Game.h"
 #include <iostream>
+#include <random>
 
 // --- BudgetbarIcon Implementation ---
 BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
@@ -35,12 +36,19 @@ void ChickIcon::onClick()
         point p;
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> distX(range_min_x, range_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, range_max_y);
+
+        int chickWidth = 50;
+        int chickHeight = 50;
+        int safe_max_x = config.windWidth - chickWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - chickHeight - 10;
+
+        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
+        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+
         p.x = distX(gen);
         p.y = distY(gen);
 
-        chickList[count] = new Chick(pGame, p, 50, 50, image_path);
+        chickList[count] = new Chick(pGame, p, chickWidth, chickHeight, image_path);
         chickList[count]->draw();
         count++;
         pGame->animalCount++;
@@ -93,11 +101,19 @@ void CowIcon::onClick() {
         point p;
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> distX(range_min_x, range_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, range_max_y);
-        p.x = distX(gen); p.y = distY(gen);
 
-        CowList[count] = new Cow(pGame, p, 80, 80, image_path);
+        int cowWidth = 80;
+        int cowHeight = 80;
+        int safe_max_x = config.windWidth - cowWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - cowHeight - 10;
+
+        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
+        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+
+        p.x = distX(gen);
+        p.y = distY(gen);
+
+        CowList[count] = new Cow(pGame, p, cowWidth, cowHeight, image_path);
         CowList[count]->draw();
         count++;
         pGame->animalCount++;
@@ -142,12 +158,21 @@ void SealIcon::onClick() {
         pGame->printBudget("BUDGET = $" + std::to_string(pGame->budget));
 
         point p;
-        std::random_device rd; std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> distX(range_min_x, range_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, range_max_y);
-        p.x = distX(gen); p.y = distY(gen);
+        std::random_device rd;
+        std::mt19937 gen(rd());
 
-        sealList[count] = new Seal(pGame, p, 100, 100, image_path);
+        int sealWidth = 100;
+        int sealHeight = 100;
+        int safe_max_x = config.windWidth - sealWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - sealHeight - 10;
+
+        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
+        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+
+        p.x = distX(gen);
+        p.y = distY(gen);
+
+        sealList[count] = new Seal(pGame, p, sealWidth, sealHeight, image_path);
         sealList[count]->draw();
         count++;
         pGame->animalCount++;
@@ -192,12 +217,21 @@ void WaterIcon::onClick() {
         pGame->printBudget("BUDGET = $" + std::to_string(pGame->budget));
 
         point p;
-        std::random_device rd; std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> distX(range_min_x, range_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, range_max_y);
-        p.x = distX(gen); p.y = distY(gen);
+        std::random_device rd;
+        std::mt19937 gen(rd());
 
-        grassList[count] = new Grass(pGame, p, 50, 50, "images\\grass.jpg");
+        int grassWidth = 50;
+        int grassHeight = 50;
+        int safe_max_x = config.windWidth - grassWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - grassHeight - 10;
+
+        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
+        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+
+        p.x = distX(gen);
+        p.y = distY(gen);
+
+        grassList[count] = new Grass(pGame, p, grassWidth, grassHeight, "images\\grass.jpg");
         grassList[count]->draw();
         count++;
     }

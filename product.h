@@ -3,7 +3,6 @@
 #include <string>
 #include "../Warehouse.h" // Include to get ProductType enum
 
-// الكلاس الأب لكل المنتجات
 class Product : public Drawable
 {
 protected:
@@ -17,9 +16,9 @@ public:
 
 	// Checks if a given coordinate is clicking on this product
 	bool isClicked(int x, int y) const;
+	virtual void draw() const override; 
 };
 
-// كلاس البيضة
 class Egg : public Product
 {
 public:
@@ -27,7 +26,6 @@ public:
 	virtual ProductType getType() const override { return ProductType::EGG; }
 };
 
-// كلاس اللبن
 class Milk : public Product
 {
 public:

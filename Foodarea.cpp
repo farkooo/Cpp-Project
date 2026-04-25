@@ -6,7 +6,7 @@ FoodArea::FoodArea(Game* r_pGame, point r_point, int r_width, int r_height, std:
 {
     image_path = img_path;
     foodCount = initialAmount;
-    creationTime = time(0);
+    creationTime = pGame->getGameTime();
     lifeSpan = 10;
 }
 
@@ -15,7 +15,7 @@ void FoodArea::consume() {
 }
 
 bool FoodArea::isEmpty() const {
-    return (difftime(time(0), creationTime) >= lifeSpan || foodCount <= 0);
+    return (pGame->getGameTime() - creationTime >= (unsigned long)lifeSpan || foodCount <= 0);
 }
 
 void FoodArea::draw() const {
@@ -25,7 +25,7 @@ void FoodArea::draw() const {
     pW->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 
     
-    int timeLeft = lifeSpan - (int)difftime(time(0), creationTime);
+    int timeLeft = lifeSpan - (int)(pGame->getGameTime() - creationTime);
     if (timeLeft < 0) timeLeft = 0;
 
     

@@ -34,3 +34,9 @@ Milk::Milk(Game* r_pGame, point r_point, int r_width, int r_height, string img_p
 	: Product(r_pGame, r_point, r_width, r_height, img_path)
 {
 }
+
+// --- Constructor السمكة ---
+Fish::Fish(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
+	: Product(r_pGame, r_point, r_width, r_height, img_path)
+{
+}

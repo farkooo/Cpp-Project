@@ -69,6 +69,7 @@ public:
 	void setPaused(bool pause);
 	bool isGamePaused() const;
 
-	window* getWind() const;		
+	window* getWind() const;	
+	void addProduct(Product* p);
 };
 

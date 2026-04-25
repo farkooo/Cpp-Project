@@ -8,6 +8,7 @@ Warehouse::Warehouse(Game* r_pGame, point ref, int r_width, int r_height, int ca
 {
     storedItems[ProductType::EGG] = 0;
     storedItems[ProductType::MILK] = 0;
+    storedItems[ProductType::FISH] = 0;
 }
 
 Warehouse::~Warehouse() {}
@@ -84,6 +85,8 @@ int Warehouse::GetProductPrice(ProductType item) {
         return 20;
     case ProductType::MILK:
         return 40;
+    case ProductType::FISH:
+        return 30;
     default:
         return 0;
     }

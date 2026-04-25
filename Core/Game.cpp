@@ -518,8 +518,20 @@ void Game::showWarehouse()
 	pWarehouseWind->DrawString(20, 80, "Eggs: " + to_string(eggCount) + "   [$" + to_string(Warehouse::GetProductPrice(ProductType::EGG)) + " each]");
 	pWarehouseWind->DrawString(20, 110, "Milk: " + to_string(milkCount) + "   [$" + to_string(Warehouse::GetProductPrice(ProductType::MILK)) + " each]");
 
+	int fishCount;
+	if (pWarehouse != nullptr)
+	{
+		fishCount = pWarehouse->GetItemCount(ProductType::FISH);
+	}
+	else
+	{
+		fishCount = 0;
+	}
+
+	pWarehouseWind->DrawString(20, 140, "Fish: " + to_string(fishCount) + "   [$" + to_string(Warehouse::GetProductPrice(ProductType::FISH)) + " each]");
+
 	pWarehouseWind->SetPen(RED, 50);
-	pWarehouseWind->DrawString(20, 140, "Total Storage: " + to_string(totalItems) + " / " + to_string(capacity));
+	pWarehouseWind->DrawString(20, 170, "Total Storage: " + to_string(totalItems) + " / " + to_string(capacity));
 
 	pWarehouseWind->SetPen(DARKRED, 50);
 	pWarehouseWind->DrawString(20, wHeight - 40, "Click anywhere inside to close...");
@@ -528,5 +540,9 @@ void Game::showWarehouse()
 	pWarehouseWind->WaitMouseClick(x, y);
 
 	delete pWarehouseWind;
+}
+
+void Game::addProduct(Product* p) {
+    if (p) productList.push_back(p);
 }
 

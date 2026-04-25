@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Core/Drawable.h"
-#include <ctime> 
 class Animal : public Drawable
 {
 protected: 
@@ -10,9 +9,8 @@ protected:
 	point prev_pos;
 	point curr_vel;
 
-	
-	time_t lastProductionTime; 
-	int productionRate;      
+	unsigned long lastProductionTime;
+	int productionRate;
 
 public:
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);

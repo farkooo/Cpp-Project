@@ -263,6 +263,10 @@ void Game::restartGame()
 	lastWolfSpawnTime = 0;
 
 	startTime = time(NULL);
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 	if (gameToolbar) gameToolbar->draw();
 	if (gameBudgetbar) gameBudgetbar->draw();
 	clearStatusBar();
@@ -329,10 +333,26 @@ void Game::go()
 	pWind->ChangeTitle("- - - - - - - - - - Farm Frenzy (CIE101-project) - - - - - - - - - -");
 	pWind->SetBuffering(true);
 
+<<<<<<< Updated upstream
+=======
+	clearPlayingArea();
+	if (gameToolbar) gameToolbar->draw();
+	if (gameBudgetbar) gameBudgetbar->draw();
+	drawStatusBar();
+	drawTimer();
+	printBudget("BUDGET = $" + to_string(budget));
+
+	int lastDrawnBudget = budget;
+	int lastDrawnSeconds = remainingTimeSeconds;
+	int lastDrawnLevel = level;
+	int lastDrawnAnimalCount = animalCount;
+
+>>>>>>> Stashed changes
 	do
 	{
 		unsigned long now = CurrentTime();
 
+<<<<<<< Updated upstream
 		// 1. Timer Logic: Check if 1000ms (1 second) has passed
 		if (!isPaused && now - lastSecondTick >= 1000)
 		{
@@ -342,6 +362,14 @@ void Game::go()
 				remainingTimeSeconds--;
 			}
 			lastSecondTick = now;
+=======
+		if (!isPaused && loopStartTime - lastSecondTick >= 1000)
+		{
+			currentGameTime++;
+			if (remainingTimeSeconds > 0) remainingTimeSeconds--;
+			lastSecondTick = loopStartTime;
+			uiNeedsUpdate = true; 
+>>>>>>> Stashed changes
 		}
 
 		if (remainingTimeSeconds <= 0)
@@ -426,9 +454,18 @@ void Game::go()
 			if (pWarehouse) pWarehouse->draw();
 		}
 
+<<<<<<< Updated upstream
 		if (gameToolbar) gameToolbar->draw();
 		if (gameBudgetbar) {
 			gameBudgetbar->draw();
+=======
+		if (gameBudgetbar) gameBudgetbar->update();
+
+		if (lastDrawnBudget != budget || lastDrawnSeconds != remainingTimeSeconds ||
+			lastDrawnLevel != level || lastDrawnAnimalCount != animalCount)
+		{
+			uiNeedsUpdate = true;
+>>>>>>> Stashed changes
 		}
 
 		drawStatusBar();
@@ -446,6 +483,12 @@ void Game::go()
 
 				if (x >= wx && x <= wx + ww && y >= wy && y <= wy + wh) {
 					showWarehouse();
+<<<<<<< Updated upstream
+=======
+					if (gameToolbar) gameToolbar->draw();
+					if (gameBudgetbar) gameBudgetbar->draw();
+					uiNeedsUpdate = true;
+>>>>>>> Stashed changes
 				}
 			}
 
@@ -484,7 +527,18 @@ void Game::go()
 		}
 
 		pWind->UpdateBuffer();
+<<<<<<< Updated upstream
 		Sleep(30);
+=======
+
+		unsigned long timeTaken = CurrentTime() - loopStartTime;
+		if (timeTaken < 30) {
+			Sleep(30 - timeTaken);
+		}
+		else {
+			Sleep(1);
+		}
+>>>>>>> Stashed changes
 
 	} while (!isExit);
 }

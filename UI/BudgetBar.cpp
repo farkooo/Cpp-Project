@@ -62,6 +62,7 @@ void ChickIcon::update() {
         if (chickList[i]) {
             if (!pGame->isGamePaused()) {
                 chickList[i]->moveStep();
+<<<<<<< Updated upstream
                 chickList[i]->draw();
 
                 if (chickList[i]->checkProduction()) {
@@ -72,6 +73,16 @@ void ChickIcon::update() {
             }
             else {
                 chickList[i]->draw();
+=======
+            }
+            chickList[i]->draw();
+
+            
+            if (chickList[i]->checkProduction()) {
+                point dropPos = chickList[i]->getPos();
+                Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
+                pGame->addProduct(egg);
+>>>>>>> Stashed changes
             }
         }
     }
@@ -142,6 +153,7 @@ void CowIcon::update() {
                 CowList[i]->moveStep();
                 CowList[i]->draw();
 
+<<<<<<< Updated upstream
                 if (CowList[i]->checkProduction()) {
                     point dropPos = CowList[i]->getPos();
                     Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
@@ -150,6 +162,13 @@ void CowIcon::update() {
             }
             else {
                 CowList[i]->draw();
+=======
+            
+            if (CowList[i]->checkProduction()) {
+                point dropPos = CowList[i]->getPos();
+                Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
+                pGame->addProduct(milk);
+>>>>>>> Stashed changes
             }
         }
     }
@@ -217,6 +236,7 @@ void SealIcon::update() {
                 sealList[i]->moveStep();
                 sealList[i]->draw();
 
+<<<<<<< Updated upstream
                 if (sealList[i]->checkProduction()) {
                     point dropPos = sealList[i]->getPos();
                     Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
@@ -225,6 +245,13 @@ void SealIcon::update() {
             }
             else {
                 sealList[i]->draw();
+=======
+            
+            if (sealList[i]->checkProduction()) {
+                point dropPos = sealList[i]->getPos();
+                Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
+                pGame->addProduct(fish);
+>>>>>>> Stashed changes
             }
         }
     }

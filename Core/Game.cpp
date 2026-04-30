@@ -418,6 +418,8 @@ bool Game::SellWarehouseProduct(ProductType productType, int quantityToSell)
 	return true;
 }
 
+bool Game::isGamePaused() const { return isPaused; }
+
 void Game::go()
 {
 	int x, y;
@@ -556,6 +558,7 @@ void Game::go()
 					pWind->FlushMouseQueue();
 					pWind->UpdateBuffer();
 					continue;
+					uiNeedsUpdate = true;
 				}
 			}
 

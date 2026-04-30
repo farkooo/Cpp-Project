@@ -163,6 +163,10 @@ Wolf::~Wolf() {
 	wolfStates.erase(this);
 }
 
+void Wolf::setSpeed(int newSpeed) {
+	speed = newSpeed;
+}
+
 void Wolf::draw() const {
 	pGame->getWind()->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
 }

@@ -52,6 +52,7 @@ public:
 	~Wolf();
 	virtual void draw() const override;
 	virtual void moveStep() override;
+	void setSpeed(int newSpeed);
 };
 
 class Grass : public Drawable

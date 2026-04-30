@@ -149,7 +149,7 @@ void Seal::moveStep() {
 }
 
 Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
-	: Animal(r_pGame, r_point, r_width, r_height, "images\\wolf.jpg"), speed(r_speed) {
+	: Animal(r_pGame, r_point, r_width, r_height, "images\\wolf.jpg"), speed(r_speed), clickCount(0) {
 
 	WolfState state;
 	state.exactX = r_point.x;
@@ -158,6 +158,23 @@ Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 	state.turnDir = (rand() % 2 == 0) ? 1 : -1;
 
 	wolfStates[this] = state;
+}
+
+Wolf::~Wolf() {
+	wolfStates.erase(this);
+}
+
+void Wolf::setSpeed(int newSpeed) {
+	speed = newSpeed;
+}
+
+bool Wolf::isClicked(int x, int y) const {
+	return x >= curr_pos.x && x <= curr_pos.x + width &&
+	       y >= curr_pos.y && y <= curr_pos.y + height;
+}
+
+int Wolf::incrementClickCount() {
+	return ++clickCount;
 }
 
 void Wolf::draw() const {
@@ -220,3 +237,4 @@ Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::strin
 void Grass::draw() const { pGame->getWind()->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height); }
 
 void Grass::moveStep() {}
+

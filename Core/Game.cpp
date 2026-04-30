@@ -450,7 +450,7 @@ void Game::go()
 			currentGameTime++;
 			if (remainingTimeSeconds > 0) remainingTimeSeconds--;
 			lastSecondTick = loopStartTime;
-			uiNeedsUpdate = true; 
+			uiNeedsUpdate = true;
 		}
 
 		if (remainingTimeSeconds <= 0)
@@ -520,7 +520,6 @@ void Game::go()
 
 		if (gameBudgetbar) gameBudgetbar->update();
 
-		// SMART UI REDRAW: Only execute heavy GDI calls if necessary
 		if (lastDrawnBudget != budget || lastDrawnSeconds != remainingTimeSeconds ||
 			lastDrawnLevel != level || lastDrawnAnimalCount != animalCount)
 		{
@@ -575,22 +574,41 @@ void Game::go()
 			}
 			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
 				if (!isPaused) {
-					bool itemCollected = false;
-					for (int i = 0; i < productList.size(); i++) {
-						if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
-							if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
-								delete productList[i];
-								productList.erase(productList.begin() + i);
-								itemCollected = true;
-							}
-							else {
-								printMessage("Warehouse is full!");
+
+					bool actionTaken = false; 
+
+					for (size_t i = 0; i < wolves.size(); i++) {
+						if (wolves[i] != nullptr && wolves[i]->isClicked(x, y)) {
+							actionTaken = true; 
+
+							if (wolves[i]->incrementClickCount() >= 5) {
+								delete wolves[i];                      
+								wolves.erase(wolves.begin() + i);     
+								
 							}
 							break;
 						}
 					}
 
-					if (!itemCollected && budget >= 100) {
+					
+					if (!actionTaken) {
+						for (int i = 0; i < productList.size(); i++) {
+							if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
+								if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
+									delete productList[i];
+									productList.erase(productList.begin() + i);
+									actionTaken = true; // An item was collected
+								}
+								else {
+									printMessage("Warehouse is full!");
+								}
+								break;
+							}
+						}
+					}
+
+					
+					if (!actionTaken && budget >= 100) {
 						point p; p.x = x - 25; p.y = y - 25;
 						FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
 						foodList.push_back(pNewFood);

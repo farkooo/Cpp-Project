@@ -12,7 +12,6 @@ struct WolfState {
 	double angle;
 	int turnDir;
 };
-
 static std::unordered_map<const Wolf*, WolfState> wolfStates;
 
 Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
@@ -21,7 +20,6 @@ Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, std::str
 	image_path = img_path;
 	curr_pos = r_point;
 
-	// Prevent animals from spawning with a 0 velocity
 	do { curr_vel.x = (rand() % 7) - 3; } while (curr_vel.x == 0);
 	do { curr_vel.y = (rand() % 7) - 3; } while (curr_vel.y == 0);
 
@@ -48,11 +46,19 @@ void Animal::draw() const {
 	pW->DrawString(curr_pos.x + 5, curr_pos.y - 5, std::to_string(timeLeft) + "s");
 }
 
+bool Animal::isColliding(const Animal* other) const {
+	if (!other) return false;
+
+	return (curr_pos.x < other->curr_pos.x + other->width &&
+		curr_pos.x + width > other->curr_pos.x &&
+		curr_pos.y < other->curr_pos.y + other->height &&
+		curr_pos.y + height > other->curr_pos.y);
+}
+
 Chick::Chick(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
 	productionRate = 10;
 }
-
 void Chick::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
@@ -85,7 +91,6 @@ Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string im
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
 	productionRate = 10;
 }
-
 void Cow::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
@@ -118,7 +123,6 @@ Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string 
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
 	productionRate = 10;
 }
-
 void Seal::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
@@ -158,28 +162,22 @@ Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 
 	wolfStates[this] = state;
 }
-
 Wolf::~Wolf() {
 	wolfStates.erase(this);
 }
-
 void Wolf::setSpeed(int newSpeed) {
 	speed = newSpeed;
 }
-
 bool Wolf::isClicked(int x, int y) const {
 	return x >= curr_pos.x && x <= curr_pos.x + width &&
-	       y >= curr_pos.y && y <= curr_pos.y + height;
+		y >= curr_pos.y && y <= curr_pos.y + height;
 }
-
 int Wolf::incrementClickCount() {
 	return ++clickCount;
 }
-
 void Wolf::draw() const {
 	pGame->getWind()->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
 }
-
 void Wolf::moveStep() {
 	WolfState& state = wolfStates[this];
 
@@ -232,6 +230,5 @@ Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::strin
 	: Drawable(r_pGame, r_point, r_width, r_height) {
 	image_path = img_path;
 }
-
 void Grass::draw() const { pGame->getWind()->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height); }
 void Grass::moveStep() {}

@@ -20,6 +20,7 @@ public:
 	point getPos() const { return curr_pos; }
 
 	bool checkProduction();
+	bool isColliding(const Animal* other) const;
 };
 
 class Chick : public Animal

@@ -4,6 +4,7 @@
 #include "../product.h"
 #include <iostream>
 #include <random>
+#include <vector> 
 
 BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : Drawable(r_pGame, r_point, r_width, r_height)
@@ -23,7 +24,7 @@ ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
     chickList = new Chick * [MAX_CREATED_ANIMALS];
     for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
         chickList[i] = nullptr;
-        lastProdTime[i] = 999999; 
+        lastProdTime[i] = 999999;
     }
 }
 
@@ -61,11 +62,24 @@ void ChickIcon::update() {
             if (!pGame->isGamePaused()) {
                 chickList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && chickList[i]->isColliding(wolf)) {
+                    delete chickList[i];
+                    chickList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             chickList[i]->draw();
 
             if (chickList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE: Prevents spawning 30 eggs at once
                 if (currTime != lastProdTime[i]) {
                     point dropPos = chickList[i]->getPos();
                     Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
@@ -96,7 +110,6 @@ void ChickIcon::reset() {
     }
     count = 0;
 }
-
 
 CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
@@ -141,11 +154,24 @@ void CowIcon::update() {
             if (!pGame->isGamePaused()) {
                 CowList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && CowList[i]->isColliding(wolf)) {
+                    delete CowList[i];
+                    CowList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             CowList[i]->draw();
 
             if (CowList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE
                 if (currTime != lastProdTime[i]) {
                     point dropPos = CowList[i]->getPos();
                     Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
@@ -176,7 +202,6 @@ void CowIcon::reset() {
     }
     count = 0;
 }
-
 
 SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
@@ -221,11 +246,24 @@ void SealIcon::update() {
             if (!pGame->isGamePaused()) {
                 sealList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && sealList[i]->isColliding(wolf)) {
+                    delete sealList[i];
+                    sealList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             sealList[i]->draw();
 
             if (sealList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE
                 if (currTime != lastProdTime[i]) {
                     point dropPos = sealList[i]->getPos();
                     Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
@@ -256,7 +294,6 @@ void SealIcon::reset() {
     }
     count = 0;
 }
-
 
 WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
@@ -317,7 +354,6 @@ void WaterIcon::reset() {
     for (int i = 0; i < count; i++) { delete grassList[i]; grassList[i] = nullptr; }
     count = 0;
 }
-
 
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     : Drawable(r_pGame, r_point, r_width, r_height)

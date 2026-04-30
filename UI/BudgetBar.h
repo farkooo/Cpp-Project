@@ -9,7 +9,6 @@ const int range_min_x = 50;
 const int range_max_x = config.windWidth - 50;
 const int range_min_y = (config.toolBarHeight * 2) + 50;
 const int range_max_y = config.windHeight - config.statusBarHeight - 50;
-
 const int MAX_CREATED_ANIMALS = 15;
 
 class Game;
@@ -30,7 +29,7 @@ class ChickIcon : public BudgetbarIcon
 {
 public:
     Chick** chickList;
-    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; 
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS];
     int count = 0;
     ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;
@@ -56,7 +55,7 @@ class SealIcon : public BudgetbarIcon
 {
 public:
     Seal** sealList;
-    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; 
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS];
     int count = 0;
     SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;

@@ -47,12 +47,16 @@ class Wolf : public Animal
 {
 private:
 	int speed;
+	int clickCount;
 public:
 	Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed = 1);
 	~Wolf();
 	virtual void draw() const override;
 	virtual void moveStep() override;
 	void setSpeed(int newSpeed);
+	bool isClicked(int x, int y) const;
+	int incrementClickCount();
+	int getClickCount() const { return clickCount; }
 };
 
 class Grass : public Drawable

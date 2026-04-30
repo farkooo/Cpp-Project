@@ -60,7 +60,7 @@ namespace
 		DrawButton(pWindow, sellAllButton, "Sell All", canSell);
 	}
 
-	const int LEVEL_GOALS[] = { 2100, 3500, 5000, 7000, 9500 };
+	const int LEVEL_GOALS[] = { 2100, 2600, 3000, 3500, 3900 };
 	const int LEVEL_GOAL_COUNT = sizeof(LEVEL_GOALS) / sizeof(LEVEL_GOALS[0]);
 	const int MAX_WOLVES_PER_SPAWN = 6;
 	const int MAX_WOLF_SPEED = 12;

@@ -1,9 +1,10 @@
 #pragma once
-
 #include "../Core/Drawable.h"
+#include <string>
+
 class Animal : public Drawable
 {
-protected: 
+protected:
 	string image_path;
 	point curr_pos;
 	point prev_pos;
@@ -11,14 +12,13 @@ protected:
 
 	unsigned long lastProductionTime;
 	int productionRate;
-
 public:
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+
 	virtual void draw() const override;
 	virtual void moveStep() = 0;
 	point getPos() const { return curr_pos; }
 
-	
 	bool checkProduction();
 };
 
@@ -26,7 +26,7 @@ class Chick : public Animal
 {
 public:
 	Chick(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
-	virtual void moveStep() override; 
+	virtual void moveStep() override;
 };
 
 class Cow : public Animal
@@ -50,6 +50,7 @@ private:
 	int clickCount;
 public:
 	Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed = 1);
+	~Wolf();
 	virtual void draw() const override;
 	virtual void moveStep() override;
 	void setSpeed(int newSpeed);
@@ -68,6 +69,3 @@ public:
 	virtual void draw() const override;
 	virtual void moveStep();
 };
-
-
-

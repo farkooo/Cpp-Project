@@ -5,8 +5,6 @@
 #include <iostream>
 #include <random>
 
-
-
 BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : Drawable(r_pGame, r_point, r_width, r_height)
 {
@@ -23,7 +21,10 @@ ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, st
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
     chickList = new Chick * [MAX_CREATED_ANIMALS];
-    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) chickList[i] = nullptr;
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
+        chickList[i] = nullptr;
+        lastProdTime[i] = 999999; 
+    }
 }
 
 void ChickIcon::onClick()
@@ -31,8 +32,6 @@ void ChickIcon::onClick()
     if (pGame->isGamePaused()) return;
     if (pGame->budget >= 100 && count < MAX_CREATED_ANIMALS) {
         pGame->budget -= 100;
-        pGame->clearBudget();
-        pGame->printBudget("BUDGET = $" + std::to_string(pGame->budget));
 
         point p;
         std::random_device rd;
@@ -53,7 +52,6 @@ void ChickIcon::onClick()
         chickList[count]->draw();
         count++;
         pGame->animalCount++;
-        pGame->drawStatusBar();
     }
 }
 
@@ -63,16 +61,17 @@ void ChickIcon::update() {
             if (!pGame->isGamePaused()) {
                 chickList[i]->moveStep();
             }
-            // Draw the chick
             chickList[i]->draw();
 
-            // --- PRODUCT COUNTER/PRODUCTION ---
-            // Each chick produces a product every 10 seconds
             if (chickList[i]->checkProduction()) {
-                // Drop an egg at the chick's position
-                point dropPos = chickList[i]->getPos();
-                Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
-                pGame->addProduct(egg);
+                unsigned long currTime = pGame->getGameTime();
+                // ANTI-LAG DEBOUNCE: Prevents spawning 30 eggs at once
+                if (currTime != lastProdTime[i]) {
+                    point dropPos = chickList[i]->getPos();
+                    Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
+                    pGame->addProduct(egg);
+                    lastProdTime[i] = currTime;
+                }
             }
         }
     }
@@ -81,11 +80,9 @@ void ChickIcon::update() {
 void ChickIcon::draw() const {
     BudgetbarIcon::draw();
     window* pWind = pGame->getWind();
-
     pWind->SetPen(BLACK, 1);
     pWind->SetBrush(WHITE);
     pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
-
     pWind->SetPen(RED);
     pWind->SetFont(16, BOLD, BY_NAME, "Arial");
     pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$100");
@@ -95,23 +92,26 @@ void ChickIcon::reset() {
     for (int i = 0; i < count; i++) {
         delete chickList[i];
         chickList[i] = nullptr;
+        lastProdTime[i] = 999999;
     }
     count = 0;
 }
+
 
 CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
     CowList = new Cow * [MAX_CREATED_ANIMALS];
-    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) CowList[i] = nullptr;
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
+        CowList[i] = nullptr;
+        lastProdTime[i] = 999999;
+    }
 }
 
 void CowIcon::onClick() {
     if (pGame->isGamePaused()) return;
     if (pGame->budget >= 200 && count < MAX_CREATED_ANIMALS) {
         pGame->budget -= 200;
-        pGame->clearBudget();
-        pGame->printBudget("BUDGET = $" + std::to_string(pGame->budget));
 
         point p;
         std::random_device rd;
@@ -132,7 +132,6 @@ void CowIcon::onClick() {
         CowList[count]->draw();
         count++;
         pGame->animalCount++;
-        pGame->drawStatusBar();
     }
 }
 
@@ -144,12 +143,15 @@ void CowIcon::update() {
             }
             CowList[i]->draw();
 
-            // --- PRODUCT COUNTER/PRODUCTION ---
-            // Each cow produces milk every 10 seconds
             if (CowList[i]->checkProduction()) {
-                point dropPos = CowList[i]->getPos();
-                Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
-                pGame->addProduct(milk);
+                unsigned long currTime = pGame->getGameTime();
+                // ANTI-LAG DEBOUNCE
+                if (currTime != lastProdTime[i]) {
+                    point dropPos = CowList[i]->getPos();
+                    Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
+                    pGame->addProduct(milk);
+                    lastProdTime[i] = currTime;
+                }
             }
         }
     }
@@ -158,34 +160,38 @@ void CowIcon::update() {
 void CowIcon::draw() const {
     BudgetbarIcon::draw();
     window* pWind = pGame->getWind();
-
     pWind->SetPen(BLACK, 1);
     pWind->SetBrush(WHITE);
     pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
-
     pWind->SetPen(RED);
     pWind->SetFont(16, BOLD, BY_NAME, "Arial");
     pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$200");
 }
 
 void CowIcon::reset() {
-    for (int i = 0; i < count; i++) { delete CowList[i]; CowList[i] = nullptr; }
+    for (int i = 0; i < count; i++) {
+        delete CowList[i];
+        CowList[i] = nullptr;
+        lastProdTime[i] = 999999;
+    }
     count = 0;
 }
+
 
 SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
     sealList = new Seal * [MAX_CREATED_ANIMALS];
-    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) sealList[i] = nullptr;
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
+        sealList[i] = nullptr;
+        lastProdTime[i] = 999999;
+    }
 }
 
 void SealIcon::onClick() {
     if (pGame->isGamePaused()) return;
     if (pGame->budget >= 300 && count < MAX_CREATED_ANIMALS) {
         pGame->budget -= 300;
-        pGame->clearBudget();
-        pGame->printBudget("BUDGET = $" + std::to_string(pGame->budget));
 
         point p;
         std::random_device rd;
@@ -206,7 +212,6 @@ void SealIcon::onClick() {
         sealList[count]->draw();
         count++;
         pGame->animalCount++;
-        pGame->drawStatusBar();
     }
 }
 
@@ -218,12 +223,15 @@ void SealIcon::update() {
             }
             sealList[i]->draw();
 
-            // --- PRODUCT COUNTER/PRODUCTION ---
-            // Each seal produces fish every 10 seconds
             if (sealList[i]->checkProduction()) {
-                point dropPos = sealList[i]->getPos();
-                Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
-                pGame->addProduct(fish);
+                unsigned long currTime = pGame->getGameTime();
+                // ANTI-LAG DEBOUNCE
+                if (currTime != lastProdTime[i]) {
+                    point dropPos = sealList[i]->getPos();
+                    Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
+                    pGame->addProduct(fish);
+                    lastProdTime[i] = currTime;
+                }
             }
         }
     }
@@ -232,20 +240,23 @@ void SealIcon::update() {
 void SealIcon::draw() const {
     BudgetbarIcon::draw();
     window* pWind = pGame->getWind();
-
     pWind->SetPen(BLACK, 1);
     pWind->SetBrush(WHITE);
     pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
-
     pWind->SetPen(RED);
     pWind->SetFont(16, BOLD, BY_NAME, "Arial");
     pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$300");
 }
 
 void SealIcon::reset() {
-    for (int i = 0; i < count; i++) { delete sealList[i]; sealList[i] = nullptr; }
+    for (int i = 0; i < count; i++) {
+        delete sealList[i];
+        sealList[i] = nullptr;
+        lastProdTime[i] = 999999;
+    }
     count = 0;
 }
+
 
 WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
@@ -258,8 +269,6 @@ void WaterIcon::onClick() {
     if (pGame->isGamePaused()) return;
     if (pGame->budget >= 100 && count < MAX_CREATED_ANIMALS) {
         pGame->budget -= 100;
-        pGame->clearBudget();
-        pGame->printBudget("BUDGET = $" + std::to_string(pGame->budget));
 
         point p;
         std::random_device rd;
@@ -296,11 +305,9 @@ void WaterIcon::update() {
 void WaterIcon::draw() const {
     BudgetbarIcon::draw();
     window* pWind = pGame->getWind();
-
     pWind->SetPen(BLACK, 1);
     pWind->SetBrush(WHITE);
     pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
-
     pWind->SetPen(RED);
     pWind->SetFont(16, BOLD, BY_NAME, "Arial");
     pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$100");
@@ -310,6 +317,7 @@ void WaterIcon::reset() {
     for (int i = 0; i < count; i++) { delete grassList[i]; grassList[i] = nullptr; }
     count = 0;
 }
+
 
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     : Drawable(r_pGame, r_point, r_width, r_height)
@@ -342,7 +350,6 @@ void Budgetbar::draw() const {
     }
 
     window* pWind = pGame->getWind();
-
     int textStartX = (ANIMAL_COUNT * config.iconWidth) + 20;
     int textStartY = config.toolBarHeight + 10;
 
@@ -375,4 +382,4 @@ void Budgetbar::reset() {
     for (int i = 0; i < ANIMAL_COUNT; i++) {
         if (iconsList[i]) iconsList[i]->reset();
     }
-};
+}

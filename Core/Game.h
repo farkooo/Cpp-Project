@@ -21,7 +21,7 @@ private:
 	window* pWind;
 	Toolbar* gameToolbar;
 	Budgetbar* gameBudgetbar;
-	Warehouse* pWarehouse;    
+	Warehouse* pWarehouse;
 
 	std::vector<Chick*> chicks;
 	std::vector<Wolf*> wolves;
@@ -30,6 +30,14 @@ private:
 	unsigned long lastWolfSpawnTime;
 	unsigned long currentGameTime = 0;
 	bool isPaused = false;
+	int GetLevelGoal(int levelNumber) const;
+	int GetLevelTimeLimit(int levelNumber) const;
+	unsigned long GetWolfSpawnInterval() const;
+	int GetWolfCountPerSpawn() const;
+	int GetWolfSpeed() const;
+	void updateWolfDifficulty(int currentLevel);
+	void spawnWolfEveryInterval();
+	void ApplyLevelUp();
 
 public:
 	unsigned long getGameTime() const { return currentGameTime; }
@@ -63,13 +71,14 @@ public:
 	void drawField() const;
 	void drawStatusBar() const;
 	void showWarehouse();
+	bool SellWarehouseProduct(ProductType productType, int quantityToSell);
+	bool checkLevelProgress(int currentBudget, int currentLevel);
 
 	void go();
 
 	void setPaused(bool pause);
 	bool isGamePaused() const;
 
-	window* getWind() const;	
+	window* getWind() const;
 	void addProduct(Product* p);
 };
-

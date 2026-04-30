@@ -4,52 +4,81 @@
 #include "../UI/Toolbar.h"
 #include "../UI/BudgetBar.h"
 #include "../Entities/Animal.h"
+#include "Warehouse.h" 
 #include <vector>
+#include <string>
+
+class Product;
+class FoodArea;
+class Animal;
 
 class Game
 {
 private:
-	window* pWind;	//Pointer to the CMU graphics window
+	std::vector<FoodArea*> foodList;
+	std::vector<Animal*> animalList;
+	std::vector<Product*> productList;
+	window* pWind;
 	Toolbar* gameToolbar;
 	Budgetbar* gameBudgetbar;
+	Warehouse* pWarehouse;
+
 	std::vector<Chick*> chicks;
 	std::vector<Wolf*> wolves;
 	int currentLevel;
 	unsigned long gameStartTime;
 	unsigned long lastWolfSpawnTime;
+	unsigned long currentGameTime = 0;
+	bool isPaused = false;
+	int GetLevelGoal(int levelNumber) const;
+	int GetLevelTimeLimit(int levelNumber) const;
+	unsigned long GetWolfSpawnInterval() const;
+	int GetWolfCountPerSpawn() const;
+	int GetWolfSpeed() const;
+	void updateWolfDifficulty(int currentLevel);
+	void spawnWolfEveryInterval();
+	void ApplyLevelUp();
 
 public:
+	unsigned long getGameTime() const { return currentGameTime; }
 	int budget = 6000;
+	int remainingTimeSeconds = 120;
 	int animalCount = 0;
 	int level = 1;
 	int goal = 5;
 	time_t startTime;
+
 	Game();
 	~Game();
 
-	clicktype getMouseClick(int& x, int& y) const; //Get coordinate where user clicks and returns click type (left/right)
-	string getSrting() const;	 //Returns a string entered by the user
+	clicktype getMouseClick(int& x, int& y) const;
+	std::string getSrting() const;
 
-
-	window* CreateWind(int, int, int, int) const; //creates the game window
+	window* CreateWind(int, int, int, int) const;
 	void createToolbar();
 	void createBudgetbar();
 	void clearBudget() const;
-	void printBudget(string msg) const;
-	void clearStatusBar() const;	//Clears the status bar
+	void printBudget(std::string msg) const;
+	void drawTimer() const;
+	void clearStatusBar() const;
 	void clearPlayingArea() const;
 
-
-	void printMessage(string msg) const;	//Print a message on Status bar
+	void printMessage(std::string msg) const;
 	void drawWolf(point position, int width, int height, int speed = 1);
 	void generateRandomWolves();
 	int getCurrentLevel() const;
 	void restartGame();
 	void drawField() const;
 	void drawStatusBar() const;
+	void showWarehouse();
+	bool SellWarehouseProduct(ProductType productType, int quantityToSell);
+	bool checkLevelProgress(int currentBudget, int currentLevel);
 
-	void go() const;
+	void go();
 
-	window* getWind() const;		//returns a pointer to the graphics window
+	void setPaused(bool pause);
+	bool isGamePaused() const;
+
+	window* getWind() const;
+	void addProduct(Product* p);
 };
-

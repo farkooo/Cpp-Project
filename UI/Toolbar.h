@@ -19,6 +19,38 @@ public:
 	virtual void onClick();
 };
 
+class PauseIcon : public ToolbarIcon
+{
+public:
+	PauseIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void draw() const override;
+	virtual void onClick();
+};
+
+class ResumeIcon : public ToolbarIcon
+{
+public:
+	ResumeIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void draw() const override;
+	virtual void onClick();
+};
+
+class SaveIcon : public ToolbarIcon
+{
+public:
+	SaveIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void draw() const override;
+	virtual void onClick();
+};
+
+class LoadGameIcon : public ToolbarIcon
+{
+public:
+	LoadGameIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void draw() const override;
+	virtual void onClick();
+};
+
 class ExitIcon : public ToolbarIcon
 {
 public:
@@ -33,10 +65,11 @@ enum ICONS //The icons of the toolbar (you should add more icons)
 {
 	//Note: Icons are ordered here as they appear in menu
 	//If you want to change the menu icons order, change the order here
-	ICON_RESTART,		
-
-	//TODO: Add more icons names here
-
+	ICON_RESTART,
+	ICON_PAUSE,
+	ICON_RESUME,
+	ICON_SAVE,
+	ICON_LOAD,
 	ICON_EXIT,		//Exit icon
 
 	ICON_COUNT		//no. of menu icons ==> This should be the last line in this enum

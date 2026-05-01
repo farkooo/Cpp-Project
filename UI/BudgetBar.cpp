@@ -18,6 +18,7 @@ void BudgetbarIcon::draw() const
     pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 }
 
+
 ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -37,17 +38,6 @@ void ChickIcon::onClick()
         point p;
         std::random_device rd;
         std::mt19937 gen(rd());
-
-        int chickWidth = 50;
-        int chickHeight = 50;
-        int safe_max_x = config.windWidth - chickWidth - 10;
-        int safe_max_y = config.windHeight - config.statusBarHeight - chickHeight - 10;
-
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
-
-        p.x = distX(gen);
-        p.y = distY(gen);
 
         int chickWidth = 50;
         int chickHeight = 50;
@@ -124,6 +114,7 @@ void ChickIcon::reset() {
     count = 0;
 }
 
+
 CowIcon::CowIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -143,17 +134,18 @@ void CowIcon::onClick() {
         std::random_device rd;
         std::mt19937 gen(rd());
 
-        CowList[count] = new Cow(pGame, p, 80, 80, image_path);
         int cowWidth = 80;
         int cowHeight = 80;
         int safe_max_x = config.windWidth - cowWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - cowHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
-        p.x = distX(gen);
-        p.y = distY(gen);
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + cowHeight > config.windHeight - config.statusBarHeight - 300);
 
         CowList[count] = new Cow(pGame, p, cowWidth, cowHeight, image_path);
         CowList[count]->draw();
@@ -216,6 +208,7 @@ void CowIcon::reset() {
     }
     count = 0;
 }
+
 
 SealIcon::SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
@@ -310,6 +303,7 @@ void SealIcon::reset() {
     count = 0;
 }
 
+
 WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -326,14 +320,13 @@ void WaterIcon::onClick() {
         std::random_device rd;
         std::mt19937 gen(rd());
 
-        grassList[count] = new Grass(pGame, p, 50, 50, "images\\grass.jpg");
         int grassWidth = 50;
         int grassHeight = 50;
         int safe_max_x = config.windWidth - grassWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - grassHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
         p.x = distX(gen);
         p.y = distY(gen);
@@ -356,8 +349,6 @@ void WaterIcon::update() {
             if (grassList[i]->isExpired()) {
                 delete grassList[i];
                 grassList[i] = nullptr;
-                
-               
                 pGame->grassCount--;
             }
         }
@@ -379,6 +370,7 @@ void WaterIcon::reset() {
     for (int i = 0; i < count; i++) { delete grassList[i]; grassList[i] = nullptr; }
     count = 0;
 }
+
 
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     : Drawable(r_pGame, r_point, r_width, r_height)

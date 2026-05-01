@@ -1,30 +1,21 @@
 #pragma once
-
 #include "../Core/Drawable.h"
-#include <string>
 #include "../Core/GameObject.h"
 #include <string>
-
-class Animal : public Drawable
 
 class Animal : public GameObject
 {
 protected:
-	string image_path;
+	std::string image_path;
 	point curr_pos;
 	point prev_pos;
 	point curr_vel;
 
 	unsigned long lastProductionTime;
 	int productionRate;
-
-
-
-	unsigned long lastProductionTime;
-	int productionRate;
-	bool canEat; 
+	bool canEat;
 public:
-	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	Animal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
 
 	virtual void draw() const override;
 	virtual void moveStep() = 0;
@@ -39,22 +30,22 @@ public:
 class Chick : public Animal
 {
 public:
-	Chick(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	Chick(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
 	virtual void moveStep() override;
 };
 
 class Cow : public Animal
 {
 public:
-	Cow(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
-	virtual void moveStep();
+	Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
+	virtual void moveStep() override;
 };
 
 class Seal : public Animal
 {
 public:
-	Seal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
-	virtual void moveStep();
+	Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
+	virtual void moveStep() override;
 };
 
 class Wolf : public Animal
@@ -76,16 +67,15 @@ public:
 class Grass : public GameObject
 {
 private:
-	string image_path;
+	std::string image_path;
 	unsigned long creationTime;
 	int lifeSpan;
 public:
 	point curr_pos;
-	Grass(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
 	virtual void draw() const override;
-	virtual void moveStep();
-};
 
+	virtual void moveStep();
 
 	bool isExpired() const;
 };

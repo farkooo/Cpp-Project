@@ -56,10 +56,12 @@ bool Animal::isColliding(const Animal* other) const {
 		curr_pos.y + height > other->curr_pos.y);
 }
 
+
 Chick::Chick(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
 	productionRate = 10;
 }
+
 void Chick::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
@@ -95,10 +97,12 @@ void Chick::moveStep() {
 	curr_pos = RefPoint;
 }
 
+
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
 	productionRate = 10;
 }
+
 void Cow::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
@@ -134,10 +138,12 @@ void Cow::moveStep() {
 	curr_pos = RefPoint;
 }
 
+
 Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
 	productionRate = 10;
 }
+
 void Seal::moveStep() {
 	RefPoint.x += curr_vel.x;
 	RefPoint.y += curr_vel.y;
@@ -150,13 +156,10 @@ void Seal::moveStep() {
 		RefPoint.x = 0;
 		curr_vel.x = -curr_vel.x;
 	}
-	else if (RefPoint.x + width >= config.windWidth) {
-		RefPoint.x = config.windWidth - width;
+	else if (RefPoint.x + width >= rightLimit) {
+		RefPoint.x = rightLimit - width;
 		curr_vel.x = -curr_vel.x;
 	}
-
-	int topLimit = 2 * config.toolBarHeight;
-	int bottomLimit = config.windHeight - config.statusBarHeight;
 
 	if (RefPoint.y <= topLimit) {
 		RefPoint.y = topLimit;
@@ -170,6 +173,7 @@ void Seal::moveStep() {
 	curr_pos = RefPoint;
 }
 
+
 Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 	: Animal(r_pGame, r_point, r_width, r_height, "images\\wolf.jpg"), speed(r_speed), clickCount(0) {
 
@@ -181,22 +185,28 @@ Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 
 	wolfStates[this] = state;
 }
+
 Wolf::~Wolf() {
 	wolfStates.erase(this);
 }
+
 void Wolf::setSpeed(int newSpeed) {
 	speed = newSpeed;
 }
+
 bool Wolf::isClicked(int x, int y) const {
 	return x >= curr_pos.x && x <= curr_pos.x + width &&
 		y >= curr_pos.y && y <= curr_pos.y + height;
 }
+
 int Wolf::incrementClickCount() {
 	return ++clickCount;
 }
+
 void Wolf::draw() const {
 	pGame->getWind()->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
 }
+
 void Wolf::moveStep() {
 	curr_pos.x += curr_vel.x;
 	curr_pos.y += curr_vel.y;
@@ -253,6 +263,7 @@ void Wolf::moveStep() {
 	RefPoint.y = (int)std::round(state.exactY);
 	curr_pos = RefPoint;
 }
+
 
 Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: GameObject(r_pGame, r_point, r_width, r_height, GREEN, BLACK) {

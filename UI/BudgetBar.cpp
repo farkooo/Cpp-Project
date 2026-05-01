@@ -49,6 +49,19 @@ void ChickIcon::onClick()
         p.x = distX(gen);
         p.y = distY(gen);
 
+        int chickWidth = 50;
+        int chickHeight = 50;
+        int safe_max_x = config.windWidth - chickWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - chickHeight - 10;
+
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
+
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + chickHeight > config.windHeight - config.statusBarHeight - 300);
+
         chickList[count] = new Chick(pGame, p, chickWidth, chickHeight, image_path);
         chickList[count]->draw();
         count++;
@@ -130,6 +143,7 @@ void CowIcon::onClick() {
         std::random_device rd;
         std::mt19937 gen(rd());
 
+        CowList[count] = new Cow(pGame, p, 80, 80, image_path);
         int cowWidth = 80;
         int cowHeight = 80;
         int safe_max_x = config.windWidth - cowWidth - 10;
@@ -222,13 +236,14 @@ void SealIcon::onClick() {
         std::random_device rd;
         std::mt19937 gen(rd());
 
-        int sealWidth = 100;
-        int sealHeight = 100;
-        int safe_max_x = config.windWidth - sealWidth - 10;
+        int sealWidth = 50;
+        int sealHeight = 50;
+        int safe_max_x = 300 - sealWidth - 10;
+        int safe_min_y = config.windHeight - config.statusBarHeight - 300 + 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - sealHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(safe_min_y, safe_max_y);
 
         p.x = distX(gen);
         p.y = distY(gen);
@@ -266,7 +281,7 @@ void SealIcon::update() {
                 unsigned long currTime = pGame->getGameTime();
                 if (currTime != lastProdTime[i]) {
                     point dropPos = sealList[i]->getPos();
-                    Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
+                    Product* fish = new Fish(pGame, dropPos, 30, 30, "images\\fish1.jpg");
                     pGame->addProduct(fish);
                     lastProdTime[i] = currTime;
                 }
@@ -311,6 +326,7 @@ void WaterIcon::onClick() {
         std::random_device rd;
         std::mt19937 gen(rd());
 
+        grassList[count] = new Grass(pGame, p, 50, 50, "images\\grass.jpg");
         int grassWidth = 50;
         int grassHeight = 50;
         int safe_max_x = config.windWidth - grassWidth - 10;
@@ -325,6 +341,7 @@ void WaterIcon::onClick() {
         grassList[count] = new Grass(pGame, p, grassWidth, grassHeight, "images\\grass.jpg");
         grassList[count]->draw();
         count++;
+        pGame->grassCount++;
     }
 }
 
@@ -335,6 +352,14 @@ void WaterIcon::update() {
                 grassList[i]->moveStep();
             }
             grassList[i]->draw();
+
+            if (grassList[i]->isExpired()) {
+                delete grassList[i];
+                grassList[i] = nullptr;
+                
+               
+                pGame->grassCount--;
+            }
         }
     }
 }

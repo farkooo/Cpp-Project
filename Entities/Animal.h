@@ -1,8 +1,13 @@
 #pragma once
+
 #include "../Core/Drawable.h"
+#include <string>
+#include "../Core/GameObject.h"
 #include <string>
 
 class Animal : public Drawable
+
+class Animal : public GameObject
 {
 protected:
 	string image_path;
@@ -12,6 +17,12 @@ protected:
 
 	unsigned long lastProductionTime;
 	int productionRate;
+
+
+
+	unsigned long lastProductionTime;
+	int productionRate;
+	bool canEat; 
 public:
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 
@@ -21,6 +32,8 @@ public:
 
 	bool checkProduction();
 	bool isColliding(const Animal* other) const;
+	bool getCanEat() const { return canEat; }
+	void setCanEat(bool b) { canEat = b; }
 };
 
 class Chick : public Animal
@@ -60,13 +73,19 @@ public:
 	int getClickCount() const { return clickCount; }
 };
 
-class Grass : public Drawable
+class Grass : public GameObject
 {
 private:
 	string image_path;
+	unsigned long creationTime;
+	int lifeSpan;
 public:
 	point curr_pos;
 	Grass(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
 	virtual void moveStep();
+};
+
+
+	bool isExpired() const;
 };

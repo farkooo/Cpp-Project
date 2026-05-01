@@ -4,6 +4,8 @@
 #include "Product.h"
 #include <random>
 #include <ctime>
+#include <fstream>
+#include <sstream>
 
 namespace
 {
@@ -243,8 +245,10 @@ void Game::generateRandomWolves()
 	std::uniform_int_distribution<int> yDist((2 * config.toolBarHeight) + 30, config.windHeight - config.statusBarHeight - wolfHeight - 30);
 
 	point position;
-	position.x = xDist(generator);
-	position.y = yDist(generator);
+	do {
+		position.x = xDist(generator);
+		position.y = yDist(generator);
+	} while (position.x < 300 && position.y + wolfHeight > config.windHeight - config.statusBarHeight - 300);
 
 	drawWolf(position, wolfWidth, wolfHeight, GetWolfSpeed());
 }
@@ -274,13 +278,13 @@ void Game::restartGame()
 	goal = GetLevelGoal(level);
 	remainingTimeSeconds = GetLevelTimeLimit(level);
 	animalCount = 0;
+	grassCount = 0;
 	gameStartTime = CurrentTime();
 	currentGameTime = 0;
 	lastWolfSpawnTime = 0;
 
 	startTime = time(NULL);
 
-	// Force redraw UI
 	if (gameToolbar) gameToolbar->draw();
 	if (gameBudgetbar) gameBudgetbar->draw();
 	clearStatusBar();
@@ -295,6 +299,10 @@ void Game::drawField() const
 	pWind->SetPen(BROWN, 10);
 	pWind->SetBrush(GREEN);
 	pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+
+	pWind->SetPen(GRAY, 10);
+	pWind->SetBrush(BLUE);
+	pWind->DrawRectangle(0, config.windHeight - config.statusBarHeight - 300, 300, config.windHeight - config.statusBarHeight);
 }
 
 void Game::drawStatusBar() const
@@ -307,11 +315,13 @@ void Game::drawStatusBar() const
 	string goalStr = "Goal: $" + to_string(goal);
 	string levelStr = "Level: " + to_string(level);
 	string countStr = "Animals: " + to_string(animalCount);
+	string grassStr = "Grass: " + to_string(grassCount);
 
 	pWind->DrawString(10, config.windHeight - 40, timerStr);
 	pWind->DrawString(180, config.windHeight - 40, goalStr);
 	pWind->DrawString(330, config.windHeight - 40, levelStr);
 	pWind->DrawString(480, config.windHeight - 40, countStr);
+	pWind->DrawString(630, config.windHeight - 40, grassStr);
 }
 
 window* Game::getWind() const { return pWind; }
@@ -479,6 +489,7 @@ void Game::go()
 						delete foodList[i];
 						foodList.erase(foodList.begin() + i);
 						i--;
+						grassCount--;
 					}
 				}
 			}
@@ -495,6 +506,53 @@ void Game::go()
 					}
 				}
 			}
+
+
+			BudgetbarIcon** icons = gameBudgetbar->getIconsList();
+			ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
+			CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
+			SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
+			WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+
+			auto checkEat = [&](Animal* animal) {
+				bool colliding = false;
+				for (size_t j = 0; j < foodList.size(); j++) {
+					if (foodList[j] && animal->CollisionDetection(*foodList[j])) {
+						colliding = true;
+						if (animal->getCanEat()) {
+							delete foodList[j];
+							foodList.erase(foodList.begin() + j);
+							j--;
+							grassCount--;
+							animalCount++; 
+							animal->setCanEat(false);
+						}
+						return; 
+					}
+				}
+				for (int j = 0; j < wIcon->count; j++) {
+					if (wIcon->grassList[j] && animal->CollisionDetection(*wIcon->grassList[j])) {
+						colliding = true;
+						if (animal->getCanEat()) {
+							delete wIcon->grassList[j];
+							wIcon->grassList[j] = nullptr;
+							grassCount--;
+							animalCount++;
+							animal->setCanEat(false);
+						}
+						return;
+					}
+				}
+				if (!colliding) {
+					animal->setCanEat(true);
+				}
+			};
+
+			for (size_t i = 0; i < animalList.size(); i++) if (animalList[i]) checkEat(animalList[i]);
+			for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) checkEat(cIcon->chickList[i]);
+			for (int i = 0; i < cowIcon->count; i++) if (cowIcon->CowList[i]) checkEat(cowIcon->CowList[i]);
+			for (int i = 0; i < sIcon->count; i++) if (sIcon->sealList[i]) checkEat(sIcon->sealList[i]);
+
 
 			for (size_t i = 0; i < wolves.size(); i++) {
 				wolves[i]->moveStep();
@@ -585,6 +643,22 @@ void Game::go()
 								delete wolves[i];                      
 								wolves.erase(wolves.begin() + i);     
 								
+				if (!isPaused && budget >= 20) {
+					point p; p.x = x - 25; p.y = y - 25;
+					FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
+					foodList.push_back(pNewFood);
+					budget -= 20;
+				if (!isPaused) {
+					bool itemCollected = false;
+					for (int i = 0; i < productList.size(); i++) {
+						if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
+							if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
+								delete productList[i];
+								productList.erase(productList.begin() + i);
+								itemCollected = true;
+							}
+							else {
+								printMessage("Warehouse is full!");
 							}
 							break;
 						}
@@ -597,7 +671,7 @@ void Game::go()
 								if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
 									delete productList[i];
 									productList.erase(productList.begin() + i);
-									actionTaken = true; // An item was collected
+									actionTaken = true; 
 								}
 								else {
 									printMessage("Warehouse is full!");
@@ -609,10 +683,13 @@ void Game::go()
 
 					
 					if (!actionTaken && budget >= 100) {
+					if (!itemCollected && budget >= 100) {
 						point p; p.x = x - 25; p.y = y - 25;
 						FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
 						foodList.push_back(pNewFood);
 						budget -= 100;
+					}
+						grassCount++;
 					}
 				}
 			}
@@ -755,3 +832,192 @@ void Game::showWarehouse()
 void Game::addProduct(Product* p) {
 	if (p) productList.push_back(p);
 }
+
+void Game::saveGame() {
+    std::ofstream out("save.txt");
+    if (!out.is_open()) return;
+
+    out << level << " // Level\n";
+    out << budget << " // Budget\n";
+    int m = remainingTimeSeconds / 60;
+    int s = remainingTimeSeconds % 60;
+    out << m << ":" << (s < 10 ? "0" : "") << s << " // Timer\n\n";
+
+    BudgetbarIcon** icons = gameBudgetbar->getIconsList();
+    ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
+    CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
+    SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
+    WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+
+    int realChickCount = 0;
+    for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) realChickCount++;
+    int realCowCount = 0;
+    for (int i = 0; i < cowIcon->count; i++) if (cowIcon->CowList[i]) realCowCount++;
+    int realSealCount = 0;
+    for (int i = 0; i < sIcon->count; i++) if (sIcon->sealList[i]) realSealCount++;
+    int realWolfCount = wolves.size();
+    int realGrassCount = 0;
+    for (int i = 0; i < wIcon->count; i++) if (wIcon->grassList[i]) realGrassCount++;
+
+    out << realChickCount << " // Number of chickens\n";
+    out << realCowCount << " // Number of cows\n";
+    out << realSealCount << " // Number of seals\n";
+    out << realWolfCount << " // Number of wolves\n";
+    out << realGrassCount << " // Number of grass\n\n";
+
+    for (int i = 0; i < cIcon->count; i++) {
+        if (cIcon->chickList[i]) {
+            out << cIcon->chickList[i]->getPos().x << " // Chick" << i + 1 << "X\n";
+            out << cIcon->chickList[i]->getPos().y << " // Chick" << i + 1 << "Y\n";
+        }
+    }
+    out << "\n";
+    for (int i = 0; i < cowIcon->count; i++) {
+        if (cowIcon->CowList[i]) {
+            out << cowIcon->CowList[i]->getPos().x << " // Cow" << i + 1 << "X\n";
+            out << cowIcon->CowList[i]->getPos().y << " // Cow" << i + 1 << "Y\n";
+        }
+    }
+    out << "\n";
+    for (int i = 0; i < sIcon->count; i++) {
+        if (sIcon->sealList[i]) {
+            out << sIcon->sealList[i]->getPos().x << " // Seal" << i + 1 << "X\n";
+            out << sIcon->sealList[i]->getPos().y << " // Seal" << i + 1 << "Y\n";
+        }
+    }
+    out << "\n";
+    for (int i = 0; i < wolves.size(); i++) {
+        if (wolves[i]) {
+            out << wolves[i]->getPos().x << " // Wolf" << i + 1 << "X\n";
+            out << wolves[i]->getPos().y << " // Wolf" << i + 1 << "Y\n";
+        }
+    }
+    out << "\n";
+    for (int i = 0; i < wIcon->count; i++) {
+        if (wIcon->grassList[i]) {
+            out << wIcon->grassList[i]->curr_pos.x << " // Grass" << i + 1 << "X\n";
+            out << wIcon->grassList[i]->curr_pos.y << " // Grass" << i + 1 << "Y\n";
+        }
+    }
+    out << "\n";
+
+    int eggCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG) : 0;
+    int milkCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::MILK) : 0;
+    int fishCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::FISH) : 0;
+
+    int numItems = 0;
+    if (eggCount > 0) numItems++;
+    if (milkCount > 0) numItems++;
+    if (fishCount > 0) numItems++;
+
+    out << numItems << " // Items in the warehouse\n";
+    if (eggCount > 0) out << "0 " << eggCount << " // Item type, count (EGG=0)\n";
+    if (milkCount > 0) out << "1 " << milkCount << " // Item type, count (MILK=1)\n";
+    if (fishCount > 0) out << "2 " << fishCount << " // Item type, count (FISH=2)\n";
+
+    out.close();
+    printMessage("Game Saved Successfully!");
+}
+
+
+void Game::loadGame() {
+    std::ifstream in("save.txt");
+    if (!in.is_open()) {
+        printMessage("No save file found!");
+        return;
+    }
+
+    restartGame(); 
+
+    std::string line, dummy;
+    
+    in >> level; std::getline(in, dummy);
+    in >> budget; std::getline(in, dummy);
+
+    std::string timerStr;
+    in >> timerStr; std::getline(in, dummy);
+    size_t pos = timerStr.find(':');
+    if (pos != std::string::npos) {
+        try {
+            int m = std::stoi(timerStr.substr(0, pos));
+            int s = std::stoi(timerStr.substr(pos + 1));
+            remainingTimeSeconds = m * 60 + s;
+        } catch (...) {
+            remainingTimeSeconds = 120;
+        }
+    }
+
+    int numChickens, numCows, numSeals, numWolves, numGrass;
+    in >> numChickens; std::getline(in, dummy);
+    in >> numCows; std::getline(in, dummy);
+    in >> numSeals; std::getline(in, dummy);
+    in >> numWolves; std::getline(in, dummy);
+    in >> numGrass; std::getline(in, dummy);
+
+    BudgetbarIcon** icons = gameBudgetbar->getIconsList();
+    ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
+    CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
+    SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
+    WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+
+    for (int i = 0; i < numChickens; i++) {
+        int x, y;
+        if (!(in >> x)) break; std::getline(in, dummy);
+        if (!(in >> y)) break; std::getline(in, dummy);
+        point p; p.x = x; p.y = y;
+        cIcon->chickList[cIcon->count] = new Chick(this, p, 50, 50, cIcon->image_path);
+        cIcon->count++;
+        animalCount++;
+    }
+    for (int i = 0; i < numCows; i++) {
+        int x, y;
+        if (!(in >> x)) break; std::getline(in, dummy);
+        if (!(in >> y)) break; std::getline(in, dummy);
+        point p; p.x = x; p.y = y;
+        cowIcon->CowList[cowIcon->count] = new Cow(this, p, 80, 80, cowIcon->image_path);
+        cowIcon->count++;
+        animalCount++;
+    }
+    for (int i = 0; i < numSeals; i++) {
+        int x, y;
+        if (!(in >> x)) break; std::getline(in, dummy);
+        if (!(in >> y)) break; std::getline(in, dummy);
+        point p; p.x = x; p.y = y;
+        sIcon->sealList[sIcon->count] = new Seal(this, p, 80, 80, sIcon->image_path);
+        sIcon->count++;
+        animalCount++;
+    }
+    for (int i = 0; i < numWolves; i++) {
+        int x, y;
+        if (!(in >> x)) break; std::getline(in, dummy);
+        if (!(in >> y)) break; std::getline(in, dummy);
+        point p; p.x = x; p.y = y;
+        drawWolf(p, 70, 70, level); 
+    }
+    for (int i = 0; i < numGrass; i++) {
+        int x, y;
+        if (!(in >> x)) break; std::getline(in, dummy);
+        if (!(in >> y)) break; std::getline(in, dummy);
+        point p; p.x = x; p.y = y;
+        wIcon->grassList[wIcon->count] = new Grass(this, p, 50, 50, "images\\grass.jpg");
+        wIcon->count++;
+        grassCount++;
+    }
+
+    int numItems = 0;
+    if (in >> numItems) {
+        std::getline(in, dummy);
+        for (int i = 0; i < numItems; i++) {
+            int type, count;
+            in >> type >> count; std::getline(in, dummy);
+            pWarehouse->StoreItem((ProductType)type, count);
+        }
+    }
+
+    in.close();
+    
+    currentLevel = level;
+    isPaused = true;
+    printMessage("Game Loaded Successfully! Click Resume to continue.");
+}
+

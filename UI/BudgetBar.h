@@ -92,4 +92,5 @@ public:
     bool handleClick(int x, int y);
     void update();
     void reset();
+    BudgetbarIcon** getIconsList() const { return iconsList; }
 };

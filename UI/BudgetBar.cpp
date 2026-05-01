@@ -35,10 +35,26 @@ void ChickIcon::onClick()
         point p;
         std::random_device rd;
         std::mt19937 gen(rd());
+<<<<<<< Updated upstream
         std::uniform_int_distribution<int> distX(range_min_x, range_max_x);
         std::uniform_int_distribution<int> distY(range_min_y, range_max_y);
         p.x = distX(gen);
         p.y = distY(gen);
+=======
+
+        int chickWidth = 50;
+        int chickHeight = 50;
+        int safe_max_x = config.windWidth - chickWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - chickHeight - 10;
+
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
+
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + chickHeight > config.windHeight - config.statusBarHeight - 300);
+>>>>>>> Stashed changes
 
         chickList[count] = new Chick(pGame, p, 50, 50, image_path);
         chickList[count]->draw();
@@ -97,7 +113,24 @@ void CowIcon::onClick() {
         std::uniform_int_distribution<int> distY(range_min_y, range_max_y);
         p.x = distX(gen); p.y = distY(gen);
 
+<<<<<<< Updated upstream
         CowList[count] = new Cow(pGame, p, 80, 80, image_path);
+=======
+        int cowWidth = 80;
+        int cowHeight = 80;
+        int safe_max_x = config.windWidth - cowWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - cowHeight - 10;
+
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
+
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + cowHeight > config.windHeight - config.statusBarHeight - 300);
+
+        CowList[count] = new Cow(pGame, p, cowWidth, cowHeight, image_path);
+>>>>>>> Stashed changes
         CowList[count]->draw();
         count++;
         pGame->animalCount++;
@@ -147,7 +180,23 @@ void SealIcon::onClick() {
         std::uniform_int_distribution<int> distY(range_min_y, range_max_y);
         p.x = distX(gen); p.y = distY(gen);
 
+<<<<<<< Updated upstream
         sealList[count] = new Seal(pGame, p, 100, 100, image_path);
+=======
+        int sealWidth = 50;
+        int sealHeight = 50;
+        int safe_max_x = 300 - sealWidth - 10;
+        int safe_min_y = config.windHeight - config.statusBarHeight - 300 + 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - sealHeight - 10;
+
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(safe_min_y, safe_max_y);
+
+        p.x = distX(gen);
+        p.y = distY(gen);
+
+        sealList[count] = new Seal(pGame, p, sealWidth, sealHeight, image_path);
+>>>>>>> Stashed changes
         sealList[count]->draw();
         count++;
         pGame->animalCount++;
@@ -162,6 +211,20 @@ void SealIcon::update() {
                 sealList[i]->moveStep();
             }
             sealList[i]->draw();
+<<<<<<< Updated upstream
+=======
+
+            if (sealList[i]->checkProduction()) {
+                unsigned long currTime = pGame->getGameTime();
+                // ANTI-LAG DEBOUNCE
+                if (currTime != lastProdTime[i]) {
+                    point dropPos = sealList[i]->getPos();
+                    Product* fish = new Fish(pGame, dropPos, 30, 30, "images\\fish1.jpg");
+                    pGame->addProduct(fish);
+                    lastProdTime[i] = currTime;
+                }
+            }
+>>>>>>> Stashed changes
         }
     }
 }
@@ -197,9 +260,27 @@ void WaterIcon::onClick() {
         std::uniform_int_distribution<int> distY(range_min_y, range_max_y);
         p.x = distX(gen); p.y = distY(gen);
 
+<<<<<<< Updated upstream
         grassList[count] = new Grass(pGame, p, 50, 50, "images\\grass.jpg");
+=======
+        int grassWidth = 50;
+        int grassHeight = 50;
+        int safe_max_x = config.windWidth - grassWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - grassHeight - 10;
+
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
+
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + grassHeight > config.windHeight - config.statusBarHeight - 300);
+
+        grassList[count] = new Grass(pGame, p, grassWidth, grassHeight, "images\\grass.jpg");
+>>>>>>> Stashed changes
         grassList[count]->draw();
         count++;
+        pGame->grassCount++;
     }
 }
 
@@ -210,6 +291,15 @@ void WaterIcon::update() {
                 grassList[i]->moveStep();
             }
             grassList[i]->draw();
+
+            if (grassList[i]->isExpired()) {
+                delete grassList[i];
+                grassList[i] = nullptr;
+                
+                // Shift the list to maintain order if necessary, or just leave as null
+                // The current code seems to handle nulls in checkEat
+                pGame->grassCount--;
+            }
         }
     }
 }

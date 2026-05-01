@@ -71,7 +71,9 @@ SaveIcon::SaveIcon(Game* r_pGame, point r_point, int r_width, int r_height, stri
 void SaveIcon::draw() const {
 	drawButton(pGame->getWind(), RefPoint.x, RefPoint.y, width, height, BLUE, "Save");
 }
-void SaveIcon::onClick() {}
+void SaveIcon::onClick() {
+	pGame->saveGame();
+}
 
 LoadGameIcon::LoadGameIcon(Game* r_pGame, point r_point, int r_width, int r_height, string img_path)
 	: ToolbarIcon(r_pGame, r_point, r_width, r_height, img_path) {}
@@ -79,7 +81,9 @@ LoadGameIcon::LoadGameIcon(Game* r_pGame, point r_point, int r_width, int r_heig
 void LoadGameIcon::draw() const {
 	drawButton(pGame->getWind(), RefPoint.x, RefPoint.y, width, height, DARKBLUE, "Load");
 }
-void LoadGameIcon::onClick() {}
+void LoadGameIcon::onClick() {
+	pGame->loadGame();
+}
 
 Toolbar::Toolbar(Game* r_pGame, point r_point, int r_width, int r_height) : Drawable(r_pGame, r_point, r_width, r_height)
 {

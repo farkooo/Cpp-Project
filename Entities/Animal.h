@@ -1,8 +1,15 @@
 #pragma once
+<<<<<<< Updated upstream
 
 #include "../Core/Drawable.h"
 #include <ctime> 
 class Animal : public Drawable
+=======
+#include "../Core/GameObject.h"
+#include <string>
+
+class Animal : public GameObject
+>>>>>>> Stashed changes
 {
 protected: 
 	string image_path;
@@ -10,10 +17,16 @@ protected:
 	point prev_pos;
 	point curr_vel;
 
+<<<<<<< Updated upstream
 	
 	time_t lastProductionTime; 
 	int productionRate;      
 
+=======
+	unsigned long lastProductionTime;
+	int productionRate;
+	bool canEat; // Flag to prevent continuous collision counting
+>>>>>>> Stashed changes
 public:
 	Animal(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
@@ -22,6 +35,8 @@ public:
 
 	
 	bool checkProduction();
+	bool getCanEat() const { return canEat; }
+	void setCanEat(bool b) { canEat = b; }
 };
 
 class Chick : public Animal
@@ -55,15 +70,22 @@ public:
 	virtual void moveStep() override;
 };
 
-class Grass : public Drawable
+class Grass : public GameObject
 {
 private:
 	string image_path;
+	unsigned long creationTime;
+	int lifeSpan;
 public:
 	point curr_pos;
 	Grass(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
 	virtual void draw() const override;
 	virtual void moveStep();
+<<<<<<< Updated upstream
 };
 
 
+=======
+	bool isExpired() const;
+};
+>>>>>>> Stashed changes

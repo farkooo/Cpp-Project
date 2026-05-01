@@ -1,0 +1,26 @@
+2 // Level
+1000 // Budget
+1:26 // Timer
+
+1 // Number of chickens
+1 // Number of cows
+1 // Number of seals
+1 // Number of wolves
+0 // Number of grass
+
+502 // Chick1X
+496 // Chick1Y
+
+1048 // Cow1X
+461 // Cow1Y
+
+48 // Seal1X
+377 // Seal1Y
+
+619 // Wolf1X
+216 // Wolf1Y
+
+
+2 // Items in the warehouse
+0 2 // Item type, count (EGG=0)
+1 1 // Item type, count (MILK=1)

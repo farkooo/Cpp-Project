@@ -5,6 +5,7 @@
 #include "../UI/BudgetBar.h"
 #include "../Entities/Animal.h"
 #include "Warehouse.h" 
+#include "../Core/GameObject.h"
 #include <vector>
 #include <string>
 
@@ -44,6 +45,7 @@ public:
 	int budget = 6000;
 	int remainingTimeSeconds = 120;
 	int animalCount = 0;
+	int grassCount = 0;
 	int level = 1;
 	int goal = 5;
 	time_t startTime;
@@ -68,6 +70,8 @@ public:
 	void generateRandomWolves();
 	int getCurrentLevel() const;
 	void restartGame();
+	void saveGame();
+	void loadGame();
 	void drawField() const;
 	void drawStatusBar() const;
 	void showWarehouse();

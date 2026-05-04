@@ -4,6 +4,7 @@
 #include "../product.h"
 #include <iostream>
 #include <random>
+#include <vector> 
 
 BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : Drawable(r_pGame, r_point, r_width, r_height)
@@ -17,13 +18,14 @@ void BudgetbarIcon::draw() const
     pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 }
 
+
 ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
     chickList = new Chick * [MAX_CREATED_ANIMALS];
     for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
         chickList[i] = nullptr;
-        lastProdTime[i] = 999999; 
+        lastProdTime[i] = 999999;
     }
 }
 
@@ -42,11 +44,13 @@ void ChickIcon::onClick()
         int safe_max_x = config.windWidth - chickWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - chickHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
-        p.x = distX(gen);
-        p.y = distY(gen);
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + chickHeight > config.windHeight - config.statusBarHeight - 300);
 
         chickList[count] = new Chick(pGame, p, chickWidth, chickHeight, image_path);
         chickList[count]->draw();
@@ -61,11 +65,24 @@ void ChickIcon::update() {
             if (!pGame->isGamePaused()) {
                 chickList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && chickList[i]->isColliding(wolf)) {
+                    delete chickList[i];
+                    chickList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             chickList[i]->draw();
 
             if (chickList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE: Prevents spawning 30 eggs at once
                 if (currTime != lastProdTime[i]) {
                     point dropPos = chickList[i]->getPos();
                     Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
@@ -122,11 +139,13 @@ void CowIcon::onClick() {
         int safe_max_x = config.windWidth - cowWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - cowHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
-        p.x = distX(gen);
-        p.y = distY(gen);
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + cowHeight > config.windHeight - config.statusBarHeight - 300);
 
         CowList[count] = new Cow(pGame, p, cowWidth, cowHeight, image_path);
         CowList[count]->draw();
@@ -141,11 +160,24 @@ void CowIcon::update() {
             if (!pGame->isGamePaused()) {
                 CowList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && CowList[i]->isColliding(wolf)) {
+                    delete CowList[i];
+                    CowList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             CowList[i]->draw();
 
             if (CowList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE
                 if (currTime != lastProdTime[i]) {
                     point dropPos = CowList[i]->getPos();
                     Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
@@ -197,13 +229,14 @@ void SealIcon::onClick() {
         std::random_device rd;
         std::mt19937 gen(rd());
 
-        int sealWidth = 100;
-        int sealHeight = 100;
-        int safe_max_x = config.windWidth - sealWidth - 10;
+        int sealWidth = 50;
+        int sealHeight = 50;
+        int safe_max_x = 300 - sealWidth - 10;
+        int safe_min_y = config.windHeight - config.statusBarHeight - 300 + 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - sealHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(safe_min_y, safe_max_y);
 
         p.x = distX(gen);
         p.y = distY(gen);
@@ -221,14 +254,27 @@ void SealIcon::update() {
             if (!pGame->isGamePaused()) {
                 sealList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && sealList[i]->isColliding(wolf)) {
+                    delete sealList[i];
+                    sealList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             sealList[i]->draw();
 
             if (sealList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE
                 if (currTime != lastProdTime[i]) {
                     point dropPos = sealList[i]->getPos();
-                    Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
+                    Product* fish = new Fish(pGame, dropPos, 30, 30, "images\\fish1.jpg");
                     pGame->addProduct(fish);
                     lastProdTime[i] = currTime;
                 }
@@ -279,8 +325,8 @@ void WaterIcon::onClick() {
         int safe_max_x = config.windWidth - grassWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - grassHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
         p.x = distX(gen);
         p.y = distY(gen);
@@ -288,6 +334,7 @@ void WaterIcon::onClick() {
         grassList[count] = new Grass(pGame, p, grassWidth, grassHeight, "images\\grass.jpg");
         grassList[count]->draw();
         count++;
+        pGame->grassCount++;
     }
 }
 
@@ -298,6 +345,12 @@ void WaterIcon::update() {
                 grassList[i]->moveStep();
             }
             grassList[i]->draw();
+
+            if (grassList[i]->isExpired()) {
+                delete grassList[i];
+                grassList[i] = nullptr;
+                pGame->grassCount--;
+            }
         }
     }
 }

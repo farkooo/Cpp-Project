@@ -29,7 +29,7 @@ class ChickIcon : public BudgetbarIcon
 {
 public:
     Chick** chickList;
-    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; 
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS];
     int count = 0;
     ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;
@@ -55,7 +55,7 @@ class SealIcon : public BudgetbarIcon
 {
 public:
     Seal** sealList;
-    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; 
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS];
     int count = 0;
     SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;
@@ -97,4 +97,5 @@ public:
     bool handleClick(int x, int y);
     void update();
     void reset();
+    BudgetbarIcon** getIconsList() const { return iconsList; }
 };

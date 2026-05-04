@@ -806,6 +806,16 @@ void Game::addProduct(Product* p) {
 	if (p) productList.push_back(p);
 }
 
+void Game::removeWolf(const Wolf* wolf) {
+	for (size_t i = 0; i < wolves.size(); i++) {
+		if (wolves[i] == wolf) {
+			delete wolves[i];
+			wolves.erase(wolves.begin() + i);
+			return;
+		}
+	}
+}
+
 void Game::saveGame() {
 	std::ofstream out("save.txt");
 	if (!out.is_open()) return;

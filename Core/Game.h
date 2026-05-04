@@ -86,4 +86,5 @@ public:
 	window* getWind() const;
 	void addProduct(Product* p);
 	const std::vector<Wolf*>& getWolves() const { return wolves; }
+	void removeWolf(const Wolf* wolf);
 };

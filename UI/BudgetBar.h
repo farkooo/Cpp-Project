@@ -64,6 +64,18 @@ public:
     virtual void reset() override;
 };
 
+class DogIcon : public BudgetbarIcon
+{
+public:
+    Dog** dogList;
+    int count = 0;
+    DogIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
+    virtual void onClick() override;
+    void update() override;
+    virtual void draw() const override;
+    virtual void reset() override;
+};
+
 class WaterIcon : public BudgetbarIcon
 {
 public:
@@ -81,6 +93,7 @@ enum ANIMAL_ICONS
     ICON_CHICK,
     ICON_COW,
     ICON_SEAL,
+    ICON_DOG,
     ICON_WATER,
     ANIMAL_COUNT
 };

@@ -48,6 +48,18 @@ public:
 	virtual void moveStep() override;
 };
 
+class Dog : public Animal
+{
+private:
+	unsigned long creationTime;
+	int lifeSpan;
+public:
+	Dog(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
+	virtual void draw() const override;
+	virtual void moveStep() override;
+	bool isExpired() const;
+};
+
 class Wolf : public Animal
 {
 private:

@@ -173,6 +173,64 @@ void Seal::moveStep() {
 	curr_pos = RefPoint;
 }
 
+Dog::Dog(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
+	creationTime = pGame->getGameTime();
+	lifeSpan = 20;
+	productionRate = lifeSpan;
+}
+
+void Dog::draw() const {
+	static image dogSprite("images\\dog_sprite.jpg");
+	window* pW = pGame->getWind();
+	pW->DrawImage(dogSprite, curr_pos.x, curr_pos.y, width, height);
+
+	int timeLeft = lifeSpan - (int)(pGame->getGameTime() - creationTime);
+	if (timeLeft < 0) timeLeft = 0;
+
+	pW->SetPen(BLACK);
+	pW->DrawString(curr_pos.x + 5, curr_pos.y - 5, std::to_string(timeLeft) + "s");
+}
+
+void Dog::moveStep() {
+	RefPoint.x += curr_vel.x;
+	RefPoint.y += curr_vel.y;
+
+	if (RefPoint.x <= 0) {
+		RefPoint.x = 0;
+		curr_vel.x = -curr_vel.x;
+	}
+	else if (RefPoint.x + width >= config.windWidth) {
+		RefPoint.x = config.windWidth - width;
+		curr_vel.x = -curr_vel.x;
+	}
+
+	int topLimit = 2 * config.toolBarHeight;
+	int bottomLimit = config.windHeight - config.statusBarHeight;
+
+	if (RefPoint.y <= topLimit) {
+		RefPoint.y = topLimit;
+		curr_vel.y = -curr_vel.y;
+	}
+	else if (RefPoint.y + height >= bottomLimit) {
+		RefPoint.y = bottomLimit - height;
+		curr_vel.y = -curr_vel.y;
+	}
+
+	if (RefPoint.x < 300 && RefPoint.y + height > bottomLimit - 300) {
+		RefPoint.x -= curr_vel.x;
+		RefPoint.y -= curr_vel.y;
+		curr_vel.x = -curr_vel.x;
+		curr_vel.y = -curr_vel.y;
+	}
+
+	curr_pos = RefPoint;
+}
+
+bool Dog::isExpired() const {
+	return (pGame->getGameTime() - creationTime >= (unsigned long)lifeSpan);
+}
+
 
 Wolf::Wolf(Game* r_pGame, point r_point, int r_width, int r_height, int r_speed)
 	: Animal(r_pGame, r_point, r_width, r_height, "images\\wolf.jpg"), speed(r_speed), clickCount(0) {

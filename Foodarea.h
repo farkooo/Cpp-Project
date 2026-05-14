@@ -18,4 +18,8 @@ public:
     void consume();
     virtual void draw() const override;
     bool isEmpty() const;
+
+    // Accessors used by the save system
+    point getPos() const { return RefPoint; }
+    int getFoodCount() const { return foodCount; }
 };

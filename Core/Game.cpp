@@ -523,7 +523,6 @@ void Game::go()
 							foodList.erase(foodList.begin() + j);
 							j--;
 							grassCount--;
-							animalCount++;
 							animal->setCanEat(false);
 						}
 						return;
@@ -536,7 +535,6 @@ void Game::go()
 							delete wIcon->grassList[j];
 							wIcon->grassList[j] = nullptr;
 							grassCount--;
-							animalCount++;
 							animal->setCanEat(false);
 						}
 						return;
@@ -644,7 +642,7 @@ void Game::go()
 					}
 
 					if (!actionTaken) {
-						for (int i = 0; i < productList.size(); i++) {
+						for (size_t i = 0; i < productList.size(); i++) {
 							if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
 								if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
 									delete productList[i];
@@ -822,83 +820,73 @@ void Game::saveGame() {
 	std::ofstream out("save.txt");
 	if (!out.is_open()) return;
 
-	out << level << "\n";
-	out << budget << "\n";
-	int m = remainingTimeSeconds / 60;
-	int s = remainingTimeSeconds % 60;
-	out << m << ":" << (s < 10 ? "0" : "") << s << "\n\n";
+	// ---- Header ----
+	out << "LEVEL "  << level  << "\t\t// Current level\n";
+	out << "BUDGET " << budget << "\t\t// Current player budget\n";
+	out << "TIMER "  << remainingTimeSeconds << "\t\t// Remaining time in seconds\n";
+	out << "\n";
 
 	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
-	ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
-	CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
-	SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
-	WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+	ChickIcon* cIcon  = (ChickIcon*)icons[ICON_CHICK];
+	CowIcon*   cowIcon = (CowIcon*)icons[ICON_COW];
+	SealIcon*  sIcon  = (SealIcon*)icons[ICON_SEAL];
+	DogIcon*   dIcon  = (DogIcon*)icons[ICON_DOG];
+	WaterIcon* wIcon  = (WaterIcon*)icons[ICON_WATER];
 
+	// ---- Count living entities ----
 	int realChickCount = 0;
 	for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) realChickCount++;
 	int realCowCount = 0;
 	for (int i = 0; i < cowIcon->count; i++) if (cowIcon->CowList[i]) realCowCount++;
 	int realSealCount = 0;
 	for (int i = 0; i < sIcon->count; i++) if (sIcon->sealList[i]) realSealCount++;
-	int realWolfCount = wolves.size();
+	int realDogCount = 0;
+	for (int i = 0; i < dIcon->count; i++) if (dIcon->dogList[i]) realDogCount++;
+	int realWolfCount = (int)wolves.size();
 	int realGrassCount = 0;
 	for (int i = 0; i < wIcon->count; i++) if (wIcon->grassList[i]) realGrassCount++;
 
-	out << realChickCount << "\n";
-	out << realCowCount << "\n";
-	out << realSealCount << "\n";
-	out << realWolfCount << "\n";
-	out << realGrassCount << "\n\n";
+	int totalAnimals = realChickCount + realCowCount + realSealCount + realDogCount;
 
-	for (int i = 0; i < cIcon->count; i++) {
-		if (cIcon->chickList[i]) {
-			out << cIcon->chickList[i]->getPos().x << "\n";
-			out << cIcon->chickList[i]->getPos().y << "\n";
-		}
-	}
-	out << "\n";
-	for (int i = 0; i < cowIcon->count; i++) {
-		if (cowIcon->CowList[i]) {
-			out << cowIcon->CowList[i]->getPos().x << "\n";
-			out << cowIcon->CowList[i]->getPos().y << "\n";
-		}
-	}
-	out << "\n";
-	for (int i = 0; i < sIcon->count; i++) {
-		if (sIcon->sealList[i]) {
-			out << sIcon->sealList[i]->getPos().x << "\n";
-			out << sIcon->sealList[i]->getPos().y << "\n";
-		}
-	}
-	out << "\n";
-	for (size_t i = 0; i < wolves.size(); i++) {
-		if (wolves[i]) {
-			out << wolves[i]->getPos().x << "\n";
-			out << wolves[i]->getPos().y << "\n";
-		}
-	}
-	out << "\n";
-	for (int i = 0; i < wIcon->count; i++) {
-		if (wIcon->grassList[i]) {
-			out << wIcon->grassList[i]->curr_pos.x << "\n";
-			out << wIcon->grassList[i]->curr_pos.y << "\n";
-		}
-	}
+	// ---- ANIMALS section ----
+	out << "ANIMALS " << totalAnimals << "\n";
+	for (int i = 0; i < cIcon->count; i++)
+		if (cIcon->chickList[i])
+			out << "CHICK " << cIcon->chickList[i]->getPos().x << " " << cIcon->chickList[i]->getPos().y << "\n";
+	for (int i = 0; i < cowIcon->count; i++)
+		if (cowIcon->CowList[i])
+			out << "COW " << cowIcon->CowList[i]->getPos().x << " " << cowIcon->CowList[i]->getPos().y << "\n";
+	for (int i = 0; i < sIcon->count; i++)
+		if (sIcon->sealList[i])
+			out << "SEAL " << sIcon->sealList[i]->getPos().x << " " << sIcon->sealList[i]->getPos().y << "\n";
+	for (int i = 0; i < dIcon->count; i++)
+		if (dIcon->dogList[i])
+			out << "DOG " << dIcon->dogList[i]->getPos().x << " " << dIcon->dogList[i]->getPos().y << "\n";
 	out << "\n";
 
-	int eggCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG) : 0;
+	// ---- WOLVES section ----
+	out << "WOLVES " << realWolfCount << "\n";
+	for (size_t i = 0; i < wolves.size(); i++)
+		if (wolves[i])
+			out << "WOLF " << wolves[i]->getPos().x << " " << wolves[i]->getPos().y << "\n";
+	out << "\n";
+
+	// ---- FOODAREAS section (grass placed on field) ----
+	out << "FOODAREAS " << realGrassCount << "\n";
+	for (int i = 0; i < wIcon->count; i++)
+		if (wIcon->grassList[i])
+			out << "FOOD " << wIcon->grassList[i]->curr_pos.x << " " << wIcon->grassList[i]->curr_pos.y << " 100\n";
+	out << "\n";
+
+	// ---- WAREHOUSE section ----
+	int eggCount  = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG)  : 0;
 	int milkCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::MILK) : 0;
 	int fishCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::FISH) : 0;
 
-	int numItems = 0;
-	if (eggCount > 0) numItems++;
-	if (milkCount > 0) numItems++;
-	if (fishCount > 0) numItems++;
-
-	out << numItems << "\n";
-	if (eggCount > 0) out << "0 " << eggCount << "\n";
-	if (milkCount > 0) out << "1 " << milkCount << "\n";
-	if (fishCount > 0) out << "2 " << fishCount << "\n";
+	out << "WAREHOUSE\n";
+	out << "EGGS " << eggCount  << "\n";
+	out << "MILK " << milkCount << "\n";
+	out << "FISH " << fishCount << "\n";
 
 	out.close();
 	printMessage("Game Saved Successfully!");
@@ -913,95 +901,116 @@ void Game::loadGame() {
 
 	restartGame();
 
-	std::string line, dummy;
-
-	in >> level; std::getline(in, dummy);
-	in >> budget; std::getline(in, dummy);
-
-	std::string timerStr;
-	in >> timerStr; std::getline(in, dummy);
-	size_t pos = timerStr.find(':');
-	if (pos != std::string::npos) {
-		try {
-			int m = std::stoi(timerStr.substr(0, pos));
-			int s = std::stoi(timerStr.substr(pos + 1));
-			remainingTimeSeconds = m * 60 + s;
-		}
-		catch (...) {
-			remainingTimeSeconds = 120;
-		}
-	}
-
-	int numChickens, numCows, numSeals, numWolves, numGrass;
-	in >> numChickens; std::getline(in, dummy);
-	in >> numCows; std::getline(in, dummy);
-	in >> numSeals; std::getline(in, dummy);
-	in >> numWolves; std::getline(in, dummy);
-	in >> numGrass; std::getline(in, dummy);
-
 	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
-	ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
-	CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
-	SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
-	WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+	ChickIcon* cIcon   = (ChickIcon*)icons[ICON_CHICK];
+	CowIcon*   cowIcon = (CowIcon*)icons[ICON_COW];
+	SealIcon*  sIcon   = (SealIcon*)icons[ICON_SEAL];
+	DogIcon*   dIcon   = (DogIcon*)icons[ICON_DOG];
+	WaterIcon* wIcon   = (WaterIcon*)icons[ICON_WATER];
 
-	for (int i = 0; i < numChickens; i++) {
-		int x, y;
-		if (!(in >> x)) break; std::getline(in, dummy);
-		if (!(in >> y)) break; std::getline(in, dummy);
-		point p; p.x = x; p.y = y;
-		cIcon->chickList[cIcon->count] = new Chick(this, p, 50, 50, cIcon->image_path);
-		cIcon->count++;
-		animalCount++;
-	}
-	for (int i = 0; i < numCows; i++) {
-		int x, y;
-		if (!(in >> x)) break; std::getline(in, dummy);
-		if (!(in >> y)) break; std::getline(in, dummy);
-		point p; p.x = x; p.y = y;
-		cowIcon->CowList[cowIcon->count] = new Cow(this, p, 80, 80, cowIcon->image_path);
-		cowIcon->count++;
-		animalCount++;
-	}
-	for (int i = 0; i < numSeals; i++) {
-		int x, y;
-		if (!(in >> x)) break; std::getline(in, dummy);
-		if (!(in >> y)) break; std::getline(in, dummy);
-		point p; p.x = x; p.y = y;
-		sIcon->sealList[sIcon->count] = new Seal(this, p, 80, 80, sIcon->image_path);
-		sIcon->count++;
-		animalCount++;
-	}
-	for (int i = 0; i < numWolves; i++) {
-		int x, y;
-		if (!(in >> x)) break; std::getline(in, dummy);
-		if (!(in >> y)) break; std::getline(in, dummy);
-		point p; p.x = x; p.y = y;
-		drawWolf(p, 70, 70, level);
-	}
-	for (int i = 0; i < numGrass; i++) {
-		int x, y;
-		if (!(in >> x)) break; std::getline(in, dummy);
-		if (!(in >> y)) break; std::getline(in, dummy);
-		point p; p.x = x; p.y = y;
-		wIcon->grassList[wIcon->count] = new Grass(this, p, 50, 50, "images\\grass.jpg");
-		wIcon->count++;
-		grassCount++;
-	}
+	std::string line;
+	while (std::getline(in, line)) {
+		if (line.empty()) continue;
 
-	int numItems = 0;
-	if (in >> numItems) {
-		std::getline(in, dummy);
-		for (int i = 0; i < numItems; i++) {
-			int type, count;
-			in >> type >> count; std::getline(in, dummy);
-			pWarehouse->StoreItem((ProductType)type, count);
+		// Strip inline comments (anything after //)
+		size_t commentPos = line.find("//");
+		if (commentPos != std::string::npos)
+			line = line.substr(0, commentPos);
+
+		std::istringstream ss(line);
+		std::string keyword;
+		ss >> keyword;
+		if (keyword.empty()) continue;
+
+		if (keyword == "LEVEL") {
+			ss >> level;
+			currentLevel = level;
+			goal = GetLevelGoal(level);
+		}
+		else if (keyword == "BUDGET") {
+			ss >> budget;
+		}
+		else if (keyword == "TIMER") {
+			ss >> remainingTimeSeconds;
+		}
+		else if (keyword == "ANIMALS") {
+			// section count — informational only
+		}
+		else if (keyword == "CHICK") {
+			int x, y; ss >> x >> y;
+			if (cIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				cIcon->chickList[cIcon->count] = new Chick(this, p, 50, 50, cIcon->image_path);
+				cIcon->count++;
+				animalCount++;
+			}
+		}
+		else if (keyword == "COW") {
+			int x, y; ss >> x >> y;
+			if (cowIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				cowIcon->CowList[cowIcon->count] = new Cow(this, p, 80, 80, cowIcon->image_path);
+				cowIcon->count++;
+				animalCount++;
+			}
+		}
+		else if (keyword == "SEAL") {
+			int x, y; ss >> x >> y;
+			if (sIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				sIcon->sealList[sIcon->count] = new Seal(this, p, 80, 80, sIcon->image_path);
+				sIcon->count++;
+				animalCount++;
+			}
+		}
+		else if (keyword == "DOG") {
+			int x, y; ss >> x >> y;
+			if (dIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				dIcon->dogList[dIcon->count] = new Dog(this, p, 60, 60, "images\\dog_sprite.jpg");
+				dIcon->count++;
+				animalCount++;
+			}
+		}
+		else if (keyword == "WOLVES") {
+			// section count — informational only
+		}
+		else if (keyword == "WOLF") {
+			int x, y; ss >> x >> y;
+			point p; p.x = x; p.y = y;
+			drawWolf(p, 70, 70, GetWolfSpeed());
+		}
+		else if (keyword == "FOODAREAS") {
+			// section count — informational only
+		}
+		else if (keyword == "FOOD") {
+			int x, y, fc; ss >> x >> y >> fc;
+			if (wIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				wIcon->grassList[wIcon->count] = new Grass(this, p, 50, 50, "images\\grass.jpg");
+				wIcon->count++;
+				grassCount++;
+			}
+		}
+		else if (keyword == "WAREHOUSE") {
+			// section header — no data on this line
+		}
+		else if (keyword == "EGGS") {
+			int cnt; ss >> cnt;
+			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::EGG, cnt);
+		}
+		else if (keyword == "MILK") {
+			int cnt; ss >> cnt;
+			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::MILK, cnt);
+		}
+		else if (keyword == "FISH") {
+			int cnt; ss >> cnt;
+			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::FISH, cnt);
 		}
 	}
 
 	in.close();
 
-	currentLevel = level;
 	isPaused = true;
 	printMessage("Game Loaded Successfully! Click Resume to continue.");
 }

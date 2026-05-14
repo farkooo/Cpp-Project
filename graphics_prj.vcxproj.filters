@@ -47,6 +47,30 @@
     <ClCompile Include="UI\Toolbar.cpp" />
     <ClCompile Include="Warehouse.cpp" />
     <ClCompile Include="AudioManager.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_audiosource.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_bus.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_3d.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_basicops.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_faderops.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_filterops.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_getters.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_setters.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_voicegroup.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_voiceops.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_fader.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_fft.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_fft_lut.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_file.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_filter.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_misc.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_queue.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_thread.cpp" />
+    <ClCompile Include="external\soloud\src\backend\miniaudio\soloud_miniaudio.cpp" />
+    <ClCompile Include="external\soloud\src\audiosource\wav\dr_impl.cpp" />
+    <ClCompile Include="external\soloud\src\audiosource\wav\soloud_wav.cpp" />
+    <ClCompile Include="external\soloud\src\audiosource\wav\soloud_wavstream.cpp" />
+    <ClCompile Include="external\soloud\src\audiosource\wav\stb_vorbis.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CMUgraphicsLib\auxil.h" />
@@ -80,5 +104,10 @@
     <ClInclude Include="UI\Toolbar.h" />
     <ClInclude Include="Warehouse.h" />
     <ClInclude Include="AudioManager.h" />
+    <ClInclude Include="external\soloud\src\backend\miniaudio\miniaudio.h" />
+    <ClInclude Include="external\soloud\src\audiosource\wav\dr_flac.h" />
+    <ClInclude Include="external\soloud\src\audiosource\wav\dr_mp3.h" />
+    <ClInclude Include="external\soloud\src\audiosource\wav\dr_wav.h" />
+    <ClInclude Include="external\soloud\src\audiosource\wav\stb_vorbis.h" />
   </ItemGroup>
 </Project>

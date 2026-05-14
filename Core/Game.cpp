@@ -90,6 +90,7 @@ Game::Game()
 
 	audioManager = new AudioManager();
 	audioManager->SetLoop(true);
+	audioManager->SetVolume(0.6f);
 	audioManager->PlayBackgroundMusic("audio\\Coolest_Farm_music.ogg");
 
 	point warehousePos;

@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "../Config/GameConfig.h"
+#include "AudioManager.h"
 #include "Foodarea.h"
 #include "Product.h"
 #include <random>
@@ -87,22 +88,15 @@ Game::Game()
 	createToolbar();
 	createBudgetbar();
 
+	audioManager = new AudioManager();
+	audioManager->SetLoop(true);
+	audioManager->SetVolume(0.6f);
+	audioManager->PlayBackgroundMusic("audio\\Coolest_Farm_music.ogg");
+
 	point warehousePos;
 	warehousePos.x = config.windWidth - 150;
 	warehousePos.y = config.windHeight - config.statusBarHeight - 120;
 	pWarehouse = new Warehouse(this, warehousePos, 120, 80, 500);
-
-	point eggPos;
-	eggPos.x = 100;
-	eggPos.y = 200;
-	Product* testEgg = new Egg(this, eggPos, 100, 100, "images\\egg.jpg");
-	productList.push_back(testEgg);
-
-	point milkPos;
-	milkPos.x = 250;
-	milkPos.y = 200;
-	Product* testMilk = new Milk(this, milkPos, 100, 100, "images\\milk.jpg");
-	productList.push_back(testMilk);
 
 	startTime = time(NULL);
 
@@ -123,6 +117,7 @@ Game::~Game()
 	delete gameBudgetbar;
 	delete pWarehouse;
 	delete pWind;
+	delete audioManager;
 }
 
 clicktype Game::getMouseClick(int& x, int& y) const { return pWind->WaitMouseClick(x, y); }
@@ -327,9 +322,16 @@ window* Game::getWind() const { return pWind; }
 
 void Game::setPaused(bool pause)
 {
+
 	isPaused = pause;
-	if (isPaused) printMessage("Game Paused. Click Resume to continue.");
-	else printMessage("Game Resumed.");
+	if (isPaused) {
+		audioManager->PauseBackgroundMusic();
+		printMessage("Game Paused. Click Resume to continue.");
+	}
+	else {
+		audioManager->ResumeBackgroundMusic();
+		printMessage("Game Resumed.");
+	}
 }
 
 bool Game::isGamePaused() const { return isPaused; }

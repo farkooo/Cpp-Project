@@ -60,7 +60,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;WITH_MINIAUDIO;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -70,6 +70,8 @@
       <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)external\soloud\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -95,7 +97,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;WITH_MINIAUDIO;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -106,7 +108,8 @@
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)CMGraphicsLib;$(ProjectDir)Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)external\soloud\include;$(ProjectDir);$(ProjectDir)CMGraphicsLib;$(ProjectDir)Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -127,6 +130,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="CMUgraphicsLib\auxil.cpp" />
     <ClCompile Include="CMUgraphicsLib\CMUgraphics.cpp" />
     <ClCompile Include="CMUgraphicsLib\image.cpp" />
@@ -166,6 +170,30 @@
     <ClCompile Include="Core\Game.cpp" />
     <ClCompile Include="Core\GameObject.cpp" />
     <ClCompile Include="Entities\Animal.cpp" />
+    <ClCompile Include="external\soloud\src\audiosource\wav\dr_impl.cpp" />
+    <ClCompile Include="external\soloud\src\audiosource\wav\soloud_wav.cpp" />
+    <ClCompile Include="external\soloud\src\audiosource\wav\soloud_wavstream.cpp" />
+    <ClCompile Include="external\soloud\src\audiosource\wav\stb_vorbis.c" />
+    <ClCompile Include="external\soloud\src\backend\miniaudio\soloud_miniaudio.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_audiosource.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_bus.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_3d.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_basicops.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_faderops.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_filterops.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_getters.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_setters.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_voicegroup.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_core_voiceops.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_fader.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_fft.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_fft_lut.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_file.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_filter.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_misc.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_queue.cpp" />
+    <ClCompile Include="external\soloud\src\core\soloud_thread.cpp" />
     <ClCompile Include="Foodarea.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="product.cpp" />
@@ -174,6 +202,7 @@
     <ClCompile Include="Warehouse.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioManager.h" />
     <ClInclude Include="CMUgraphicsLib\auxil.h" />
     <ClInclude Include="CMUgraphicsLib\CMUgraphics.h" />
     <ClInclude Include="CMUgraphicsLib\colors.h" />
@@ -199,6 +228,11 @@
     <ClInclude Include="Core\Game.h" />
     <ClInclude Include="Core\GameObject.h" />
     <ClInclude Include="Entities\Animal.h" />
+    <ClInclude Include="external\soloud\src\audiosource\wav\dr_flac.h" />
+    <ClInclude Include="external\soloud\src\audiosource\wav\dr_mp3.h" />
+    <ClInclude Include="external\soloud\src\audiosource\wav\dr_wav.h" />
+    <ClInclude Include="external\soloud\src\audiosource\wav\stb_vorbis.h" />
+    <ClInclude Include="external\soloud\src\backend\miniaudio\miniaudio.h" />
     <ClInclude Include="Foodarea.h" />
     <ClInclude Include="product.h" />
     <ClInclude Include="UI\BudgetBar.h" />

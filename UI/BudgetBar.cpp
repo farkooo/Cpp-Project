@@ -303,6 +303,87 @@ void SealIcon::reset() {
     count = 0;
 }
 
+DogIcon::DogIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+    dogList = new Dog * [MAX_CREATED_ANIMALS];
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) dogList[i] = nullptr;
+}
+
+void DogIcon::onClick() {
+    if (pGame->isGamePaused()) return;
+    if (pGame->budget >= 500 && count < MAX_CREATED_ANIMALS) {
+        pGame->budget -= 500;
+
+        point p;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
+        int dogWidth = 60;
+        int dogHeight = 60;
+        int safe_max_x = config.windWidth - dogWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - dogHeight - 10;
+
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
+
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + dogHeight > config.windHeight - config.statusBarHeight - 300);
+
+        dogList[count] = new Dog(pGame, p, dogWidth, dogHeight, "images\\dog_sprite.jpg");
+        dogList[count]->draw();
+        count++;
+        pGame->animalCount++;
+    }
+}
+
+void DogIcon::update() {
+    for (int i = 0; i < count; i++) {
+        if (dogList[i]) {
+            if (!pGame->isGamePaused()) {
+                dogList[i]->moveStep();
+            }
+
+            const std::vector<Wolf*>& wolves = pGame->getWolves();
+            for (size_t j = 0; j < wolves.size(); j++) {
+                if (wolves[j] != nullptr && dogList[i]->isColliding(wolves[j])) {
+                    pGame->removeWolf(wolves[j]);
+                    break;
+                }
+            }
+
+            dogList[i]->draw();
+
+            if (!pGame->isGamePaused() && dogList[i]->isExpired()) {
+                delete dogList[i];
+                dogList[i] = nullptr;
+                pGame->animalCount--;
+            }
+        }
+    }
+}
+
+void DogIcon::draw() const {
+    BudgetbarIcon::draw();
+    window* pWind = pGame->getWind();
+    pWind->SetPen(BLACK, 1);
+    pWind->SetBrush(WHITE);
+    pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 50, RefPoint.y + height - 2);
+    pWind->SetPen(RED);
+    pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+    pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$500");
+}
+
+void DogIcon::reset() {
+    for (int i = 0; i < count; i++) {
+        delete dogList[i];
+        dogList[i] = nullptr;
+    }
+    count = 0;
+}
+
 
 WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
@@ -378,6 +459,7 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     iconsImages[ICON_CHICK] = "images\\chick.jpg";
     iconsImages[ICON_COW] = "images\\cow.jpg";
     iconsImages[ICON_SEAL] = "images\\seal.jpg";
+    iconsImages[ICON_DOG] = "images\\dog.jpg";
     iconsImages[ICON_WATER] = "images\\waterbucket.jpg";
 
     iconsList = new BudgetbarIcon * [ANIMAL_COUNT];
@@ -388,6 +470,8 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     iconsList[ICON_COW] = new CowIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_COW]);
     p.x += config.iconWidth;
     iconsList[ICON_SEAL] = new SealIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_SEAL]);
+    p.x += config.iconWidth;
+    iconsList[ICON_DOG] = new DogIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_DOG]);
     p.x += config.iconWidth;
     iconsList[ICON_WATER] = new WaterIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_WATER]);
 }
@@ -408,7 +492,7 @@ void Budgetbar::draw() const {
 
     pWind->SetPen(DARKBLUE, 50);
     pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-    pWind->DrawString(textStartX, textStartY, "Animals Buying: Chick ($100) | Cow ($200) | Seal ($300)");
+    pWind->DrawString(textStartX, textStartY, "Animals Buying: Chick ($100) | Cow ($200) | Seal ($300) | Dog ($500)");
     pWind->DrawString(textStartX, textStartY + 25, "Water Buying: Water Bucket ($100)");
 
     pWind->SetPen(BLACK, 3);

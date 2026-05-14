@@ -6,6 +6,7 @@
 #include "../Entities/Animal.h"
 #include "Warehouse.h" 
 #include "../Core/GameObject.h"
+#include "AudioManager.h"
 #include <vector>
 #include <string>
 
@@ -23,6 +24,7 @@ private:
 	Toolbar* gameToolbar;
 	Budgetbar* gameBudgetbar;
 	Warehouse* pWarehouse;
+	AudioManager* audioManager;
 
 	std::vector<Chick*> chicks;
 	std::vector<Wolf*> wolves;
@@ -39,6 +41,7 @@ private:
 	void updateWolfDifficulty(int currentLevel);
 	void spawnWolfEveryInterval();
 	void ApplyLevelUp();
+
 
 public:
 	unsigned long getGameTime() const { return currentGameTime; }
@@ -86,4 +89,5 @@ public:
 	window* getWind() const;
 	void addProduct(Product* p);
 	const std::vector<Wolf*>& getWolves() const { return wolves; }
+	void removeWolf(const Wolf* wolf);
 };

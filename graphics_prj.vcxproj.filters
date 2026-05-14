@@ -46,6 +46,7 @@
     <ClCompile Include="UI\BudgetBar.cpp" />
     <ClCompile Include="UI\Toolbar.cpp" />
     <ClCompile Include="Warehouse.cpp" />
+    <ClCompile Include="AudioManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CMUgraphicsLib\auxil.h" />
@@ -78,5 +79,6 @@
     <ClInclude Include="UI\BudgetBar.h" />
     <ClInclude Include="UI\Toolbar.h" />
     <ClInclude Include="Warehouse.h" />
+    <ClInclude Include="AudioManager.h" />
   </ItemGroup>
 </Project>

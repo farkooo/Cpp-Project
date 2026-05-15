@@ -1,19 +1,15 @@
 LEVEL 1		// Current level
-BUDGET 900		// Current player budget
-TIMER 89		// Remaining time in seconds
+BUDGET 1900		// Current player budget
+TIMER 113		// Remaining time in seconds
 
-ANIMALS 4
-CHICK 196 114
-COW 36 160
-SEAL 100 452
-DOG 711 474
+ANIMALS 1
+CHICK 1126 213
 
-WOLVES 1
-WOLF 631 104
+WOLVES 0
 
 FOODAREAS 0
 
 WAREHOUSE
-EGGS 2
-MILK 1
-FISH 1
+EGGS 0
+MILK 0
+FISH 0

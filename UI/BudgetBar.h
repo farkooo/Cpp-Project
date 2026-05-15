@@ -36,6 +36,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~ChickIcon();
 };
 
 class CowIcon : public BudgetbarIcon
@@ -49,6 +50,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~CowIcon();
 };
 
 class SealIcon : public BudgetbarIcon
@@ -62,6 +64,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~SealIcon();
 };
 
 class DogIcon : public BudgetbarIcon
@@ -74,6 +77,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~DogIcon();
 };
 
 class WaterIcon : public BudgetbarIcon
@@ -86,6 +90,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~WaterIcon();
 };
 
 enum ANIMAL_ICONS

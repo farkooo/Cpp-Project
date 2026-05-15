@@ -520,3 +520,29 @@ void Budgetbar::reset() {
         if (iconsList[i]) iconsList[i]->reset();
     }
 }
+
+
+ChickIcon::~ChickIcon() {
+    reset(); 
+    delete[] chickList; 
+}
+
+CowIcon::~CowIcon() {
+    reset();
+    delete[] CowList;
+}
+
+SealIcon::~SealIcon() {
+    reset();
+    delete[] sealList;
+}
+
+DogIcon::~DogIcon() {
+    reset();
+    delete[] dogList;
+}
+
+WaterIcon::~WaterIcon() {
+    reset();
+    delete[] grassList;
+}

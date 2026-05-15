@@ -91,7 +91,7 @@ Game::Game()
 	audioManager = new AudioManager();
 	audioManager->SetLoop(true);
 	audioManager->SetVolume(0.6f);
-	audioManager->PlayBackgroundMusic("audio\\Coolest_Farm_music.ogg");
+	audioManager->PlayBackgroundMusic("audio\\Coolest_Farm_music.wav");
 
 	point warehousePos;
 	warehousePos.x = config.windWidth - 150;
@@ -103,6 +103,7 @@ Game::Game()
 	clearStatusBar();
 	printBudget("BUDGET = $" + to_string(budget));
 	drawStatusBar();
+	promptUsername();
 }
 
 Game::~Game()
@@ -139,6 +140,8 @@ string Game::getSrting() const
 		}
 		else Label += Key;
 		printMessage(Label);
+		printMessage("Enter Username (Press Enter to confirm): " + Label);
+		pWind->UpdateBuffer();
 	}
 }
 
@@ -248,6 +251,102 @@ void Game::generateRandomWolves()
 }
 
 int Game::getCurrentLevel() const { return currentLevel; }
+
+void Game::promptUsername()
+{
+	printMessage("Enter Username (Press Enter to confirm): ");
+	pWind->UpdateBuffer();
+	playerName = getSrting();
+	if (playerName.empty()) {
+		playerName = "Guest";
+	}
+	printMessage("Welcome, " + playerName + "! Ready to farm?");
+
+	pWind->UpdateBuffer();
+}
+
+void Game::updateAndDisplayLeaderboard()
+{
+	std::map<std::string, int> scores;
+	std::ifstream inFile("leaderboard.txt");
+	std::string name;
+	int score;
+
+	if (inFile.is_open()) {
+		while (inFile >> name >> score) {
+			scores[name] = score;
+		}
+		inFile.close();
+	}
+
+	
+	if (scores.find(playerName) == scores.end() || budget > scores[playerName]) {
+		scores[playerName] = budget;
+	}
+
+
+	std::vector<std::pair<std::string, int>> sortedScores(scores.begin(), scores.end());
+	std::sort(sortedScores.begin(), sortedScores.end(),
+		[](const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+			return a.second > b.second; 
+		}
+	);
+
+	
+	std::ofstream outFile("leaderboard.txt");
+	if (outFile.is_open()) {
+		for (const auto& pair : sortedScores) {
+			outFile << pair.first << " " << pair.second << "\n";
+		}
+		outFile.close();
+	}
+
+
+	int wWidth = 400;
+	int wHeight = 500;
+	window* pLeaderboardWind = new window(wWidth, wHeight, config.wx + 100, config.wy + 50);
+	pLeaderboardWind->ChangeTitle("Leaderboard");
+
+	pLeaderboardWind->SetPen(LIGHTGRAY, 1);
+	pLeaderboardWind->SetBrush(color(240, 240, 250));
+	pLeaderboardWind->DrawRectangle(0, 0, wWidth, wHeight);
+
+	pLeaderboardWind->SetPen(DARKBLUE, 50);
+	pLeaderboardWind->SetFont(30, BOLD, BY_NAME, "Arial");
+	pLeaderboardWind->DrawString(90, 20, "TOP FARMERS");
+
+	pLeaderboardWind->SetPen(BLACK, 50);
+	pLeaderboardWind->SetFont(20, BOLD, BY_NAME, "Arial");
+
+	
+	int yOffset = 80;
+	int displayCount = (std::min)((int)sortedScores.size(), 10);
+	for (int i = 0; i < displayCount; i++) {
+		string rank = to_string(i + 1) + ". ";
+		string entryText = rank + sortedScores[i].first + " - $" + to_string(sortedScores[i].second);
+
+		
+		if (sortedScores[i].first == playerName) {
+			pLeaderboardWind->SetPen(RED, 50);
+		}
+		else {
+			pLeaderboardWind->SetPen(BLACK, 50);
+		}
+
+		pLeaderboardWind->DrawString(50, yOffset, entryText);
+		yOffset += 35;
+	}
+
+	pLeaderboardWind->SetPen(DARKGRAY, 50);
+	pLeaderboardWind->SetFont(16, BOLD, BY_NAME, "Arial");
+	pLeaderboardWind->DrawString(90, wHeight - 40, "Click anywhere to close...");
+
+	pLeaderboardWind->UpdateBuffer();
+
+	int cx, cy;
+	pLeaderboardWind->WaitMouseClick(cx, cy); 
+	delete pLeaderboardWind;
+}
 
 void Game::restartGame()
 {
@@ -470,6 +569,8 @@ void Game::go()
 			pWind->SetPen(RED, 50);
 			pWind->SetFont(40, BOLD, BY_NAME, "Arial");
 			pWind->DrawString(config.windWidth / 2 - 150, config.windHeight / 2, "TIME'S UP! YOU LOSE!");
+			Sleep(1500);
+			updateAndDisplayLeaderboard();
 			printMessage("Game Over! Click anywhere to exit...");
 			drawTimer();
 			pWind->UpdateBuffer();
@@ -833,7 +934,7 @@ void Game::saveGame() {
 	DogIcon*   dIcon  = (DogIcon*)icons[ICON_DOG];
 	WaterIcon* wIcon  = (WaterIcon*)icons[ICON_WATER];
 
-	// ---- Count living entities ----
+	
 	int realChickCount = 0;
 	for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) realChickCount++;
 	int realCowCount = 0;
@@ -848,7 +949,7 @@ void Game::saveGame() {
 
 	int totalAnimals = realChickCount + realCowCount + realSealCount + realDogCount;
 
-	// ---- ANIMALS section ----
+	
 	out << "ANIMALS " << totalAnimals << "\n";
 	for (int i = 0; i < cIcon->count; i++)
 		if (cIcon->chickList[i])
@@ -864,21 +965,21 @@ void Game::saveGame() {
 			out << "DOG " << dIcon->dogList[i]->getPos().x << " " << dIcon->dogList[i]->getPos().y << "\n";
 	out << "\n";
 
-	// ---- WOLVES section ----
+	
 	out << "WOLVES " << realWolfCount << "\n";
 	for (size_t i = 0; i < wolves.size(); i++)
 		if (wolves[i])
 			out << "WOLF " << wolves[i]->getPos().x << " " << wolves[i]->getPos().y << "\n";
 	out << "\n";
 
-	// ---- FOODAREAS section (grass placed on field) ----
+	
 	out << "FOODAREAS " << realGrassCount << "\n";
 	for (int i = 0; i < wIcon->count; i++)
 		if (wIcon->grassList[i])
 			out << "FOOD " << wIcon->grassList[i]->curr_pos.x << " " << wIcon->grassList[i]->curr_pos.y << " 100\n";
 	out << "\n";
 
-	// ---- WAREHOUSE section ----
+	
 	int eggCount  = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG)  : 0;
 	int milkCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::MILK) : 0;
 	int fishCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::FISH) : 0;
@@ -912,7 +1013,7 @@ void Game::loadGame() {
 	while (std::getline(in, line)) {
 		if (line.empty()) continue;
 
-		// Strip inline comments (anything after //)
+		
 		size_t commentPos = line.find("//");
 		if (commentPos != std::string::npos)
 			line = line.substr(0, commentPos);
@@ -934,7 +1035,7 @@ void Game::loadGame() {
 			ss >> remainingTimeSeconds;
 		}
 		else if (keyword == "ANIMALS") {
-			// section count — informational only
+			
 		}
 		else if (keyword == "CHICK") {
 			int x, y; ss >> x >> y;
@@ -973,7 +1074,7 @@ void Game::loadGame() {
 			}
 		}
 		else if (keyword == "WOLVES") {
-			// section count — informational only
+			
 		}
 		else if (keyword == "WOLF") {
 			int x, y; ss >> x >> y;
@@ -981,7 +1082,7 @@ void Game::loadGame() {
 			drawWolf(p, 70, 70, GetWolfSpeed());
 		}
 		else if (keyword == "FOODAREAS") {
-			// section count — informational only
+			
 		}
 		else if (keyword == "FOOD") {
 			int x, y, fc; ss >> x >> y >> fc;
@@ -993,7 +1094,7 @@ void Game::loadGame() {
 			}
 		}
 		else if (keyword == "WAREHOUSE") {
-			// section header — no data on this line
+			
 		}
 		else if (keyword == "EGGS") {
 			int cnt; ss >> cnt;

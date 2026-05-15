@@ -9,6 +9,10 @@
 #include "AudioManager.h"
 #include <vector>
 #include <string>
+#include <map>
+#include <algorithm>
+
+class audioManager;
 
 class Product;
 class FoodArea;
@@ -17,6 +21,7 @@ class Animal;
 class Game
 {
 private:
+	string playerName;
 	std::vector<FoodArea*> foodList;
 	std::vector<Animal*> animalList;
 	std::vector<Product*> productList;
@@ -41,6 +46,9 @@ private:
 	void updateWolfDifficulty(int currentLevel);
 	void spawnWolfEveryInterval();
 	void ApplyLevelUp();
+
+	void promptUsername();
+	void updateAndDisplayLeaderboard();
 
 
 public:

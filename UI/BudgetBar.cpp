@@ -489,6 +489,7 @@ void CatIcon::onClick() {
 
         catList[count] = new Cat(pGame, p, catWidth, catHeight, image_path);
         catList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\cat_meow.wav");
         count++;
         pGame->animalCount++;
     }

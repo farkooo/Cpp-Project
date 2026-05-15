@@ -97,3 +97,11 @@ void AudioManager::SetLoop(bool loop) {
         engine.setLooping(backgroundHandle, loop);
     }
 }
+
+void AudioManager::SetVolume(float newVolume) {
+    volume = newVolume;
+
+    if (backgroundHandle != 0 && engine.isValidVoiceHandle(backgroundHandle)) {
+        engine.setVolume(backgroundHandle, volume);
+    }
+}

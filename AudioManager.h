@@ -33,4 +33,5 @@ public:
     void PauseBackgroundMusic();
     void ResumeBackgroundMusic();
     void SetLoop(bool loop);
+    void SetVolume(float newVolume);
 };

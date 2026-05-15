@@ -9,7 +9,6 @@ const int range_min_x = 50;
 const int range_max_x = config.windWidth - 50;
 const int range_min_y = (config.toolBarHeight * 2) + 50;
 const int range_max_y = config.windHeight - config.statusBarHeight - 50;
-
 const int MAX_CREATED_ANIMALS = 15;
 
 class Game;
@@ -30,13 +29,14 @@ class ChickIcon : public BudgetbarIcon
 {
 public:
     Chick** chickList;
-    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; 
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS];
     int count = 0;
     ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~ChickIcon();
 };
 
 class CowIcon : public BudgetbarIcon
@@ -50,19 +50,34 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~CowIcon();
 };
 
 class SealIcon : public BudgetbarIcon
 {
 public:
     Seal** sealList;
-    unsigned long lastProdTime[MAX_CREATED_ANIMALS]; 
+    unsigned long lastProdTime[MAX_CREATED_ANIMALS];
     int count = 0;
     SealIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
     virtual void onClick() override;
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~SealIcon();
+};
+
+class DogIcon : public BudgetbarIcon
+{
+public:
+    Dog** dogList;
+    int count = 0;
+    DogIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
+    virtual void onClick() override;
+    void update() override;
+    virtual void draw() const override;
+    virtual void reset() override;
+    virtual ~DogIcon();
 };
 
 class WaterIcon : public BudgetbarIcon
@@ -75,6 +90,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~WaterIcon();
 };
 
 // Cat: collector animal - picks up products (except fish) automatically
@@ -95,6 +111,7 @@ enum ANIMAL_ICONS
     ICON_CHICK,
     ICON_COW,
     ICON_SEAL,
+    ICON_DOG,
     ICON_WATER,
     ICON_CAT,
     ANIMAL_COUNT
@@ -112,4 +129,5 @@ public:
     bool handleClick(int x, int y);
     void update();
     void reset();
+    BudgetbarIcon** getIconsList() const { return iconsList; }
 };

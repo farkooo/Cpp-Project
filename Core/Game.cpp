@@ -1,9 +1,12 @@
 #include "Game.h"
 #include "../Config/GameConfig.h"
+#include "AudioManager.h"
 #include "Foodarea.h"
 #include "Product.h"
 #include <random>
 #include <ctime>
+#include <fstream>
+#include <sstream>
 
 namespace
 {
@@ -85,28 +88,22 @@ Game::Game()
 	createToolbar();
 	createBudgetbar();
 
+	audioManager = new AudioManager();
+	audioManager->SetLoop(true);
+	audioManager->SetVolume(0.6f);
+	audioManager->PlayBackgroundMusic("audio\\Coolest_Farm_music.wav");
+
 	point warehousePos;
 	warehousePos.x = config.windWidth - 150;
 	warehousePos.y = config.windHeight - config.statusBarHeight - 120;
 	pWarehouse = new Warehouse(this, warehousePos, 120, 80, 500);
-
-	point eggPos;
-	eggPos.x = 100;
-	eggPos.y = 200;
-	Product* testEgg = new Egg(this, eggPos, 100, 100, "images\\egg.jpg");
-	productList.push_back(testEgg);
-
-	point milkPos;
-	milkPos.x = 250;
-	milkPos.y = 200;
-	Product* testMilk = new Milk(this, milkPos, 100, 100, "images\\milk.jpg");
-	productList.push_back(testMilk);
 
 	startTime = time(NULL);
 
 	clearStatusBar();
 	printBudget("BUDGET = $" + to_string(budget));
 	drawStatusBar();
+	promptUsername();
 }
 
 Game::~Game()
@@ -121,6 +118,7 @@ Game::~Game()
 	delete gameBudgetbar;
 	delete pWarehouse;
 	delete pWind;
+	delete audioManager;
 }
 
 clicktype Game::getMouseClick(int& x, int& y) const { return pWind->WaitMouseClick(x, y); }
@@ -142,6 +140,8 @@ string Game::getSrting() const
 		}
 		else Label += Key;
 		printMessage(Label);
+		printMessage("Enter Username (Press Enter to confirm): " + Label);
+		pWind->UpdateBuffer();
 	}
 }
 
@@ -234,7 +234,6 @@ void Game::drawWolf(point position, int width, int height, int speed)
 void Game::generateRandomWolves()
 {
 	const unsigned long currentTime = currentGameTime;
-
 	const int wolfWidth = 70;
 	const int wolfHeight = 70;
 
@@ -243,13 +242,111 @@ void Game::generateRandomWolves()
 	std::uniform_int_distribution<int> yDist((2 * config.toolBarHeight) + 30, config.windHeight - config.statusBarHeight - wolfHeight - 30);
 
 	point position;
-	position.x = xDist(generator);
-	position.y = yDist(generator);
+	do {
+		position.x = xDist(generator);
+		position.y = yDist(generator);
+	} while (position.x < 300 && position.y + wolfHeight > config.windHeight - config.statusBarHeight - 300);
 
 	drawWolf(position, wolfWidth, wolfHeight, GetWolfSpeed());
 }
 
 int Game::getCurrentLevel() const { return currentLevel; }
+
+void Game::promptUsername()
+{
+	printMessage("Enter Username (Press Enter to confirm): ");
+	pWind->UpdateBuffer();
+	playerName = getSrting();
+	if (playerName.empty()) {
+		playerName = "Guest";
+	}
+	printMessage("Welcome, " + playerName + "! Ready to farm?");
+
+	pWind->UpdateBuffer();
+}
+
+void Game::updateAndDisplayLeaderboard()
+{
+	std::map<std::string, int> scores;
+	std::ifstream inFile("leaderboard.txt");
+	std::string name;
+	int score;
+
+	if (inFile.is_open()) {
+		while (inFile >> name >> score) {
+			scores[name] = score;
+		}
+		inFile.close();
+	}
+
+	
+	if (scores.find(playerName) == scores.end() || budget > scores[playerName]) {
+		scores[playerName] = budget;
+	}
+
+
+	std::vector<std::pair<std::string, int>> sortedScores(scores.begin(), scores.end());
+	std::sort(sortedScores.begin(), sortedScores.end(),
+		[](const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+			return a.second > b.second; 
+		}
+	);
+
+	
+	std::ofstream outFile("leaderboard.txt");
+	if (outFile.is_open()) {
+		for (const auto& pair : sortedScores) {
+			outFile << pair.first << " " << pair.second << "\n";
+		}
+		outFile.close();
+	}
+
+
+	int wWidth = 400;
+	int wHeight = 500;
+	window* pLeaderboardWind = new window(wWidth, wHeight, config.wx + 100, config.wy + 50);
+	pLeaderboardWind->ChangeTitle("Leaderboard");
+
+	pLeaderboardWind->SetPen(LIGHTGRAY, 1);
+	pLeaderboardWind->SetBrush(color(240, 240, 250));
+	pLeaderboardWind->DrawRectangle(0, 0, wWidth, wHeight);
+
+	pLeaderboardWind->SetPen(DARKBLUE, 50);
+	pLeaderboardWind->SetFont(30, BOLD, BY_NAME, "Arial");
+	pLeaderboardWind->DrawString(90, 20, "TOP FARMERS");
+
+	pLeaderboardWind->SetPen(BLACK, 50);
+	pLeaderboardWind->SetFont(20, BOLD, BY_NAME, "Arial");
+
+	
+	int yOffset = 80;
+	int displayCount = (std::min)((int)sortedScores.size(), 10);
+	for (int i = 0; i < displayCount; i++) {
+		string rank = to_string(i + 1) + ". ";
+		string entryText = rank + sortedScores[i].first + " - $" + to_string(sortedScores[i].second);
+
+		
+		if (sortedScores[i].first == playerName) {
+			pLeaderboardWind->SetPen(RED, 50);
+		}
+		else {
+			pLeaderboardWind->SetPen(BLACK, 50);
+		}
+
+		pLeaderboardWind->DrawString(50, yOffset, entryText);
+		yOffset += 35;
+	}
+
+	pLeaderboardWind->SetPen(DARKGRAY, 50);
+	pLeaderboardWind->SetFont(16, BOLD, BY_NAME, "Arial");
+	pLeaderboardWind->DrawString(90, wHeight - 40, "Click anywhere to close...");
+
+	pLeaderboardWind->UpdateBuffer();
+
+	int cx, cy;
+	pLeaderboardWind->WaitMouseClick(cx, cy); 
+	delete pLeaderboardWind;
+}
 
 void Game::restartGame()
 {
@@ -274,13 +371,13 @@ void Game::restartGame()
 	goal = GetLevelGoal(level);
 	remainingTimeSeconds = GetLevelTimeLimit(level);
 	animalCount = 0;
+	grassCount = 0;
 	gameStartTime = CurrentTime();
 	currentGameTime = 0;
 	lastWolfSpawnTime = 0;
 
 	startTime = time(NULL);
 
-	// Force redraw UI
 	if (gameToolbar) gameToolbar->draw();
 	if (gameBudgetbar) gameBudgetbar->draw();
 	clearStatusBar();
@@ -295,6 +392,10 @@ void Game::drawField() const
 	pWind->SetPen(BROWN, 10);
 	pWind->SetBrush(GREEN);
 	pWind->DrawRectangle(0, 2 * config.toolBarHeight, config.windWidth, config.windHeight - config.statusBarHeight);
+
+	pWind->SetPen(GRAY, 10);
+	pWind->SetBrush(BLUE);
+	pWind->DrawRectangle(0, config.windHeight - config.statusBarHeight - 300, 300, config.windHeight - config.statusBarHeight);
 }
 
 void Game::drawStatusBar() const
@@ -307,20 +408,29 @@ void Game::drawStatusBar() const
 	string goalStr = "Goal: $" + to_string(goal);
 	string levelStr = "Level: " + to_string(level);
 	string countStr = "Animals: " + to_string(animalCount);
+	string grassStr = "Grass: " + to_string(grassCount);
 
 	pWind->DrawString(10, config.windHeight - 40, timerStr);
 	pWind->DrawString(180, config.windHeight - 40, goalStr);
 	pWind->DrawString(330, config.windHeight - 40, levelStr);
 	pWind->DrawString(480, config.windHeight - 40, countStr);
+	pWind->DrawString(630, config.windHeight - 40, grassStr);
 }
 
 window* Game::getWind() const { return pWind; }
 
 void Game::setPaused(bool pause)
 {
+
 	isPaused = pause;
-	if (isPaused) printMessage("Game Paused. Click Resume to continue.");
-	else printMessage("Game Resumed.");
+	if (isPaused) {
+		audioManager->PauseBackgroundMusic();
+		printMessage("Game Paused. Click Resume to continue.");
+	}
+	else {
+		audioManager->ResumeBackgroundMusic();
+		printMessage("Game Resumed.");
+	}
 }
 
 bool Game::isGamePaused() const { return isPaused; }
@@ -418,7 +528,6 @@ bool Game::SellWarehouseProduct(ProductType productType, int quantityToSell)
 	return true;
 }
 
-
 void Game::go()
 {
 	int x, y;
@@ -450,7 +559,7 @@ void Game::go()
 			currentGameTime++;
 			if (remainingTimeSeconds > 0) remainingTimeSeconds--;
 			lastSecondTick = loopStartTime;
-			uiNeedsUpdate = true; 
+			uiNeedsUpdate = true;
 		}
 
 		if (remainingTimeSeconds <= 0)
@@ -460,6 +569,8 @@ void Game::go()
 			pWind->SetPen(RED, 50);
 			pWind->SetFont(40, BOLD, BY_NAME, "Arial");
 			pWind->DrawString(config.windWidth / 2 - 150, config.windHeight / 2, "TIME'S UP! YOU LOSE!");
+			Sleep(1500);
+			updateAndDisplayLeaderboard();
 			printMessage("Game Over! Click anywhere to exit...");
 			drawTimer();
 			pWind->UpdateBuffer();
@@ -479,6 +590,7 @@ void Game::go()
 						delete foodList[i];
 						foodList.erase(foodList.begin() + i);
 						i--;
+						grassCount--;
 					}
 				}
 			}
@@ -495,6 +607,49 @@ void Game::go()
 					}
 				}
 			}
+
+			BudgetbarIcon** icons = gameBudgetbar->getIconsList();
+			ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
+			CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
+			SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
+			WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+
+			auto checkEat = [&](Animal* animal) {
+				bool colliding = false;
+				for (size_t j = 0; j < foodList.size(); j++) {
+					if (foodList[j] && animal->CollisionDetection(*foodList[j])) {
+						colliding = true;
+						if (animal->getCanEat()) {
+							delete foodList[j];
+							foodList.erase(foodList.begin() + j);
+							j--;
+							grassCount--;
+							animal->setCanEat(false);
+						}
+						return;
+					}
+				}
+				for (int j = 0; j < wIcon->count; j++) {
+					if (wIcon->grassList[j] && animal->CollisionDetection(*wIcon->grassList[j])) {
+						colliding = true;
+						if (animal->getCanEat()) {
+							delete wIcon->grassList[j];
+							wIcon->grassList[j] = nullptr;
+							grassCount--;
+							animal->setCanEat(false);
+						}
+						return;
+					}
+				}
+				if (!colliding) {
+					animal->setCanEat(true);
+				}
+				};
+
+			for (size_t i = 0; i < animalList.size(); i++) if (animalList[i]) checkEat(animalList[i]);
+			for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) checkEat(cIcon->chickList[i]);
+			for (int i = 0; i < cowIcon->count; i++) if (cowIcon->CowList[i]) checkEat(cowIcon->CowList[i]);
+			for (int i = 0; i < sIcon->count; i++) if (sIcon->sealList[i]) checkEat(sIcon->sealList[i]);
 
 			for (size_t i = 0; i < wolves.size(); i++) {
 				wolves[i]->moveStep();
@@ -520,7 +675,6 @@ void Game::go()
 
 		if (gameBudgetbar) gameBudgetbar->update();
 
-		// SMART UI REDRAW: Only execute heavy GDI calls if necessary
 		if (lastDrawnBudget != budget || lastDrawnSeconds != remainingTimeSeconds ||
 			lastDrawnLevel != level || lastDrawnAnimalCount != animalCount)
 		{
@@ -557,7 +711,6 @@ void Game::go()
 					pWind->FlushMouseQueue();
 					pWind->UpdateBuffer();
 					continue;
-					uiNeedsUpdate = true;
 				}
 			}
 
@@ -575,26 +728,42 @@ void Game::go()
 			}
 			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
 				if (!isPaused) {
-					bool itemCollected = false;
-					for (int i = 0; i < productList.size(); i++) {
-						if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
-							if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
-								delete productList[i];
-								productList.erase(productList.begin() + i);
-								itemCollected = true;
-							}
-							else {
-								printMessage("Warehouse is full!");
+					bool actionTaken = false;
+
+					for (size_t i = 0; i < wolves.size(); i++) {
+						if (wolves[i] != nullptr && wolves[i]->isClicked(x, y)) {
+							actionTaken = true;
+							if (wolves[i]->incrementClickCount() >= 5) {
+								delete wolves[i];
+								wolves.erase(wolves.begin() + i);
+								i--;
 							}
 							break;
 						}
 					}
 
-					if (!itemCollected && budget >= 100) {
+					if (!actionTaken) {
+						for (size_t i = 0; i < productList.size(); i++) {
+							if (productList[i] != nullptr && productList[i]->isClicked(x, y)) {
+								if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
+									delete productList[i];
+									productList.erase(productList.begin() + i);
+									actionTaken = true;
+								}
+								else {
+									printMessage("Warehouse is full!");
+								}
+								break;
+							}
+						}
+					}
+
+					if (!actionTaken && budget >= 20) {
 						point p; p.x = x - 25; p.y = y - 25;
 						FoodArea* pNewFood = new FoodArea(this, p, 50, 50, "images\\grass.jpg", 100);
 						foodList.push_back(pNewFood);
-						budget -= 100;
+						budget -= 20;
+						grassCount++;
 					}
 				}
 			}
@@ -762,3 +931,211 @@ int Game::collectNearbyProducts(point pos, int radius) {
 	return collected;
 }
 
+void Game::removeWolf(const Wolf* wolf) {
+	for (size_t i = 0; i < wolves.size(); i++) {
+		if (wolves[i] == wolf) {
+			delete wolves[i];
+			wolves.erase(wolves.begin() + i);
+			return;
+		}
+	}
+}
+
+void Game::saveGame() {
+	std::ofstream out("save.txt");
+	if (!out.is_open()) return;
+
+	// ---- Header ----
+	out << "LEVEL "  << level  << "\t\t// Current level\n";
+	out << "BUDGET " << budget << "\t\t// Current player budget\n";
+	out << "TIMER "  << remainingTimeSeconds << "\t\t// Remaining time in seconds\n";
+	out << "\n";
+
+	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
+	ChickIcon* cIcon  = (ChickIcon*)icons[ICON_CHICK];
+	CowIcon*   cowIcon = (CowIcon*)icons[ICON_COW];
+	SealIcon*  sIcon  = (SealIcon*)icons[ICON_SEAL];
+	DogIcon*   dIcon  = (DogIcon*)icons[ICON_DOG];
+	WaterIcon* wIcon  = (WaterIcon*)icons[ICON_WATER];
+
+	
+	int realChickCount = 0;
+	for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) realChickCount++;
+	int realCowCount = 0;
+	for (int i = 0; i < cowIcon->count; i++) if (cowIcon->CowList[i]) realCowCount++;
+	int realSealCount = 0;
+	for (int i = 0; i < sIcon->count; i++) if (sIcon->sealList[i]) realSealCount++;
+	int realDogCount = 0;
+	for (int i = 0; i < dIcon->count; i++) if (dIcon->dogList[i]) realDogCount++;
+	int realWolfCount = (int)wolves.size();
+	int realGrassCount = 0;
+	for (int i = 0; i < wIcon->count; i++) if (wIcon->grassList[i]) realGrassCount++;
+
+	int totalAnimals = realChickCount + realCowCount + realSealCount + realDogCount;
+
+	
+	out << "ANIMALS " << totalAnimals << "\n";
+	for (int i = 0; i < cIcon->count; i++)
+		if (cIcon->chickList[i])
+			out << "CHICK " << cIcon->chickList[i]->getPos().x << " " << cIcon->chickList[i]->getPos().y << "\n";
+	for (int i = 0; i < cowIcon->count; i++)
+		if (cowIcon->CowList[i])
+			out << "COW " << cowIcon->CowList[i]->getPos().x << " " << cowIcon->CowList[i]->getPos().y << "\n";
+	for (int i = 0; i < sIcon->count; i++)
+		if (sIcon->sealList[i])
+			out << "SEAL " << sIcon->sealList[i]->getPos().x << " " << sIcon->sealList[i]->getPos().y << "\n";
+	for (int i = 0; i < dIcon->count; i++)
+		if (dIcon->dogList[i])
+			out << "DOG " << dIcon->dogList[i]->getPos().x << " " << dIcon->dogList[i]->getPos().y << "\n";
+	out << "\n";
+
+	
+	out << "WOLVES " << realWolfCount << "\n";
+	for (size_t i = 0; i < wolves.size(); i++)
+		if (wolves[i])
+			out << "WOLF " << wolves[i]->getPos().x << " " << wolves[i]->getPos().y << "\n";
+	out << "\n";
+
+	
+	out << "FOODAREAS " << realGrassCount << "\n";
+	for (int i = 0; i < wIcon->count; i++)
+		if (wIcon->grassList[i])
+			out << "FOOD " << wIcon->grassList[i]->curr_pos.x << " " << wIcon->grassList[i]->curr_pos.y << " 100\n";
+	out << "\n";
+
+	
+	int eggCount  = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG)  : 0;
+	int milkCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::MILK) : 0;
+	int fishCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::FISH) : 0;
+
+	out << "WAREHOUSE\n";
+	out << "EGGS " << eggCount  << "\n";
+	out << "MILK " << milkCount << "\n";
+	out << "FISH " << fishCount << "\n";
+
+	out.close();
+	printMessage("Game Saved Successfully!");
+}
+
+void Game::loadGame() {
+	std::ifstream in("save.txt");
+	if (!in.is_open()) {
+		printMessage("No save file found!");
+		return;
+	}
+
+	restartGame();
+
+	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
+	ChickIcon* cIcon   = (ChickIcon*)icons[ICON_CHICK];
+	CowIcon*   cowIcon = (CowIcon*)icons[ICON_COW];
+	SealIcon*  sIcon   = (SealIcon*)icons[ICON_SEAL];
+	DogIcon*   dIcon   = (DogIcon*)icons[ICON_DOG];
+	WaterIcon* wIcon   = (WaterIcon*)icons[ICON_WATER];
+
+	std::string line;
+	while (std::getline(in, line)) {
+		if (line.empty()) continue;
+
+		
+		size_t commentPos = line.find("//");
+		if (commentPos != std::string::npos)
+			line = line.substr(0, commentPos);
+
+		std::istringstream ss(line);
+		std::string keyword;
+		ss >> keyword;
+		if (keyword.empty()) continue;
+
+		if (keyword == "LEVEL") {
+			ss >> level;
+			currentLevel = level;
+			goal = GetLevelGoal(level);
+		}
+		else if (keyword == "BUDGET") {
+			ss >> budget;
+		}
+		else if (keyword == "TIMER") {
+			ss >> remainingTimeSeconds;
+		}
+		else if (keyword == "ANIMALS") {
+			
+		}
+		else if (keyword == "CHICK") {
+			int x, y; ss >> x >> y;
+			if (cIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				cIcon->chickList[cIcon->count] = new Chick(this, p, 50, 50, cIcon->image_path);
+				cIcon->count++;
+				animalCount++;
+			}
+		}
+		else if (keyword == "COW") {
+			int x, y; ss >> x >> y;
+			if (cowIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				cowIcon->CowList[cowIcon->count] = new Cow(this, p, 80, 80, cowIcon->image_path);
+				cowIcon->count++;
+				animalCount++;
+			}
+		}
+		else if (keyword == "SEAL") {
+			int x, y; ss >> x >> y;
+			if (sIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				sIcon->sealList[sIcon->count] = new Seal(this, p, 80, 80, sIcon->image_path);
+				sIcon->count++;
+				animalCount++;
+			}
+		}
+		else if (keyword == "DOG") {
+			int x, y; ss >> x >> y;
+			if (dIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				dIcon->dogList[dIcon->count] = new Dog(this, p, 60, 60, "images\\dog_sprite.jpg");
+				dIcon->count++;
+				animalCount++;
+			}
+		}
+		else if (keyword == "WOLVES") {
+			
+		}
+		else if (keyword == "WOLF") {
+			int x, y; ss >> x >> y;
+			point p; p.x = x; p.y = y;
+			drawWolf(p, 70, 70, GetWolfSpeed());
+		}
+		else if (keyword == "FOODAREAS") {
+			
+		}
+		else if (keyword == "FOOD") {
+			int x, y, fc; ss >> x >> y >> fc;
+			if (wIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				wIcon->grassList[wIcon->count] = new Grass(this, p, 50, 50, "images\\grass.jpg");
+				wIcon->count++;
+				grassCount++;
+			}
+		}
+		else if (keyword == "WAREHOUSE") {
+			
+		}
+		else if (keyword == "EGGS") {
+			int cnt; ss >> cnt;
+			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::EGG, cnt);
+		}
+		else if (keyword == "MILK") {
+			int cnt; ss >> cnt;
+			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::MILK, cnt);
+		}
+		else if (keyword == "FISH") {
+			int cnt; ss >> cnt;
+			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::FISH, cnt);
+		}
+	}
+
+	in.close();
+
+	isPaused = true;
+	printMessage("Game Loaded Successfully! Click Resume to continue.");
+}

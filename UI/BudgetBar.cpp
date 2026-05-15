@@ -1,9 +1,11 @@
 #include "Budgetbar.h"
+#include "AudioManager.h"
 #include "../Config/GameConfig.h"
 #include "../Core/Game.h"
 #include "../product.h"
 #include <iostream>
 #include <random>
+#include <vector> 
 
 BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : Drawable(r_pGame, r_point, r_width, r_height)
@@ -17,13 +19,14 @@ void BudgetbarIcon::draw() const
     pWind->DrawImage(image_path, RefPoint.x, RefPoint.y, width, height);
 }
 
+
 ChickIcon::ChickIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
     chickList = new Chick * [MAX_CREATED_ANIMALS];
     for (int i = 0; i < MAX_CREATED_ANIMALS; i++) {
         chickList[i] = nullptr;
-        lastProdTime[i] = 999999; 
+        lastProdTime[i] = 999999;
     }
 }
 
@@ -42,14 +45,17 @@ void ChickIcon::onClick()
         int safe_max_x = config.windWidth - chickWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - chickHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
-        p.x = distX(gen);
-        p.y = distY(gen);
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + chickHeight > config.windHeight - config.statusBarHeight - 300);
 
         chickList[count] = new Chick(pGame, p, chickWidth, chickHeight, image_path);
         chickList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\chicken_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -61,11 +67,24 @@ void ChickIcon::update() {
             if (!pGame->isGamePaused()) {
                 chickList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && chickList[i]->isColliding(wolf)) {
+                    delete chickList[i];
+                    chickList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             chickList[i]->draw();
 
             if (chickList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE: Prevents spawning 30 eggs at once
                 if (currTime != lastProdTime[i]) {
                     point dropPos = chickList[i]->getPos();
                     Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
@@ -122,14 +141,17 @@ void CowIcon::onClick() {
         int safe_max_x = config.windWidth - cowWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - cowHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
-        p.x = distX(gen);
-        p.y = distY(gen);
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + cowHeight > config.windHeight - config.statusBarHeight - 300);
 
         CowList[count] = new Cow(pGame, p, cowWidth, cowHeight, image_path);
         CowList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\cow_spawn.wav");        
         count++;
         pGame->animalCount++;
     }
@@ -141,11 +163,24 @@ void CowIcon::update() {
             if (!pGame->isGamePaused()) {
                 CowList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && CowList[i]->isColliding(wolf)) {
+                    delete CowList[i];
+                    CowList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             CowList[i]->draw();
 
             if (CowList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE
                 if (currTime != lastProdTime[i]) {
                     point dropPos = CowList[i]->getPos();
                     Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
@@ -197,19 +232,21 @@ void SealIcon::onClick() {
         std::random_device rd;
         std::mt19937 gen(rd());
 
-        int sealWidth = 100;
-        int sealHeight = 100;
-        int safe_max_x = config.windWidth - sealWidth - 10;
+        int sealWidth = 50;
+        int sealHeight = 50;
+        int safe_max_x = 300 - sealWidth - 10;
+        int safe_min_y = config.windHeight - config.statusBarHeight - 300 + 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - sealHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(safe_min_y, safe_max_y);
 
         p.x = distX(gen);
         p.y = distY(gen);
 
         sealList[count] = new Seal(pGame, p, sealWidth, sealHeight, image_path);
         sealList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\seal_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -221,14 +258,27 @@ void SealIcon::update() {
             if (!pGame->isGamePaused()) {
                 sealList[i]->moveStep();
             }
+
+            bool eaten = false;
+            for (const Wolf* wolf : pGame->getWolves()) {
+                if (wolf != nullptr && sealList[i]->isColliding(wolf)) {
+                    delete sealList[i];
+                    sealList[i] = nullptr;
+                    pGame->animalCount--;
+                    eaten = true;
+                    break;
+                }
+            }
+
+            if (eaten) continue;
+
             sealList[i]->draw();
 
             if (sealList[i]->checkProduction()) {
                 unsigned long currTime = pGame->getGameTime();
-                // ANTI-LAG DEBOUNCE
                 if (currTime != lastProdTime[i]) {
                     point dropPos = sealList[i]->getPos();
-                    Product* fish = new Fish(pGame, dropPos, 50, 50, "images\\fish1.jpg");
+                    Product* fish = new Fish(pGame, dropPos, 30, 30, "images\\fish1.jpg");
                     pGame->addProduct(fish);
                     lastProdTime[i] = currTime;
                 }
@@ -257,6 +307,89 @@ void SealIcon::reset() {
     count = 0;
 }
 
+DogIcon::DogIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+    dogList = new Dog * [MAX_CREATED_ANIMALS];
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) dogList[i] = nullptr;
+}
+
+void DogIcon::onClick() {
+    if (pGame->isGamePaused()) return;
+    if (pGame->budget >= 500 && count < MAX_CREATED_ANIMALS) {
+        pGame->budget -= 500;
+
+        point p;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
+        int dogWidth = 60;
+        int dogHeight = 60;
+        int safe_max_x = config.windWidth - dogWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - dogHeight - 10;
+
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
+
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + dogHeight > config.windHeight - config.statusBarHeight - 300);
+
+        dogList[count] = new Dog(pGame, p, dogWidth, dogHeight, "images\\dog_sprite.jpg");
+        dogList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\dog_spawn.wav");
+        count++;
+        pGame->animalCount++;
+    }
+}
+
+void DogIcon::update() {
+    for (int i = 0; i < count; i++) {
+        if (dogList[i]) {
+            if (!pGame->isGamePaused()) {
+                dogList[i]->moveStep();
+            }
+
+            const std::vector<Wolf*>& wolves = pGame->getWolves();
+            for (size_t j = 0; j < wolves.size(); j++) {
+                if (wolves[j] != nullptr && dogList[i]->isColliding(wolves[j])) {
+                    pGame->removeWolf(wolves[j]);
+                    break;
+                }
+            }
+
+            dogList[i]->draw();
+
+            if (!pGame->isGamePaused() && dogList[i]->isExpired()) {
+                delete dogList[i];
+                pGame->getAudioManager()->PlaySoundEffect("audio\\dog_whimper.wav");
+                dogList[i] = nullptr;
+                pGame->animalCount--;
+            }
+        }
+    }
+}
+
+void DogIcon::draw() const {
+    BudgetbarIcon::draw();
+    window* pWind = pGame->getWind();
+    pWind->SetPen(BLACK, 1);
+    pWind->SetBrush(WHITE);
+    pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 50, RefPoint.y + height - 2);
+    pWind->SetPen(RED);
+    pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+    pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$500");
+}
+
+void DogIcon::reset() {
+    for (int i = 0; i < count; i++) {
+        delete dogList[i];
+        dogList[i] = nullptr;
+    }
+    count = 0;
+}
+
 
 WaterIcon::WaterIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
@@ -279,8 +412,8 @@ void WaterIcon::onClick() {
         int safe_max_x = config.windWidth - grassWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - grassHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
         p.x = distX(gen);
         p.y = distY(gen);
@@ -288,6 +421,7 @@ void WaterIcon::onClick() {
         grassList[count] = new Grass(pGame, p, grassWidth, grassHeight, "images\\grass.jpg");
         grassList[count]->draw();
         count++;
+        pGame->grassCount++;
     }
 }
 
@@ -298,6 +432,12 @@ void WaterIcon::update() {
                 grassList[i]->moveStep();
             }
             grassList[i]->draw();
+
+            if (grassList[i]->isExpired()) {
+                delete grassList[i];
+                grassList[i] = nullptr;
+                pGame->grassCount--;
+            }
         }
     }
 }
@@ -392,6 +532,7 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     iconsImages[ICON_CHICK] = "images\\chick.jpg";
     iconsImages[ICON_COW] = "images\\cow.jpg";
     iconsImages[ICON_SEAL] = "images\\seal.jpg";
+    iconsImages[ICON_DOG] = "images\\dog.jpg";
     iconsImages[ICON_WATER] = "images\\waterbucket.jpg";
     iconsImages[ICON_CAT] = "images\\cat.jpg";
 
@@ -403,6 +544,8 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     iconsList[ICON_COW] = new CowIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_COW]);
     p.x += config.iconWidth;
     iconsList[ICON_SEAL] = new SealIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_SEAL]);
+    p.x += config.iconWidth;
+    iconsList[ICON_DOG] = new DogIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_DOG]);
     p.x += config.iconWidth;
     iconsList[ICON_WATER] = new WaterIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_WATER]);
     p.x += config.iconWidth;
@@ -425,8 +568,8 @@ void Budgetbar::draw() const {
 
     pWind->SetPen(DARKBLUE, 50);
     pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-    pWind->DrawString(textStartX, textStartY, "Chick($100) | Cow($200) | Seal($300) | Cat($150)");
-    pWind->DrawString(textStartX, textStartY + 25, "Water Bucket ($100)");
+    pWind->DrawString(textStartX, textStartY, "Animals Buying: Chick ($100) | Cow ($200) | Seal ($300) | Dog ($500) | Cat($150)");
+    pWind->DrawString(textStartX, textStartY + 25, "Water Buying: Water Bucket ($100)");
 
     pWind->SetPen(BLACK, 3);
     pWind->DrawLine(0, 2 * config.toolBarHeight, pWind->GetWidth(), 2 * config.toolBarHeight);
@@ -452,4 +595,30 @@ void Budgetbar::reset() {
     for (int i = 0; i < ANIMAL_COUNT; i++) {
         if (iconsList[i]) iconsList[i]->reset();
     }
+}
+
+
+ChickIcon::~ChickIcon() {
+    reset(); 
+    delete[] chickList; 
+}
+
+CowIcon::~CowIcon() {
+    reset();
+    delete[] CowList;
+}
+
+SealIcon::~SealIcon() {
+    reset();
+    delete[] sealList;
+}
+
+DogIcon::~DogIcon() {
+    reset();
+    delete[] dogList;
+}
+
+WaterIcon::~WaterIcon() {
+    reset();
+    delete[] grassList;
 }

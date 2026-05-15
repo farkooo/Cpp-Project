@@ -1,0 +1,15 @@
+LEVEL 1		// Current level
+BUDGET 1900		// Current player budget
+TIMER 113		// Remaining time in seconds
+
+ANIMALS 1
+CHICK 1126 213
+
+WOLVES 0
+
+FOODAREAS 0
+
+WAREHOUSE
+EGGS 0
+MILK 0
+FISH 0

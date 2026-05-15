@@ -371,6 +371,13 @@ void Cat::moveStep() {
 		curr_vel.y = -curr_vel.y;
 	}
 
+	if (RefPoint.x < 300 && RefPoint.y + height > bottomLimit - 300) {
+		RefPoint.x -= curr_vel.x;
+		RefPoint.y -= curr_vel.y;
+		curr_vel.x = -curr_vel.x;
+		curr_vel.y = -curr_vel.y;
+	}
+
 	curr_pos = RefPoint;
 }
 

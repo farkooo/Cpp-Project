@@ -952,20 +952,20 @@ void Game::saveGame() {
 	std::ofstream out("save.txt");
 	if (!out.is_open()) return;
 
-	// ---- Header ----
-	out << "LEVEL "  << level  << "\t\t// Current level\n";
+	out << "LEVEL " << level << "\t\t// Current level\n";
 	out << "BUDGET " << budget << "\t\t// Current player budget\n";
-	out << "TIMER "  << remainingTimeSeconds << "\t\t// Remaining time in seconds\n";
+	out << "TIMER " << remainingTimeSeconds << "\t\t// Remaining time in seconds\n";
 	out << "\n";
 
 	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
-	ChickIcon* cIcon  = (ChickIcon*)icons[ICON_CHICK];
-	CowIcon*   cowIcon = (CowIcon*)icons[ICON_COW];
-	SealIcon*  sIcon  = (SealIcon*)icons[ICON_SEAL];
-	DogIcon*   dIcon  = (DogIcon*)icons[ICON_DOG];
-	WaterIcon* wIcon  = (WaterIcon*)icons[ICON_WATER];
+	ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
+	CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
+	SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
+	DogIcon* dIcon = (DogIcon*)icons[ICON_DOG];
+	WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+	CatIcon* catIcon = (CatIcon*)icons[ICON_CAT];
 
-	
+
 	int realChickCount = 0;
 	for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) realChickCount++;
 	int realCowCount = 0;
@@ -974,13 +974,16 @@ void Game::saveGame() {
 	for (int i = 0; i < sIcon->count; i++) if (sIcon->sealList[i]) realSealCount++;
 	int realDogCount = 0;
 	for (int i = 0; i < dIcon->count; i++) if (dIcon->dogList[i]) realDogCount++;
+	int realCatCount = 0;
+	for (int i = 0; i < catIcon->count; i++) if (catIcon->catList[i]) realCatCount++;
+
 	int realWolfCount = (int)wolves.size();
 	int realGrassCount = 0;
 	for (int i = 0; i < wIcon->count; i++) if (wIcon->grassList[i]) realGrassCount++;
 
-	int totalAnimals = realChickCount + realCowCount + realSealCount + realDogCount;
+	int totalAnimals = realChickCount + realCowCount + realSealCount + realDogCount + realCatCount;
 
-	
+
 	out << "ANIMALS " << totalAnimals << "\n";
 	for (int i = 0; i < cIcon->count; i++)
 		if (cIcon->chickList[i])
@@ -994,29 +997,45 @@ void Game::saveGame() {
 	for (int i = 0; i < dIcon->count; i++)
 		if (dIcon->dogList[i])
 			out << "DOG " << dIcon->dogList[i]->getPos().x << " " << dIcon->dogList[i]->getPos().y << "\n";
+	for (int i = 0; i < catIcon->count; i++)
+		if (catIcon->catList[i])
+			out << "CAT " << catIcon->catList[i]->getPos().x << " " << catIcon->catList[i]->getPos().y << "\n";
 	out << "\n";
 
-	
+
 	out << "WOLVES " << realWolfCount << "\n";
 	for (size_t i = 0; i < wolves.size(); i++)
 		if (wolves[i])
 			out << "WOLF " << wolves[i]->getPos().x << " " << wolves[i]->getPos().y << "\n";
 	out << "\n";
 
-	
+
 	out << "FOODAREAS " << realGrassCount << "\n";
 	for (int i = 0; i < wIcon->count; i++)
 		if (wIcon->grassList[i])
 			out << "FOOD " << wIcon->grassList[i]->curr_pos.x << " " << wIcon->grassList[i]->curr_pos.y << " 100\n";
 	out << "\n";
 
-	
-	int eggCount  = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG)  : 0;
+
+	int realProductCount = 0;
+	for (size_t i = 0; i < productList.size(); i++) if (productList[i]) realProductCount++;
+
+	out << "PRODUCTS_ON_GROUND " << realProductCount << "\n";
+	for (size_t i = 0; i < productList.size(); i++) {
+		if (productList[i]) {
+			out << "PRODUCT " << (int)productList[i]->getType() << " "
+				<< productList[i]->getPos().x << " " << productList[i]->getPos().y << "\n";
+		}
+	}
+	out << "\n";
+
+
+	int eggCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG) : 0;
 	int milkCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::MILK) : 0;
 	int fishCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::FISH) : 0;
 
 	out << "WAREHOUSE\n";
-	out << "EGGS " << eggCount  << "\n";
+	out << "EGGS " << eggCount << "\n";
 	out << "MILK " << milkCount << "\n";
 	out << "FISH " << fishCount << "\n";
 
@@ -1034,17 +1053,18 @@ void Game::loadGame() {
 	restartGame();
 
 	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
-	ChickIcon* cIcon   = (ChickIcon*)icons[ICON_CHICK];
-	CowIcon*   cowIcon = (CowIcon*)icons[ICON_COW];
-	SealIcon*  sIcon   = (SealIcon*)icons[ICON_SEAL];
-	DogIcon*   dIcon   = (DogIcon*)icons[ICON_DOG];
-	WaterIcon* wIcon   = (WaterIcon*)icons[ICON_WATER];
+	ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
+	CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
+	SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
+	DogIcon* dIcon = (DogIcon*)icons[ICON_DOG];
+	WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+	CatIcon* catIcon = (CatIcon*)icons[ICON_CAT];
 
 	std::string line;
 	while (std::getline(in, line)) {
 		if (line.empty()) continue;
 
-		
+
 		size_t commentPos = line.find("//");
 		if (commentPos != std::string::npos)
 			line = line.substr(0, commentPos);
@@ -1066,7 +1086,7 @@ void Game::loadGame() {
 			ss >> remainingTimeSeconds;
 		}
 		else if (keyword == "ANIMALS") {
-			
+
 		}
 		else if (keyword == "CHICK") {
 			int x, y; ss >> x >> y;
@@ -1104,8 +1124,17 @@ void Game::loadGame() {
 				animalCount++;
 			}
 		}
+		else if (keyword == "CAT") {
+			int x, y; ss >> x >> y;
+			if (catIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				catIcon->catList[catIcon->count] = new Cat(this, p, 50, 50, catIcon->image_path);
+				catIcon->count++;
+				animalCount++;
+			}
+		}
 		else if (keyword == "WOLVES") {
-			
+
 		}
 		else if (keyword == "WOLF") {
 			int x, y; ss >> x >> y;
@@ -1113,7 +1142,7 @@ void Game::loadGame() {
 			drawWolf(p, 70, 70, GetWolfSpeed());
 		}
 		else if (keyword == "FOODAREAS") {
-			
+
 		}
 		else if (keyword == "FOOD") {
 			int x, y, fc; ss >> x >> y >> fc;
@@ -1124,8 +1153,26 @@ void Game::loadGame() {
 				grassCount++;
 			}
 		}
+		else if (keyword == "PRODUCTS_ON_GROUND") {
+
+		}
+		else if (keyword == "PRODUCT") {
+			int typeInt, x, y; ss >> typeInt >> x >> y;
+			point p; p.x = x; p.y = y;
+			Product* prod = nullptr;
+			if (typeInt == (int)ProductType::EGG) {
+				prod = new Egg(this, p, 50, 50, "images\\egg.jpg");
+			}
+			else if (typeInt == (int)ProductType::MILK) {
+				prod = new Milk(this, p, 50, 50, "images\\milk.jpg");
+			}
+			else if (typeInt == (int)ProductType::FISH) {
+				prod = new Fish(this, p, 30, 30, "images\\fish1.jpg");
+			}
+			if (prod) addProduct(prod);
+		}
 		else if (keyword == "WAREHOUSE") {
-			
+
 		}
 		else if (keyword == "EGGS") {
 			int cnt; ss >> cnt;

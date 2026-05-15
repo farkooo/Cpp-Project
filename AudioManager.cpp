@@ -48,12 +48,33 @@ bool AudioManager::PlayBackgroundMusic(const std::string& filePath) {
     return true;
 }
 
+bool AudioManager::PlaySoundEffect(const std::string& filePath, float effectVolume) {
+    if (!initialized) return false;
+
+    StopSoundEffect();
+
+    SoLoud::result result = soundEffect.load(filePath.c_str());
+    if (result != SoLoud::SO_NO_ERROR) return false;
+
+    soundEffect.setLooping(false);
+    soundEffectHandle = engine.play(soundEffect, effectVolume);
+
+    return engine.isValidVoiceHandle(soundEffectHandle);
+}
+
 void AudioManager::StopBackgroundMusic() {
     if (backgroundHandle != 0 && engine.isValidVoiceHandle(backgroundHandle)) {
         engine.stop(backgroundHandle);
     }
 
     backgroundHandle = 0;
+}
+void AudioManager::StopSoundEffect() {
+    if (soundEffectHandle != 0 && engine.isValidVoiceHandle(soundEffectHandle)) {
+        engine.stop(soundEffectHandle);
+    }
+
+    soundEffectHandle = 0;
 }
 
 void AudioManager::PauseBackgroundMusic() {

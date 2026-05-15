@@ -95,6 +95,8 @@ public:
 	bool isGamePaused() const;
 
 	window* getWind() const;
+	AudioManager* getAudioManager() const { return audioManager; }
+
 	void addProduct(Product* p);
 	const std::vector<Wolf*>& getWolves() const { return wolves; }
 	void removeWolf(const Wolf* wolf);

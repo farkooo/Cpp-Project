@@ -655,6 +655,7 @@ void Game::go()
 				wolves[i]->moveStep();
 				wolves[i]->draw();
 			}
+			if (gameBudgetbar) gameBudgetbar->update();
 
 			for (size_t i = 0; i < productList.size(); i++) {
 				if (productList[i]) productList[i]->draw();
@@ -672,8 +673,6 @@ void Game::go()
 			for (auto product : productList) if (product) product->draw();
 			if (pWarehouse) pWarehouse->draw();
 		}
-
-		if (gameBudgetbar) gameBudgetbar->update();
 
 		if (lastDrawnBudget != budget || lastDrawnSeconds != remainingTimeSeconds ||
 			lastDrawnLevel != level || lastDrawnAnimalCount != animalCount)
@@ -729,6 +728,7 @@ void Game::go()
 			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
 				if (!isPaused) {
 					bool actionTaken = false;
+					if (gameBudgetbar) gameBudgetbar->update();
 
 					for (size_t i = 0; i < wolves.size(); i++) {
 						if (wolves[i] != nullptr && wolves[i]->isClicked(x, y)) {
@@ -765,6 +765,9 @@ void Game::go()
 						budget -= 20;
 						grassCount++;
 					}
+				}
+				else {
+					if (gameBudgetbar) gameBudgetbar->draw();
 				}
 			}
 		}

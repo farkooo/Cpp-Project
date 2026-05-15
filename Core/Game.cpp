@@ -737,3 +737,28 @@ void Game::showWarehouse()
 void Game::addProduct(Product* p) {
 	if (p) productList.push_back(p);
 }
+
+// Cat collection: collects products (except fish) near a given position
+int Game::collectNearbyProducts(point pos, int radius) {
+	int collected = 0;
+	int catCenterX = pos.x + radius / 2;
+	int catCenterY = pos.y + radius / 2;
+
+	for (int i = (int)productList.size() - 1; i >= 0; i--) {
+		if (!productList[i]) continue;
+
+		// Skip fish - cats don't collect fish
+		if (productList[i]->getType() == ProductType::FISH) continue;
+
+		// Check if cat overlaps with the product
+		if (productList[i]->isClicked(catCenterX, catCenterY)) {
+			if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
+				delete productList[i];
+				productList.erase(productList.begin() + i);
+				collected++;
+			}
+		}
+	}
+	return collected;
+}
+

@@ -59,6 +59,22 @@ public:
 	int getClickCount() const { return clickCount; }
 };
 
+// Cat: collector animal - moves around and auto-collects nearby products (except fish)
+class Cat : public Drawable
+{
+private:
+	string image_path;
+	point curr_pos;
+	point curr_vel;
+	int collectRadius; // how close to a product to collect it
+public:
+	Cat(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	virtual void draw() const override;
+	void moveStep();
+	point getPos() const { return curr_pos; }
+	int getCollectRadius() const { return collectRadius; }
+};
+
 class Grass : public Drawable
 {
 private:

@@ -81,4 +81,6 @@ public:
 
 	window* getWind() const;
 	void addProduct(Product* p);
+	// Cat collection: collects products (except fish) near a given position
+	int collectNearbyProducts(point pos, int radius);
 };

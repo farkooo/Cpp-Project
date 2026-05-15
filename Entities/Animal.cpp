@@ -228,6 +228,55 @@ void Wolf::moveStep() {
 	curr_pos = RefPoint;
 }
 
+// ==================== Cat ====================
+Cat::Cat(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+	: Drawable(r_pGame, r_point, r_width, r_height) {
+	image_path = img_path;
+	curr_pos = r_point;
+	collectRadius = 60;
+
+	do { curr_vel.x = (rand() % 5) - 2; } while (curr_vel.x == 0);
+	do { curr_vel.y = (rand() % 5) - 2; } while (curr_vel.y == 0);
+}
+
+void Cat::draw() const {
+	window* pW = pGame->getWind();
+	pW->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
+
+	pW->SetPen(WHITE);
+	pW->SetFont(14, BOLD, BY_NAME, "Arial");
+	pW->DrawString(curr_pos.x + 5, curr_pos.y - 5, "CAT");
+}
+
+void Cat::moveStep() {
+	RefPoint.x += curr_vel.x;
+	RefPoint.y += curr_vel.y;
+
+	if (RefPoint.x <= 0) {
+		RefPoint.x = 0;
+		curr_vel.x = -curr_vel.x;
+	}
+	else if (RefPoint.x + width >= config.windWidth) {
+		RefPoint.x = config.windWidth - width;
+		curr_vel.x = -curr_vel.x;
+	}
+
+	int topLimit = 2 * config.toolBarHeight;
+	int bottomLimit = config.windHeight - config.statusBarHeight;
+
+	if (RefPoint.y <= topLimit) {
+		RefPoint.y = topLimit;
+		curr_vel.y = -curr_vel.y;
+	}
+	else if (RefPoint.y + height >= bottomLimit) {
+		RefPoint.y = bottomLimit - height;
+		curr_vel.y = -curr_vel.y;
+	}
+
+	curr_pos = RefPoint;
+}
+
+// ==================== Grass ====================
 Grass::Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Drawable(r_pGame, r_point, r_width, r_height) {
 	image_path = img_path;

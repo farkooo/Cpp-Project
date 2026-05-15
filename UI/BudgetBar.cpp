@@ -318,6 +318,73 @@ void WaterIcon::reset() {
     count = 0;
 }
 
+// ==================== CatIcon ====================
+CatIcon::CatIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+    catList = new Cat * [MAX_CREATED_ANIMALS];
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) catList[i] = nullptr;
+}
+
+void CatIcon::onClick() {
+    if (pGame->isGamePaused()) return;
+    if (pGame->budget >= 150 && count < MAX_CREATED_ANIMALS) {
+        pGame->budget -= 150;
+
+        point p;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
+        int catWidth = 50;
+        int catHeight = 50;
+        int safe_max_x = config.windWidth - catWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - catHeight - 10;
+
+        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
+        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+
+        p.x = distX(gen);
+        p.y = distY(gen);
+
+        catList[count] = new Cat(pGame, p, catWidth, catHeight, image_path);
+        catList[count]->draw();
+        count++;
+        pGame->animalCount++;
+    }
+}
+
+void CatIcon::update() {
+    for (int i = 0; i < count; i++) {
+        if (catList[i]) {
+            if (!pGame->isGamePaused()) {
+                catList[i]->moveStep();
+            }
+            catList[i]->draw();
+
+            // Cat collects nearby products (except fish)
+            if (!pGame->isGamePaused()) {
+                pGame->collectNearbyProducts(catList[i]->getPos(), catList[i]->getCollectRadius());
+            }
+        }
+    }
+}
+
+void CatIcon::draw() const {
+    BudgetbarIcon::draw();
+    window* pWind = pGame->getWind();
+    pWind->SetPen(BLACK, 1);
+    pWind->SetBrush(WHITE);
+    pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
+    pWind->SetPen(RED);
+    pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+    pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$150");
+}
+
+void CatIcon::reset() {
+    for (int i = 0; i < count; i++) { delete catList[i]; catList[i] = nullptr; }
+    count = 0;
+}
+
 
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     : Drawable(r_pGame, r_point, r_width, r_height)
@@ -326,6 +393,7 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     iconsImages[ICON_COW] = "images\\cow.jpg";
     iconsImages[ICON_SEAL] = "images\\seal.jpg";
     iconsImages[ICON_WATER] = "images\\waterbucket.jpg";
+    iconsImages[ICON_CAT] = "images\\cat.jpg";
 
     iconsList = new BudgetbarIcon * [ANIMAL_COUNT];
     point p = { 0, config.toolBarHeight };
@@ -337,6 +405,8 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     iconsList[ICON_SEAL] = new SealIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_SEAL]);
     p.x += config.iconWidth;
     iconsList[ICON_WATER] = new WaterIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_WATER]);
+    p.x += config.iconWidth;
+    iconsList[ICON_CAT] = new CatIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_CAT]);
 }
 
 Budgetbar::~Budgetbar() {
@@ -355,8 +425,8 @@ void Budgetbar::draw() const {
 
     pWind->SetPen(DARKBLUE, 50);
     pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-    pWind->DrawString(textStartX, textStartY, "Animals Buying: Chick ($100) | Cow ($200) | Seal ($300)");
-    pWind->DrawString(textStartX, textStartY + 25, "Water Buying: Water Bucket ($100)");
+    pWind->DrawString(textStartX, textStartY, "Chick($100) | Cow($200) | Seal($300) | Cat($150)");
+    pWind->DrawString(textStartX, textStartY + 25, "Water Bucket ($100)");
 
     pWind->SetPen(BLACK, 3);
     pWind->DrawLine(0, 2 * config.toolBarHeight, pWind->GetWidth(), 2 * config.toolBarHeight);

@@ -98,6 +98,8 @@ public:
 	AudioManager* getAudioManager() const { return audioManager; }
 
 	void addProduct(Product* p);
+	// Cat collection: collects products (except fish) near a given position
+	int collectNearbyProducts(point pos, int radius);
 	const std::vector<Wolf*>& getWolves() const { return wolves; }
 	void removeWolf(const Wolf* wolf);
 };

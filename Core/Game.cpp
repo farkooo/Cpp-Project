@@ -910,6 +910,34 @@ void Game::addProduct(Product* p) {
 	if (p) productList.push_back(p);
 }
 
+int Game::collectNearbyProducts(point pos, int radius) {
+	int collected = 0;
+	int catCenterX = pos.x + radius / 2;
+	int catCenterY = pos.y + radius / 2;
+
+	for (int i = (int)productList.size() - 1; i >= 0; i--) {
+		if (!productList[i]) {
+			productList[i] = productList.back();
+			productList.pop_back();
+			continue;
+		}
+
+		if (productList[i]->getType() == ProductType::FISH) continue;
+
+		if (productList[i]->isClicked(catCenterX, catCenterY)) {
+			if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
+				delete productList[i];
+
+				productList[i] = productList.back();
+				productList.pop_back();
+
+				collected++;
+			}
+		}
+	}
+	return collected;
+}
+
 void Game::removeWolf(const Wolf* wolf) {
 	for (size_t i = 0; i < wolves.size(); i++) {
 		if (wolves[i] == wolf) {

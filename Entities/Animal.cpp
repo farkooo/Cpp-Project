@@ -12,6 +12,7 @@ struct WolfState {
 	double angle;
 	int turnDir;
 };
+
 static std::unordered_map<const Wolf*, WolfState> wolfStates;
 
 Animal::Animal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
@@ -251,16 +252,16 @@ Wolf::~Wolf() {
 void Wolf::setSpeed(int newSpeed) {
 	speed = newSpeed;
 }
-//check if clicked in the wolf
+
 bool Wolf::isClicked(int x, int y) const {
 	return x >= curr_pos.x && x <= curr_pos.x + width &&
 		y >= curr_pos.y && y <= curr_pos.y + height;
 }
-//increment click count
+
 int Wolf::incrementClickCount() {
 	return ++clickCount;
 }
-//draw wolf
+
 void Wolf::draw() const {
 	pGame->getWind()->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
 }
@@ -324,7 +325,7 @@ void Wolf::moveStep() {
 
 
 Cat::Cat(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
-	: Drawable(r_pGame, r_point, r_width, r_height) {
+	: GameObject(r_pGame, r_point, r_width, r_height, GREEN, BLACK) {
 	image_path = img_path;
 	curr_pos = r_point;
 	collectRadius = 60;
@@ -335,7 +336,10 @@ Cat::Cat(Game* r_pGame, point r_point, int r_width, int r_height, std::string im
 
 void Cat::draw() const {
 	window* pW = pGame->getWind();
-	pW->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
+
+	static image catSprite("images\\cat.jpg");
+
+	pW->DrawImage(catSprite, curr_pos.x, curr_pos.y, width, height);
 
 	pW->SetPen(WHITE);
 	pW->SetFont(14, BOLD, BY_NAME, "Arial");

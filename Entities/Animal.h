@@ -76,23 +76,21 @@ public:
 	int getClickCount() const { return clickCount; }
 };
 
-// Cat: collector animal - moves around and auto-collects nearby products (except fish)
-class Cat : public Drawable
+class Cat : public GameObject
 {
 private:
-	string image_path;
+	std::string image_path;
 	point curr_pos;
 	point curr_vel;
-	int collectRadius; // how close to a product to collect it
+	int collectRadius;
 public:
-	Cat(Game* r_pGame, point r_point, int r_width, int r_height, string img_path);
+	Cat(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
 	virtual void draw() const override;
 	void moveStep();
 	point getPos() const { return curr_pos; }
 	int getCollectRadius() const { return collectRadius; }
 };
 
-class Grass : public Drawable
 class Grass : public GameObject
 {
 private:
@@ -103,8 +101,6 @@ public:
 	point curr_pos;
 	Grass(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
 	virtual void draw() const override;
-
 	virtual void moveStep();
-
 	bool isExpired() const;
 };

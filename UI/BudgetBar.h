@@ -104,6 +104,8 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~CatIcon();
+
 };
 
 enum ANIMAL_ICONS

@@ -5,7 +5,7 @@
 #include "../product.h"
 #include <iostream>
 #include <random>
-#include <vector> 
+#include <vector>
 
 BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : Drawable(r_pGame, r_point, r_width, r_height)
@@ -151,7 +151,7 @@ void CowIcon::onClick() {
 
         CowList[count] = new Cow(pGame, p, cowWidth, cowHeight, image_path);
         CowList[count]->draw();
-        pGame->getAudioManager()->PlaySoundEffect("audio\\cow_spawn.wav");        
+        pGame->getAudioManager()->PlaySoundEffect("audio\\cow_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -458,7 +458,6 @@ void WaterIcon::reset() {
     count = 0;
 }
 
-// ==================== CatIcon ====================
 CatIcon::CatIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
 {
@@ -480,11 +479,13 @@ void CatIcon::onClick() {
         int safe_max_x = config.windWidth - catWidth - 10;
         int safe_max_y = config.windHeight - config.statusBarHeight - catHeight - 10;
 
-        std::uniform_int_distribution<int> distX(range_min_x, safe_max_x);
-        std::uniform_int_distribution<int> distY(range_min_y, safe_max_y);
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
 
-        p.x = distX(gen);
-        p.y = distY(gen);
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + catHeight > config.windHeight - config.statusBarHeight - 300);
 
         catList[count] = new Cat(pGame, p, catWidth, catHeight, image_path);
         catList[count]->draw();
@@ -501,7 +502,6 @@ void CatIcon::update() {
             }
             catList[i]->draw();
 
-            // Cat collects nearby products (except fish)
             if (!pGame->isGamePaused()) {
                 pGame->collectNearbyProducts(catList[i]->getPos(), catList[i]->getCollectRadius());
             }
@@ -599,8 +599,8 @@ void Budgetbar::reset() {
 
 
 ChickIcon::~ChickIcon() {
-    reset(); 
-    delete[] chickList; 
+    reset();
+    delete[] chickList;
 }
 
 CowIcon::~CowIcon() {
@@ -621,4 +621,9 @@ DogIcon::~DogIcon() {
 WaterIcon::~WaterIcon() {
     reset();
     delete[] grassList;
+}
+
+CatIcon::~CatIcon() {
+    reset();
+    delete[] catList;
 }

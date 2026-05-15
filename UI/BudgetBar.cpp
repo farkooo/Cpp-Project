@@ -1,4 +1,5 @@
 #include "Budgetbar.h"
+#include "AudioManager.h"
 #include "../Config/GameConfig.h"
 #include "../Core/Game.h"
 #include "../product.h"
@@ -54,6 +55,7 @@ void ChickIcon::onClick()
 
         chickList[count] = new Chick(pGame, p, chickWidth, chickHeight, image_path);
         chickList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\chicken_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -149,6 +151,7 @@ void CowIcon::onClick() {
 
         CowList[count] = new Cow(pGame, p, cowWidth, cowHeight, image_path);
         CowList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\cow_spawn.wav");        
         count++;
         pGame->animalCount++;
     }
@@ -243,6 +246,7 @@ void SealIcon::onClick() {
 
         sealList[count] = new Seal(pGame, p, sealWidth, sealHeight, image_path);
         sealList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\seal_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -334,6 +338,7 @@ void DogIcon::onClick() {
 
         dogList[count] = new Dog(pGame, p, dogWidth, dogHeight, "images\\dog_sprite.jpg");
         dogList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\dog_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -358,6 +363,7 @@ void DogIcon::update() {
 
             if (!pGame->isGamePaused() && dogList[i]->isExpired()) {
                 delete dogList[i];
+                pGame->getAudioManager()->PlaySoundEffect("audio\\dog_whimper.wav");
                 dogList[i] = nullptr;
                 pGame->animalCount--;
             }

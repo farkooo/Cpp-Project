@@ -166,16 +166,16 @@ Wolf::~Wolf() {
 void Wolf::setSpeed(int newSpeed) {
 	speed = newSpeed;
 }
-
+//check if clicked in the wolf
 bool Wolf::isClicked(int x, int y) const {
 	return x >= curr_pos.x && x <= curr_pos.x + width &&
 	       y >= curr_pos.y && y <= curr_pos.y + height;
 }
-
+//increment click count
 int Wolf::incrementClickCount() {
 	return ++clickCount;
 }
-
+//draw wolf
 void Wolf::draw() const {
 	pGame->getWind()->DrawImage(image_path, curr_pos.x, curr_pos.y, width, height);
 }

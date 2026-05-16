@@ -499,10 +499,8 @@ void Game::go()
 					animalList[i]->moveStep();
 					animalList[i]->draw();
 					if (animalList[i]->checkProduction()) {
-						budget += 50;
-						if (checkLevelProgress(budget, level)) {
-							uiNeedsUpdate = true;
-						}
+						animalList[i]->produceProduct();
+						uiNeedsUpdate = true;
 					}
 				}
 			}
@@ -524,6 +522,8 @@ void Game::go()
 							j--;
 							grassCount--;
 							animal->setCanEat(false);
+							animal->produceProduct();
+							animal->resetProductionTimer();
 						}
 						return;
 					}
@@ -536,6 +536,8 @@ void Game::go()
 							wIcon->grassList[j] = nullptr;
 							grassCount--;
 							animal->setCanEat(false);
+							animal->produceProduct();
+							animal->resetProductionTimer();
 						}
 						return;
 					}

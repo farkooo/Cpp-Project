@@ -82,13 +82,7 @@ void ChickIcon::update() {
             chickList[i]->draw();
 
             if (chickList[i]->checkProduction()) {
-                unsigned long currTime = pGame->getGameTime();
-                if (currTime != lastProdTime[i]) {
-                    point dropPos = chickList[i]->getPos();
-                    Product* egg = new Egg(pGame, dropPos, 50, 50, "images\\egg.jpg");
-                    pGame->addProduct(egg);
-                    lastProdTime[i] = currTime;
-                }
+                chickList[i]->produceProduct();
             }
         }
     }
@@ -177,13 +171,7 @@ void CowIcon::update() {
             CowList[i]->draw();
 
             if (CowList[i]->checkProduction()) {
-                unsigned long currTime = pGame->getGameTime();
-                if (currTime != lastProdTime[i]) {
-                    point dropPos = CowList[i]->getPos();
-                    Product* milk = new Milk(pGame, dropPos, 50, 50, "images\\milk.jpg");
-                    pGame->addProduct(milk);
-                    lastProdTime[i] = currTime;
-                }
+                CowList[i]->produceProduct();
             }
         }
     }
@@ -271,13 +259,7 @@ void SealIcon::update() {
             sealList[i]->draw();
 
             if (sealList[i]->checkProduction()) {
-                unsigned long currTime = pGame->getGameTime();
-                if (currTime != lastProdTime[i]) {
-                    point dropPos = sealList[i]->getPos();
-                    Product* fish = new Fish(pGame, dropPos, 30, 30, "images\\fish1.jpg");
-                    pGame->addProduct(fish);
-                    lastProdTime[i] = currTime;
-                }
+                sealList[i]->produceProduct();
             }
         }
     }

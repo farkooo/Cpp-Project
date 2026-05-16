@@ -25,6 +25,9 @@ public:
 	bool isColliding(const Animal* other) const;
 	bool getCanEat() const { return canEat; }
 	void setCanEat(bool b) { canEat = b; }
+
+	virtual void produceProduct();
+	void resetProductionTimer();
 };
 
 class Chick : public Animal
@@ -32,6 +35,7 @@ class Chick : public Animal
 public:
 	Chick(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
 	virtual void moveStep() override;
+	virtual void produceProduct() override;
 };
 
 class Cow : public Animal
@@ -39,6 +43,7 @@ class Cow : public Animal
 public:
 	Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
 	virtual void moveStep() override;
+	virtual void produceProduct() override;
 };
 
 class Seal : public Animal
@@ -46,6 +51,7 @@ class Seal : public Animal
 public:
 	Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
 	virtual void moveStep() override;
+	virtual void produceProduct() override;
 };
 
 class Dog : public Animal

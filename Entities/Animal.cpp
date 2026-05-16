@@ -5,6 +5,7 @@
 #include <ctime>
 #include <cmath>
 #include <unordered_map>
+#include "../product.h"
 
 struct WolfState {
 	double exactX;
@@ -34,6 +35,12 @@ bool Animal::checkProduction() {
 		return true;
 	}
 	return false;
+}
+
+void Animal::produceProduct() {}
+
+void Animal::resetProductionTimer() {
+	lastProductionTime = pGame->getGameTime();
 }
 
 void Animal::draw() const {
@@ -97,6 +104,13 @@ void Chick::moveStep() {
 	curr_pos = RefPoint;
 }
 
+void Chick::produceProduct() {
+	point p = curr_pos;
+	p.x += 10; p.y += 10;
+	Egg* pEgg = new Egg(pGame, p, 50, 50, "images\\egg.jpg");
+	pGame->addProduct(pEgg);
+}
+
 
 Cow::Cow(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
@@ -138,6 +152,13 @@ void Cow::moveStep() {
 	curr_pos = RefPoint;
 }
 
+void Cow::produceProduct() {
+	point p = curr_pos;
+	p.x += 10; p.y += 10;
+	Milk* pMilk = new Milk(pGame, p, 50, 50, "images\\milk.jpg");
+	pGame->addProduct(pMilk);
+}
+
 
 Seal::Seal(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
 	: Animal(r_pGame, r_point, r_width, r_height, img_path) {
@@ -171,6 +192,13 @@ void Seal::moveStep() {
 	}
 
 	curr_pos = RefPoint;
+}
+
+void Seal::produceProduct() {
+	point p = curr_pos;
+	p.x += 10; p.y += 10;
+	Fish* pFish = new Fish(pGame, p, 30, 30, "images\\fish1.jpg");
+	pGame->addProduct(pFish);
 }
 
 Dog::Dog(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)

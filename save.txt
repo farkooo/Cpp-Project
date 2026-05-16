@@ -1,4 +1,5 @@
 LEVEL 1		// Current level
+<<<<<<< Updated upstream
 BUDGET 900		// Current player budget
 TIMER 89		// Remaining time in seconds
 
@@ -17,3 +18,21 @@ WAREHOUSE
 EGGS 2
 MILK 1
 FISH 1
+=======
+BUDGET 1820		// Current player budget
+TIMER 86		// Remaining time in seconds
+
+ANIMALS 0
+
+WOLVES 1
+WOLF 561 157
+
+FOODAREAS 0
+
+PRODUCTS_ON_GROUND 0
+
+WAREHOUSE
+EGGS 4
+MILK 0
+FISH 0
+>>>>>>> Stashed changes

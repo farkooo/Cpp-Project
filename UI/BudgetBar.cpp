@@ -1,10 +1,11 @@
 #include "Budgetbar.h"
+#include "AudioManager.h"
 #include "../Config/GameConfig.h"
 #include "../Core/Game.h"
 #include "../product.h"
 #include <iostream>
 #include <random>
-#include <vector> 
+#include <vector>
 
 BudgetbarIcon::BudgetbarIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
     : Drawable(r_pGame, r_point, r_width, r_height)
@@ -54,6 +55,7 @@ void ChickIcon::onClick()
 
         chickList[count] = new Chick(pGame, p, chickWidth, chickHeight, image_path);
         chickList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\chicken_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -143,6 +145,7 @@ void CowIcon::onClick() {
 
         CowList[count] = new Cow(pGame, p, cowWidth, cowHeight, image_path);
         CowList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\cow_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -231,6 +234,7 @@ void SealIcon::onClick() {
 
         sealList[count] = new Seal(pGame, p, sealWidth, sealHeight, image_path);
         sealList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\seal_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -316,6 +320,7 @@ void DogIcon::onClick() {
 
         dogList[count] = new Dog(pGame, p, dogWidth, dogHeight, "images\\dog_sprite.jpg");
         dogList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\dog_spawn.wav");
         count++;
         pGame->animalCount++;
     }
@@ -340,6 +345,7 @@ void DogIcon::update() {
 
             if (!pGame->isGamePaused() && dogList[i]->isExpired()) {
                 delete dogList[i];
+                pGame->getAudioManager()->PlaySoundEffect("audio\\dog_whimper.wav");
                 dogList[i] = nullptr;
                 pGame->animalCount--;
             }
@@ -434,6 +440,74 @@ void WaterIcon::reset() {
     count = 0;
 }
 
+CatIcon::CatIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path)
+    : BudgetbarIcon(r_pGame, r_point, r_width, r_height, img_path)
+{
+    catList = new Cat * [MAX_CREATED_ANIMALS];
+    for (int i = 0; i < MAX_CREATED_ANIMALS; i++) catList[i] = nullptr;
+}
+
+void CatIcon::onClick() {
+    if (pGame->isGamePaused()) return;
+    if (pGame->budget >= 150 && count < MAX_CREATED_ANIMALS) {
+        pGame->budget -= 150;
+
+        point p;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
+        int catWidth = 50;
+        int catHeight = 50;
+        int safe_max_x = config.windWidth - catWidth - 10;
+        int safe_max_y = config.windHeight - config.statusBarHeight - catHeight - 10;
+
+        std::uniform_int_distribution<int> distX(0, safe_max_x);
+        std::uniform_int_distribution<int> distY(2 * config.toolBarHeight, safe_max_y);
+
+        do {
+            p.x = distX(gen);
+            p.y = distY(gen);
+        } while (p.x < 300 && p.y + catHeight > config.windHeight - config.statusBarHeight - 300);
+
+        catList[count] = new Cat(pGame, p, catWidth, catHeight, image_path);
+        catList[count]->draw();
+        pGame->getAudioManager()->PlaySoundEffect("audio\\cat_meow.wav");
+        count++;
+        pGame->animalCount++;
+    }
+}
+
+void CatIcon::update() {
+    for (int i = 0; i < count; i++) {
+        if (catList[i]) {
+            if (!pGame->isGamePaused()) {
+                catList[i]->moveStep();
+            }
+            catList[i]->draw();
+
+            if (!pGame->isGamePaused()) {
+                pGame->collectNearbyProducts(catList[i]->getPos(), catList[i]->getCollectRadius());
+            }
+        }
+    }
+}
+
+void CatIcon::draw() const {
+    BudgetbarIcon::draw();
+    window* pWind = pGame->getWind();
+    pWind->SetPen(BLACK, 1);
+    pWind->SetBrush(WHITE);
+    pWind->DrawRectangle(RefPoint.x + 5, RefPoint.y + height - 22, RefPoint.x + 45, RefPoint.y + height - 2);
+    pWind->SetPen(RED);
+    pWind->SetFont(16, BOLD, BY_NAME, "Arial");
+    pWind->DrawString(RefPoint.x + 8, RefPoint.y + height - 20, "$150");
+}
+
+void CatIcon::reset() {
+    for (int i = 0; i < count; i++) { delete catList[i]; catList[i] = nullptr; }
+    count = 0;
+}
+
 
 Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     : Drawable(r_pGame, r_point, r_width, r_height)
@@ -443,6 +517,7 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     iconsImages[ICON_SEAL] = "images\\seal.jpg";
     iconsImages[ICON_DOG] = "images\\dog.jpg";
     iconsImages[ICON_WATER] = "images\\waterbucket.jpg";
+    iconsImages[ICON_CAT] = "images\\cat.jpg";
 
     iconsList = new BudgetbarIcon * [ANIMAL_COUNT];
     point p = { 0, config.toolBarHeight };
@@ -456,6 +531,8 @@ Budgetbar::Budgetbar(Game* r_pGame, point r_point, int r_width, int r_height)
     iconsList[ICON_DOG] = new DogIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_DOG]);
     p.x += config.iconWidth;
     iconsList[ICON_WATER] = new WaterIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_WATER]);
+    p.x += config.iconWidth;
+    iconsList[ICON_CAT] = new CatIcon(pGame, p, config.iconWidth, config.toolBarHeight, iconsImages[ICON_CAT]);
 }
 
 Budgetbar::~Budgetbar() {
@@ -474,7 +551,7 @@ void Budgetbar::draw() const {
 
     pWind->SetPen(DARKBLUE, 50);
     pWind->SetFont(18, BOLD, BY_NAME, "Arial");
-    pWind->DrawString(textStartX, textStartY, "Animals Buying: Chick ($100) | Cow ($200) | Seal ($300) | Dog ($500)");
+    pWind->DrawString(textStartX, textStartY, "Animals Buying: Chick ($100) | Cow ($200) | Seal ($300) | Dog ($500) | Cat($150)");
     pWind->DrawString(textStartX, textStartY + 25, "Water Buying: Water Bucket ($100)");
 
     pWind->SetPen(BLACK, 3);
@@ -501,4 +578,35 @@ void Budgetbar::reset() {
     for (int i = 0; i < ANIMAL_COUNT; i++) {
         if (iconsList[i]) iconsList[i]->reset();
     }
+}
+
+
+ChickIcon::~ChickIcon() {
+    reset();
+    delete[] chickList;
+}
+
+CowIcon::~CowIcon() {
+    reset();
+    delete[] CowList;
+}
+
+SealIcon::~SealIcon() {
+    reset();
+    delete[] sealList;
+}
+
+DogIcon::~DogIcon() {
+    reset();
+    delete[] dogList;
+}
+
+WaterIcon::~WaterIcon() {
+    reset();
+    delete[] grassList;
+}
+
+CatIcon::~CatIcon() {
+    reset();
+    delete[] catList;
 }

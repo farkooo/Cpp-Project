@@ -1,38 +1,25 @@
 LEVEL 1		// Current level
-<<<<<<< Updated upstream
 BUDGET 900		// Current player budget
 TIMER 89		// Remaining time in seconds
 
-ANIMALS 4
-CHICK 196 114
-COW 36 160
-SEAL 100 452
-DOG 711 474
 
-WOLVES 1
-WOLF 631 104
+
+ANIMALS 5
+CHICK 944 324
+COW 574 359
+SEAL 148 368
+DOG 891 448
+CAT 480 428
+
+WOLVES 0
 
 FOODAREAS 0
 
+PRODUCTS_ON_GROUND 2
+PRODUCT 0 868 120
+PRODUCT 0 978 307
+
 WAREHOUSE
-EGGS 2
+EGGS 0
 MILK 1
 FISH 1
-=======
-BUDGET 1820		// Current player budget
-TIMER 86		// Remaining time in seconds
-
-ANIMALS 0
-
-WOLVES 1
-WOLF 561 157
-
-FOODAREAS 0
-
-PRODUCTS_ON_GROUND 0
-
-WAREHOUSE
-EGGS 4
-MILK 0
-FISH 0
->>>>>>> Stashed changes

@@ -91,7 +91,7 @@ Game::Game()
 	audioManager = new AudioManager();
 	audioManager->SetLoop(true);
 	audioManager->SetVolume(0.6f);
-	audioManager->PlayBackgroundMusic("audio\\Coolest_Farm_music.ogg");
+	audioManager->PlayBackgroundMusic("audio\\Coolest_Farm_music.wav");
 
 	point warehousePos;
 	warehousePos.x = config.windWidth - 150;
@@ -103,6 +103,7 @@ Game::Game()
 	clearStatusBar();
 	printBudget("BUDGET = $" + to_string(budget));
 	drawStatusBar();
+	promptUsername();
 }
 
 Game::~Game()
@@ -139,6 +140,8 @@ string Game::getSrting() const
 		}
 		else Label += Key;
 		printMessage(Label);
+		printMessage("Enter Username (Press Enter to confirm): " + Label);
+		pWind->UpdateBuffer();
 	}
 }
 
@@ -248,6 +251,102 @@ void Game::generateRandomWolves()
 }
 
 int Game::getCurrentLevel() const { return currentLevel; }
+
+void Game::promptUsername()
+{
+	printMessage("Enter Username (Press Enter to confirm): ");
+	pWind->UpdateBuffer();
+	playerName = getSrting();
+	if (playerName.empty()) {
+		playerName = "Guest";
+	}
+	printMessage("Welcome, " + playerName + "! Ready to farm?");
+
+	pWind->UpdateBuffer();
+}
+
+void Game::updateAndDisplayLeaderboard()
+{
+	std::map<std::string, int> scores;
+	std::ifstream inFile("leaderboard.txt");
+	std::string name;
+	int score;
+
+	if (inFile.is_open()) {
+		while (inFile >> name >> score) {
+			scores[name] = score;
+		}
+		inFile.close();
+	}
+
+	
+	if (scores.find(playerName) == scores.end() || budget > scores[playerName]) {
+		scores[playerName] = budget;
+	}
+
+
+	std::vector<std::pair<std::string, int>> sortedScores(scores.begin(), scores.end());
+	std::sort(sortedScores.begin(), sortedScores.end(),
+		[](const std::pair<std::string, int>& a, const std::pair<std::string, int>& b) {
+			return a.second > b.second; 
+		}
+	);
+
+	
+	std::ofstream outFile("leaderboard.txt");
+	if (outFile.is_open()) {
+		for (const auto& pair : sortedScores) {
+			outFile << pair.first << " " << pair.second << "\n";
+		}
+		outFile.close();
+	}
+
+
+	int wWidth = 400;
+	int wHeight = 500;
+	window* pLeaderboardWind = new window(wWidth, wHeight, config.wx + 100, config.wy + 50);
+	pLeaderboardWind->ChangeTitle("Leaderboard");
+
+	pLeaderboardWind->SetPen(LIGHTGRAY, 1);
+	pLeaderboardWind->SetBrush(color(240, 240, 250));
+	pLeaderboardWind->DrawRectangle(0, 0, wWidth, wHeight);
+
+	pLeaderboardWind->SetPen(DARKBLUE, 50);
+	pLeaderboardWind->SetFont(30, BOLD, BY_NAME, "Arial");
+	pLeaderboardWind->DrawString(90, 20, "TOP FARMERS");
+
+	pLeaderboardWind->SetPen(BLACK, 50);
+	pLeaderboardWind->SetFont(20, BOLD, BY_NAME, "Arial");
+
+	
+	int yOffset = 80;
+	int displayCount = (std::min)((int)sortedScores.size(), 10);
+	for (int i = 0; i < displayCount; i++) {
+		string rank = to_string(i + 1) + ". ";
+		string entryText = rank + sortedScores[i].first + " - $" + to_string(sortedScores[i].second);
+
+		
+		if (sortedScores[i].first == playerName) {
+			pLeaderboardWind->SetPen(RED, 50);
+		}
+		else {
+			pLeaderboardWind->SetPen(BLACK, 50);
+		}
+
+		pLeaderboardWind->DrawString(50, yOffset, entryText);
+		yOffset += 35;
+	}
+
+	pLeaderboardWind->SetPen(DARKGRAY, 50);
+	pLeaderboardWind->SetFont(16, BOLD, BY_NAME, "Arial");
+	pLeaderboardWind->DrawString(90, wHeight - 40, "Click anywhere to close...");
+
+	pLeaderboardWind->UpdateBuffer();
+
+	int cx, cy;
+	pLeaderboardWind->WaitMouseClick(cx, cy); 
+	delete pLeaderboardWind;
+}
 
 void Game::restartGame()
 {
@@ -470,6 +569,8 @@ void Game::go()
 			pWind->SetPen(RED, 50);
 			pWind->SetFont(40, BOLD, BY_NAME, "Arial");
 			pWind->DrawString(config.windWidth / 2 - 150, config.windHeight / 2, "TIME'S UP! YOU LOSE!");
+			Sleep(1500);
+			updateAndDisplayLeaderboard();
 			printMessage("Game Over! Click anywhere to exit...");
 			drawTimer();
 			pWind->UpdateBuffer();
@@ -556,6 +657,7 @@ void Game::go()
 				wolves[i]->moveStep();
 				wolves[i]->draw();
 			}
+			if (gameBudgetbar) gameBudgetbar->update();
 
 			for (size_t i = 0; i < productList.size(); i++) {
 				if (productList[i]) productList[i]->draw();
@@ -573,8 +675,6 @@ void Game::go()
 			for (auto product : productList) if (product) product->draw();
 			if (pWarehouse) pWarehouse->draw();
 		}
-
-		if (gameBudgetbar) gameBudgetbar->update();
 
 		if (lastDrawnBudget != budget || lastDrawnSeconds != remainingTimeSeconds ||
 			lastDrawnLevel != level || lastDrawnAnimalCount != animalCount)
@@ -630,6 +730,7 @@ void Game::go()
 			else if (y >= 2 * config.toolBarHeight && y < config.windHeight - config.statusBarHeight) {
 				if (!isPaused) {
 					bool actionTaken = false;
+					if (gameBudgetbar) gameBudgetbar->update();
 
 					for (size_t i = 0; i < wolves.size(); i++) {
 						if (wolves[i] != nullptr && wolves[i]->isClicked(x, y)) {
@@ -666,6 +767,9 @@ void Game::go()
 						budget -= 20;
 						grassCount++;
 					}
+				}
+				else {
+					if (gameBudgetbar) gameBudgetbar->draw();
 				}
 			}
 		}
@@ -808,6 +912,34 @@ void Game::addProduct(Product* p) {
 	if (p) productList.push_back(p);
 }
 
+int Game::collectNearbyProducts(point pos, int radius) {
+	int collected = 0;
+	int catCenterX = pos.x + radius / 2;
+	int catCenterY = pos.y + radius / 2;
+
+	for (int i = (int)productList.size() - 1; i >= 0; i--) {
+		if (!productList[i]) {
+			productList[i] = productList.back();
+			productList.pop_back();
+			continue;
+		}
+
+		if (productList[i]->getType() == ProductType::FISH) continue;
+
+		if (productList[i]->isClicked(catCenterX, catCenterY)) {
+			if (pWarehouse && pWarehouse->StoreItem(productList[i]->getType())) {
+				delete productList[i];
+
+				productList[i] = productList.back();
+				productList.pop_back();
+
+				collected++;
+			}
+		}
+	}
+	return collected;
+}
+
 void Game::removeWolf(const Wolf* wolf) {
 	for (size_t i = 0; i < wolves.size(); i++) {
 		if (wolves[i] == wolf) {
@@ -822,20 +954,20 @@ void Game::saveGame() {
 	std::ofstream out("save.txt");
 	if (!out.is_open()) return;
 
-	// ---- Header ----
-	out << "LEVEL "  << level  << "\t\t// Current level\n";
+	out << "LEVEL " << level << "\t\t// Current level\n";
 	out << "BUDGET " << budget << "\t\t// Current player budget\n";
-	out << "TIMER "  << remainingTimeSeconds << "\t\t// Remaining time in seconds\n";
+	out << "TIMER " << remainingTimeSeconds << "\t\t// Remaining time in seconds\n";
 	out << "\n";
 
 	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
-	ChickIcon* cIcon  = (ChickIcon*)icons[ICON_CHICK];
-	CowIcon*   cowIcon = (CowIcon*)icons[ICON_COW];
-	SealIcon*  sIcon  = (SealIcon*)icons[ICON_SEAL];
-	DogIcon*   dIcon  = (DogIcon*)icons[ICON_DOG];
-	WaterIcon* wIcon  = (WaterIcon*)icons[ICON_WATER];
+	ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
+	CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
+	SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
+	DogIcon* dIcon = (DogIcon*)icons[ICON_DOG];
+	WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+	CatIcon* catIcon = (CatIcon*)icons[ICON_CAT];
 
-	// ---- Count living entities ----
+
 	int realChickCount = 0;
 	for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) realChickCount++;
 	int realCowCount = 0;
@@ -844,13 +976,16 @@ void Game::saveGame() {
 	for (int i = 0; i < sIcon->count; i++) if (sIcon->sealList[i]) realSealCount++;
 	int realDogCount = 0;
 	for (int i = 0; i < dIcon->count; i++) if (dIcon->dogList[i]) realDogCount++;
+	int realCatCount = 0;
+	for (int i = 0; i < catIcon->count; i++) if (catIcon->catList[i]) realCatCount++;
+
 	int realWolfCount = (int)wolves.size();
 	int realGrassCount = 0;
 	for (int i = 0; i < wIcon->count; i++) if (wIcon->grassList[i]) realGrassCount++;
 
-	int totalAnimals = realChickCount + realCowCount + realSealCount + realDogCount;
+	int totalAnimals = realChickCount + realCowCount + realSealCount + realDogCount + realCatCount;
 
-	// ---- ANIMALS section ----
+
 	out << "ANIMALS " << totalAnimals << "\n";
 	for (int i = 0; i < cIcon->count; i++)
 		if (cIcon->chickList[i])
@@ -864,29 +999,45 @@ void Game::saveGame() {
 	for (int i = 0; i < dIcon->count; i++)
 		if (dIcon->dogList[i])
 			out << "DOG " << dIcon->dogList[i]->getPos().x << " " << dIcon->dogList[i]->getPos().y << "\n";
+	for (int i = 0; i < catIcon->count; i++)
+		if (catIcon->catList[i])
+			out << "CAT " << catIcon->catList[i]->getPos().x << " " << catIcon->catList[i]->getPos().y << "\n";
 	out << "\n";
 
-	// ---- WOLVES section ----
+
 	out << "WOLVES " << realWolfCount << "\n";
 	for (size_t i = 0; i < wolves.size(); i++)
 		if (wolves[i])
 			out << "WOLF " << wolves[i]->getPos().x << " " << wolves[i]->getPos().y << "\n";
 	out << "\n";
 
-	// ---- FOODAREAS section (grass placed on field) ----
+
 	out << "FOODAREAS " << realGrassCount << "\n";
 	for (int i = 0; i < wIcon->count; i++)
 		if (wIcon->grassList[i])
 			out << "FOOD " << wIcon->grassList[i]->curr_pos.x << " " << wIcon->grassList[i]->curr_pos.y << " 100\n";
 	out << "\n";
 
-	// ---- WAREHOUSE section ----
-	int eggCount  = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG)  : 0;
+
+	int realProductCount = 0;
+	for (size_t i = 0; i < productList.size(); i++) if (productList[i]) realProductCount++;
+
+	out << "PRODUCTS_ON_GROUND " << realProductCount << "\n";
+	for (size_t i = 0; i < productList.size(); i++) {
+		if (productList[i]) {
+			out << "PRODUCT " << (int)productList[i]->getType() << " "
+				<< productList[i]->getPos().x << " " << productList[i]->getPos().y << "\n";
+		}
+	}
+	out << "\n";
+
+
+	int eggCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG) : 0;
 	int milkCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::MILK) : 0;
 	int fishCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::FISH) : 0;
 
 	out << "WAREHOUSE\n";
-	out << "EGGS " << eggCount  << "\n";
+	out << "EGGS " << eggCount << "\n";
 	out << "MILK " << milkCount << "\n";
 	out << "FISH " << fishCount << "\n";
 
@@ -904,17 +1055,18 @@ void Game::loadGame() {
 	restartGame();
 
 	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
-	ChickIcon* cIcon   = (ChickIcon*)icons[ICON_CHICK];
-	CowIcon*   cowIcon = (CowIcon*)icons[ICON_COW];
-	SealIcon*  sIcon   = (SealIcon*)icons[ICON_SEAL];
-	DogIcon*   dIcon   = (DogIcon*)icons[ICON_DOG];
-	WaterIcon* wIcon   = (WaterIcon*)icons[ICON_WATER];
+	ChickIcon* cIcon = (ChickIcon*)icons[ICON_CHICK];
+	CowIcon* cowIcon = (CowIcon*)icons[ICON_COW];
+	SealIcon* sIcon = (SealIcon*)icons[ICON_SEAL];
+	DogIcon* dIcon = (DogIcon*)icons[ICON_DOG];
+	WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
+	CatIcon* catIcon = (CatIcon*)icons[ICON_CAT];
 
 	std::string line;
 	while (std::getline(in, line)) {
 		if (line.empty()) continue;
 
-		// Strip inline comments (anything after //)
+
 		size_t commentPos = line.find("//");
 		if (commentPos != std::string::npos)
 			line = line.substr(0, commentPos);
@@ -936,7 +1088,7 @@ void Game::loadGame() {
 			ss >> remainingTimeSeconds;
 		}
 		else if (keyword == "ANIMALS") {
-			// section count — informational only
+
 		}
 		else if (keyword == "CHICK") {
 			int x, y; ss >> x >> y;
@@ -974,8 +1126,17 @@ void Game::loadGame() {
 				animalCount++;
 			}
 		}
+		else if (keyword == "CAT") {
+			int x, y; ss >> x >> y;
+			if (catIcon->count < MAX_CREATED_ANIMALS) {
+				point p; p.x = x; p.y = y;
+				catIcon->catList[catIcon->count] = new Cat(this, p, 50, 50, catIcon->image_path);
+				catIcon->count++;
+				animalCount++;
+			}
+		}
 		else if (keyword == "WOLVES") {
-			// section count — informational only
+
 		}
 		else if (keyword == "WOLF") {
 			int x, y; ss >> x >> y;
@@ -983,7 +1144,7 @@ void Game::loadGame() {
 			drawWolf(p, 70, 70, GetWolfSpeed());
 		}
 		else if (keyword == "FOODAREAS") {
-			// section count — informational only
+
 		}
 		else if (keyword == "FOOD") {
 			int x, y, fc; ss >> x >> y >> fc;
@@ -994,8 +1155,26 @@ void Game::loadGame() {
 				grassCount++;
 			}
 		}
+		else if (keyword == "PRODUCTS_ON_GROUND") {
+
+		}
+		else if (keyword == "PRODUCT") {
+			int typeInt, x, y; ss >> typeInt >> x >> y;
+			point p; p.x = x; p.y = y;
+			Product* prod = nullptr;
+			if (typeInt == (int)ProductType::EGG) {
+				prod = new Egg(this, p, 50, 50, "images\\egg.jpg");
+			}
+			else if (typeInt == (int)ProductType::MILK) {
+				prod = new Milk(this, p, 50, 50, "images\\milk.jpg");
+			}
+			else if (typeInt == (int)ProductType::FISH) {
+				prod = new Fish(this, p, 30, 30, "images\\fish1.jpg");
+			}
+			if (prod) addProduct(prod);
+		}
 		else if (keyword == "WAREHOUSE") {
-			// section header — no data on this line
+
 		}
 		else if (keyword == "EGGS") {
 			int cnt; ss >> cnt;

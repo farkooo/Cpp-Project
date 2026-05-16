@@ -36,6 +36,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~ChickIcon();
 };
 
 class CowIcon : public BudgetbarIcon
@@ -49,6 +50,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~CowIcon();
 };
 
 class SealIcon : public BudgetbarIcon
@@ -62,6 +64,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~SealIcon();
 };
 
 class DogIcon : public BudgetbarIcon
@@ -74,6 +77,7 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~DogIcon();
 };
 
 class WaterIcon : public BudgetbarIcon
@@ -86,6 +90,22 @@ public:
     void update() override;
     virtual void draw() const override;
     virtual void reset() override;
+    virtual ~WaterIcon();
+};
+
+// Cat: collector animal - picks up products (except fish) automatically
+class CatIcon : public BudgetbarIcon
+{
+public:
+    Cat** catList;
+    int count = 0;
+    CatIcon(Game* r_pGame, point r_point, int r_width, int r_height, std::string img_path);
+    virtual void onClick() override;
+    void update() override;
+    virtual void draw() const override;
+    virtual void reset() override;
+    virtual ~CatIcon();
+
 };
 
 enum ANIMAL_ICONS
@@ -95,6 +115,7 @@ enum ANIMAL_ICONS
     ICON_SEAL,
     ICON_DOG,
     ICON_WATER,
+    ICON_CAT,
     ANIMAL_COUNT
 };
 

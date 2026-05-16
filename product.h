@@ -14,6 +14,7 @@ public:
 	virtual ProductType getType() const = 0;
 
 	bool isClicked(int x, int y) const;
+	point getPos() const { return RefPoint; }
 };
 
 class Egg : public Product

@@ -967,7 +967,6 @@ void Game::saveGame() {
 	WaterIcon* wIcon = (WaterIcon*)icons[ICON_WATER];
 	CatIcon* catIcon = (CatIcon*)icons[ICON_CAT];
 
-
 	int realChickCount = 0;
 	for (int i = 0; i < cIcon->count; i++) if (cIcon->chickList[i]) realChickCount++;
 	int realCowCount = 0;
@@ -985,25 +984,29 @@ void Game::saveGame() {
 
 	int totalAnimals = realChickCount + realCowCount + realSealCount + realDogCount + realCatCount;
 
-
 	out << "ANIMALS " << totalAnimals << "\n";
-	for (int i = 0; i < cIcon->count; i++)
+
+	for (int i = 0; i < cIcon->count; i++) {
 		if (cIcon->chickList[i])
 			out << "CHICK " << cIcon->chickList[i]->getPos().x << " " << cIcon->chickList[i]->getPos().y << "\n";
-	for (int i = 0; i < cowIcon->count; i++)
+	}
+	for (int i = 0; i < cowIcon->count; i++) {
 		if (cowIcon->CowList[i])
 			out << "COW " << cowIcon->CowList[i]->getPos().x << " " << cowIcon->CowList[i]->getPos().y << "\n";
-	for (int i = 0; i < sIcon->count; i++)
+	}
+	for (int i = 0; i < sIcon->count; i++) {
 		if (sIcon->sealList[i])
 			out << "SEAL " << sIcon->sealList[i]->getPos().x << " " << sIcon->sealList[i]->getPos().y << "\n";
-	for (int i = 0; i < dIcon->count; i++)
+	}
+	for (int i = 0; i < dIcon->count; i++) {
 		if (dIcon->dogList[i])
 			out << "DOG " << dIcon->dogList[i]->getPos().x << " " << dIcon->dogList[i]->getPos().y << "\n";
-	for (int i = 0; i < catIcon->count; i++)
+	}
+	for (int i = 0; i < catIcon->count; i++) {
 		if (catIcon->catList[i])
 			out << "CAT " << catIcon->catList[i]->getPos().x << " " << catIcon->catList[i]->getPos().y << "\n";
+	}
 	out << "\n";
-
 
 	out << "WOLVES " << realWolfCount << "\n";
 	for (size_t i = 0; i < wolves.size(); i++)
@@ -1011,13 +1014,11 @@ void Game::saveGame() {
 			out << "WOLF " << wolves[i]->getPos().x << " " << wolves[i]->getPos().y << "\n";
 	out << "\n";
 
-
 	out << "FOODAREAS " << realGrassCount << "\n";
 	for (int i = 0; i < wIcon->count; i++)
 		if (wIcon->grassList[i])
 			out << "FOOD " << wIcon->grassList[i]->curr_pos.x << " " << wIcon->grassList[i]->curr_pos.y << " 100\n";
 	out << "\n";
-
 
 	int realProductCount = 0;
 	for (size_t i = 0; i < productList.size(); i++) if (productList[i]) realProductCount++;
@@ -1030,7 +1031,6 @@ void Game::saveGame() {
 		}
 	}
 	out << "\n";
-
 
 	int eggCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::EGG) : 0;
 	int milkCount = pWarehouse ? pWarehouse->GetItemCount(ProductType::MILK) : 0;
@@ -1052,6 +1052,12 @@ void Game::loadGame() {
 		return;
 	}
 
+	auto isValidPosition = [&](int x, int y) {
+		int minY = 2 * config.toolBarHeight;
+		int maxY = config.windHeight - config.statusBarHeight;
+		return (x >= 0 && x <= config.windWidth && y >= minY && y <= maxY);
+		};
+
 	restartGame();
 
 	BudgetbarIcon** icons = gameBudgetbar->getIconsList();
@@ -1066,7 +1072,6 @@ void Game::loadGame() {
 	while (std::getline(in, line)) {
 		if (line.empty()) continue;
 
-
 		size_t commentPos = line.find("//");
 		if (commentPos != std::string::npos)
 			line = line.substr(0, commentPos);
@@ -1077,21 +1082,46 @@ void Game::loadGame() {
 		if (keyword.empty()) continue;
 
 		if (keyword == "LEVEL") {
-			ss >> level;
+			int tempLevel;
+			ss >> tempLevel;
+			if (tempLevel < 1 || tempLevel > LEVEL_GOAL_COUNT) {
+				printMessage("Save Error: Invalid level range! Loading aborted.");
+				Sleep(1000);
+				in.close();
+				return;
+			}
+			level = tempLevel;
 			currentLevel = level;
 			goal = GetLevelGoal(level);
 		}
 		else if (keyword == "BUDGET") {
-			ss >> budget;
+			int tempBudget;
+			ss >> tempBudget;
+			if (tempBudget < 0 || tempBudget > 9999999) {
+				printMessage("Save Error: Budget is corrupt! Loading aborted.");
+				Sleep(10);
+				in.close();
+				return;
+			}
+			budget = tempBudget;
 		}
 		else if (keyword == "TIMER") {
-			ss >> remainingTimeSeconds;
+			int tempTimer;
+			ss >> tempTimer;
+			if (tempTimer < 0 || tempTimer > GetLevelTimeLimit(level)) {
+				printMessage("Save Error: Invalid timer duration! Loading aborted.");
+				Sleep(10000);
+				in.close();
+				return;
+			}
+			remainingTimeSeconds = tempTimer;
 		}
 		else if (keyword == "ANIMALS") {
-
 		}
 		else if (keyword == "CHICK") {
 			int x, y; ss >> x >> y;
+			if (!isValidPosition(x, y)) { printMessage("Save Error: Chick out of bounds!"); in.close(); return; }
+			Sleep(10);
 			if (cIcon->count < MAX_CREATED_ANIMALS) {
 				point p; p.x = x; p.y = y;
 				cIcon->chickList[cIcon->count] = new Chick(this, p, 50, 50, cIcon->image_path);
@@ -1101,6 +1131,8 @@ void Game::loadGame() {
 		}
 		else if (keyword == "COW") {
 			int x, y; ss >> x >> y;
+			if (!isValidPosition(x, y)) { printMessage("Save Error: Cow out of bounds!"); in.close(); return; }
+			Sleep(10);
 			if (cowIcon->count < MAX_CREATED_ANIMALS) {
 				point p; p.x = x; p.y = y;
 				cowIcon->CowList[cowIcon->count] = new Cow(this, p, 80, 80, cowIcon->image_path);
@@ -1110,6 +1142,7 @@ void Game::loadGame() {
 		}
 		else if (keyword == "SEAL") {
 			int x, y; ss >> x >> y;
+			if (!isValidPosition(x, y)) { printMessage("Save Error: Seal out of bounds!"); in.close(); return; }
 			if (sIcon->count < MAX_CREATED_ANIMALS) {
 				point p; p.x = x; p.y = y;
 				sIcon->sealList[sIcon->count] = new Seal(this, p, 80, 80, sIcon->image_path);
@@ -1119,6 +1152,7 @@ void Game::loadGame() {
 		}
 		else if (keyword == "DOG") {
 			int x, y; ss >> x >> y;
+			if (!isValidPosition(x, y)) { printMessage("Save Error: Dog out of bounds!"); in.close(); return; }
 			if (dIcon->count < MAX_CREATED_ANIMALS) {
 				point p; p.x = x; p.y = y;
 				dIcon->dogList[dIcon->count] = new Dog(this, p, 60, 60, "images\\dog_sprite.jpg");
@@ -1128,6 +1162,7 @@ void Game::loadGame() {
 		}
 		else if (keyword == "CAT") {
 			int x, y; ss >> x >> y;
+			if (!isValidPosition(x, y)) { printMessage("Save Error: Cat out of bounds!"); in.close(); return; }
 			if (catIcon->count < MAX_CREATED_ANIMALS) {
 				point p; p.x = x; p.y = y;
 				catIcon->catList[catIcon->count] = new Cat(this, p, 50, 50, catIcon->image_path);
@@ -1136,18 +1171,18 @@ void Game::loadGame() {
 			}
 		}
 		else if (keyword == "WOLVES") {
-
 		}
 		else if (keyword == "WOLF") {
 			int x, y; ss >> x >> y;
+			if (!isValidPosition(x, y)) { printMessage("Save Error: Wolf out of bounds!"); in.close(); return; }
 			point p; p.x = x; p.y = y;
 			drawWolf(p, 70, 70, GetWolfSpeed());
 		}
 		else if (keyword == "FOODAREAS") {
-
 		}
 		else if (keyword == "FOOD") {
 			int x, y, fc; ss >> x >> y >> fc;
+			if (!isValidPosition(x, y)) { printMessage("Save Error: Food placement out of bounds!"); in.close(); return; }
 			if (wIcon->count < MAX_CREATED_ANIMALS) {
 				point p; p.x = x; p.y = y;
 				wIcon->grassList[wIcon->count] = new Grass(this, p, 50, 50, "images\\grass.jpg");
@@ -1156,10 +1191,11 @@ void Game::loadGame() {
 			}
 		}
 		else if (keyword == "PRODUCTS_ON_GROUND") {
-
 		}
 		else if (keyword == "PRODUCT") {
 			int typeInt, x, y; ss >> typeInt >> x >> y;
+			if (!isValidPosition(x, y)) { printMessage("Save Error: Fallen product out of bounds!"); in.close(); return; }
+
 			point p; p.x = x; p.y = y;
 			Product* prod = nullptr;
 			if (typeInt == (int)ProductType::EGG) {
@@ -1174,18 +1210,20 @@ void Game::loadGame() {
 			if (prod) addProduct(prod);
 		}
 		else if (keyword == "WAREHOUSE") {
-
 		}
 		else if (keyword == "EGGS") {
 			int cnt; ss >> cnt;
+			if (cnt < 0) { printMessage("Save Error: Negative warehouse counts!"); in.close(); return; }
 			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::EGG, cnt);
 		}
 		else if (keyword == "MILK") {
 			int cnt; ss >> cnt;
+			if (cnt < 0) { printMessage("Save Error: Negative warehouse counts!"); in.close(); return; }
 			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::MILK, cnt);
 		}
 		else if (keyword == "FISH") {
 			int cnt; ss >> cnt;
+			if (cnt < 0) { printMessage("Save Error: Negative warehouse counts!"); in.close(); return; }
 			if (pWarehouse && cnt > 0) pWarehouse->StoreItem(ProductType::FISH, cnt);
 		}
 	}

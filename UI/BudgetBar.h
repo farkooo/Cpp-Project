@@ -93,7 +93,6 @@ public:
     virtual ~WaterIcon();
 };
 
-// Cat: collector animal - picks up products (except fish) automatically
 class CatIcon : public BudgetbarIcon
 {
 public:
